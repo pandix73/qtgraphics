@@ -27,13 +27,13 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>650</x>
       <y>40</y>
       <width>322</width>
-      <height>91</height>
+      <height>95</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">

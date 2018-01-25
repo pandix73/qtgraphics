@@ -10,17 +10,24 @@
 bool deletemode = false;
 bool detailmode = false;
 
+//setting parameter
 int chip_length_cm = 6;
 int chip_width_cm = 4;
 int chip_border_mm = 3;
 int de1_length_mm = 1;
 int de1_width_mm = 5;
-QColor de1_color = QColor(255, 0, 0, 127);
 int de2_length_mm = 3;
-QColor de2_color = QColor(0, 0, 255, 127);
 int de_spacing_um = 500;
 int cp_spacing_um = 300;
+int despenser_mm = 10;
 int pix_per_brick = 20;
+
+//units color
+QColor despenser_color = QColor(115, 191, 0, 127);
+QColor moving_color = QColor(242, 194, 178, 127);
+QColor cycling_color = QColor(0, 96, 177, 127);
+QColor de1_color = QColor(255, 0, 0, 127);
+QColor de2_color = QColor(0, 0, 255, 127);
 
 class unit :public QGraphicsItem
 {
