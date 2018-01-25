@@ -31,6 +31,7 @@ QColor cycling_color = QColor(1, 96, 177, 127);
 QColor moving_color = QColor(255, 184, 184, 127);
 QColor dispenser_color = QColor(215, 230, 144, 127);
 
+
 class unit :public QGraphicsItem
 {
 public:
@@ -219,8 +220,11 @@ void MainWindow::on_toolButton_clicked()
     }
 }
 
+
+//MOVE
 void MainWindow::on_move_create_clicked()
 {
+
     unit *move = new unit();
     move->xi = 1;
     move->yi = 1;
@@ -233,11 +237,14 @@ void MainWindow::on_move_create_clicked()
     move->color = moving_color;
     ui->view->scene()->addItem(move);
     allunits.push_back(move);
+
 }
 
 
+//DISPENSER
 void MainWindow::on_dispenser_create_clicked()
 {
+
     unit *dispenser = new unit();
     dispenser->xi = 1;
     dispenser->yi = 1;
@@ -250,8 +257,11 @@ void MainWindow::on_dispenser_create_clicked()
     dispenser->color = dispenser_color;
     ui->view->scene()->addItem(dispenser);
     allunits.push_back(dispenser);
+
 }
 
+
+//MERGE
 void MainWindow::on_merge_create_clicked()
 {
     /*
@@ -263,8 +273,29 @@ void MainWindow::on_merge_create_clicked()
     merge->color = moving_color;
     ui->view->scene()->addItem(merge);
     */
+    QBrush blueBrush(Qt::blue);
+    QPen blackpen(Qt::black);
+    blackpen.setWidth(6);
+
+    int number = ui->merge_num->value();
+    int position = 5;
+    while(number--){
+        unit *merge = new unit();
+        merge->length = ui->merge_length->text().toInt();
+        merge->width = ui->merge_width->text().toInt();
+        merge->xi = position;
+        merge->yi = 15;
+
+        merge->color = QColor(255, 208, 166);
+
+        ui->view->scene()->addItem(merge);
+
+        position += ui->merge_length->text().toInt() + 3;
+    }
 }
 
+
+//CYCLING
 void MainWindow::on_cycling_create_clicked()
 {
     unit *cycle = new unit();
@@ -280,6 +311,7 @@ void MainWindow::on_cycling_create_clicked()
     ui->view->scene()->addItem(cycle);
     allunits.push_back(cycle);
 }
+
 
 void MainWindow::on_heater_create_clicked()
 {
@@ -298,6 +330,7 @@ void MainWindow::on_checkBox_stateChanged(int arg1)
     detailmode = arg1;
     ui->view->scene()->update(0, 0, ui->view->scene()->width(), ui->view->scene()->height());
 }
+
 
 void MainWindow::on_setting_update_clicked()
 {
@@ -336,6 +369,7 @@ void MainWindow::on_setting_update_clicked()
     ui->view->setScene(newscene);
 }
 
+
 void MainWindow::on_toolButton_5_clicked()
 {
     int count = 0;
@@ -347,6 +381,7 @@ void MainWindow::on_toolButton_5_clicked()
     int start = chip_length_cm*10 - top*cp_length_mm;
     QPen graypen(Qt::gray);
     QBrush blackgr(Qt::black);
+
 
     for(int i = 0, x = start*pix_per_brick; i < top; i++){
         ui->view->scene()->addRect(x, 0.3*pix_per_brick, pix_per_brick*cp_length_mm*1000/de_spacing_um,
