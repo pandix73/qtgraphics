@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Chip Map Creator</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QGraphicsView" name="view">
@@ -108,7 +108,7 @@
        <rect>
         <x>10</x>
         <y>10</y>
-        <width>351</width>
+        <width>341</width>
         <height>228</height>
        </rect>
       </property>
@@ -425,6 +425,19 @@
          </property>
         </widget>
        </item>
+       <item row="0" column="5">
+        <widget class="QPushButton" name="dispenser_create">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Create</string>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="1">
         <widget class="QLabel" name="dispender_length_label">
          <property name="text">
@@ -453,19 +466,6 @@
         <widget class="QLabel" name="dispenser_width_label">
          <property name="text">
           <string>width</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="5">
-        <widget class="QPushButton" name="dispenser_create">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Create</string>
          </property>
         </widget>
        </item>
@@ -530,7 +530,7 @@
        <item row="1" column="1">
         <widget class="QLabel" name="merge_num_label">
          <property name="text">
-          <string>electrode</string>
+          <string>number</string>
          </property>
         </widget>
        </item>
@@ -549,8 +549,8 @@
      <widget class="QGroupBox" name="cyclingBox">
       <property name="geometry">
        <rect>
-        <x>11</x>
-        <y>314</y>
+        <x>10</x>
+        <y>310</y>
         <width>339</width>
         <height>95</height>
        </rect>
@@ -567,7 +567,7 @@
        <item row="0" column="3">
         <widget class="QLabel" name="cycling_width_label">
          <property name="text">
-          <string>width</string>
+          <string>      x</string>
          </property>
         </widget>
        </item>
@@ -591,7 +591,7 @@
        <item row="0" column="1">
         <widget class="QLabel" name="cycling_length_label">
          <property name="text">
-          <string>length</string>
+          <string>size</string>
          </property>
         </widget>
        </item>
@@ -608,7 +608,7 @@
        <item row="1" column="1">
         <widget class="QLabel" name="cycling_num_label">
          <property name="text">
-          <string>electrode</string>
+          <string>number</string>
          </property>
         </widget>
        </item>
@@ -616,6 +616,23 @@
         <widget class="QSpinBox" name="cycling_num">
          <property name="minimum">
           <number>1</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <widget class="QSpinBox" name="cycling_electrod">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>2</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QLabel" name="cycling_electrod_label">
+         <property name="text">
+          <string>electrode</string>
          </property>
         </widget>
        </item>
@@ -684,10 +701,28 @@
        <string>Moving</string>
       </property>
       <layout class="QGridLayout" name="gridLayout">
-       <property name="bottomMargin">
-        <number>1</number>
-       </property>
-       <item row="1" column="4">
+       <item row="0" column="4">
+        <widget class="QPushButton" name="move_create">
+         <property name="text">
+          <string>Create</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="move_num_label">
+         <property name="text">
+          <string>number</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSpinBox" name="move_num">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
         <widget class="QLineEdit" name="move_tilt">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -697,65 +732,44 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="3">
+       <item row="0" column="2">
         <widget class="QLabel" name="move_tilt_label">
          <property name="text">
-          <string>tilt</string>
+          <string>   tilt     </string>
          </property>
         </widget>
        </item>
        <item row="1" column="2">
-        <widget class="QSpinBox" name="move_num">
-         <property name="minimum">
-          <number>1</number>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="3">
-        <widget class="QLabel" name="move_width_label">
-         <property name="text">
-          <string>width</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="4">
-        <widget class="QLineEdit" name="move_width">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLabel" name="move_num_label">
+        <widget class="QLabel" name="move_electrod_label">
          <property name="text">
           <string>electrode</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="move_length_label">
-         <property name="text">
-          <string>length</string>
+       <item row="1" column="3">
+        <widget class="QSpinBox" name="move_electrod">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>2</number>
          </property>
         </widget>
        </item>
-       <item row="0" column="2">
-        <widget class="QLineEdit" name="move_length">
+       <item row="0" column="0">
+        <widget class="QLabel" name="move_electrod_label_2">
+         <property name="text">
+          <string>size</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="move_size">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="5">
-        <widget class="QPushButton" name="move_create">
-         <property name="text">
-          <string>Create</string>
          </property>
         </widget>
        </item>
@@ -775,6 +789,9 @@
    </property>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
+   <property name="windowTitle">
+    <string>Chip Map Creator</string>
+   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
