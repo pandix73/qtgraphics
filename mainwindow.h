@@ -21,12 +21,11 @@ public:
 private slots:
     //void on_w_rubberBandChanged(const QRect &viewportRect, const QPointF &fromScenePoint, const QPointF &toScenePoint);
 
+    void on_pushButton_clicked();
+    void on_toolButton_clicked();
+
 private:
     Ui::MainWindow *ui;
-//    QGraphicsScene *scene;
-
-//    QGraphicsEllipseItem *elli;
-//    QGraphicsRectItem *rect;
 };
 
 #endif // MAINWINDOW_H
