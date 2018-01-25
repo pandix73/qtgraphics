@@ -21,8 +21,24 @@ public:
 private slots:
     //void on_w_rubberBandChanged(const QRect &viewportRect, const QPointF &fromScenePoint, const QPointF &toScenePoint);
 
-    void on_pushButton_clicked();
+//    void on_pushButton_clicked();
     void on_toolButton_clicked();
+
+    void on_move_create_clicked();
+
+    void on_dispenser_create_clicked();
+
+    void on_merge_create_clicked();
+
+    void on_cycling_create_clicked();
+
+    void on_heater_create_clicked();
+
+    void on_checkBox_stateChanged(int arg1);
+
+    void on_setting_update_clicked();
+
+    void on_toolButton_5_clicked();
 
 private:
     Ui::MainWindow *ui;
