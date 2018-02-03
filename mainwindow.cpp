@@ -230,7 +230,7 @@ void MainWindow::on_move_create_clicked()
     move->yi = 1;
     move->type = "move";
     move->de_type = ui->move_num->value();
-    move->de_xnum = 4;
+    move->de_xnum = ui->move_size->text().toInt();
     move->de_ynum = 1;
     move->length = move->de_xnum*de1_length_mm*1000/de_spacing_um + move->de_xnum-1;
     move->width = move->de_ynum*de1_width_mm*1000/de_spacing_um;
@@ -252,8 +252,8 @@ void MainWindow::on_dispenser_create_clicked()
     dispenser->de_type = 0;
     dispenser->de_xnum = 1;
     dispenser->de_ynum = 1;
-    dispenser->length = dispenser->de_xnum*dispenser_mm*1000/de_spacing_um;
-    dispenser->width = dispenser->de_ynum*dispenser_mm*1000/de_spacing_um;
+    dispenser->length = ui->dispenser_length->text().toInt()*1000/de_spacing_um;
+    dispenser->width = ui->dispenser_width->text().toInt()*1000/de_spacing_um;
     dispenser->color = dispenser_color;
     ui->view->scene()->addItem(dispenser);
     allunits.push_back(dispenser);
@@ -303,8 +303,8 @@ void MainWindow::on_cycling_create_clicked()
     cycle->yi = 1;
     cycle->type = "cycle";
     cycle->de_type = 2; //ui->cycling_num->value();
-    cycle->de_xnum = 3;
-    cycle->de_ynum = 3;
+    cycle->de_xnum = ui->cycling_length->text().toInt();
+    cycle->de_ynum = ui->cycling_width->text().toInt();
     cycle->length = cycle->de_xnum*de2_length_mm*1000/de_spacing_um + cycle->de_xnum-1;
     cycle->width = cycle->de_ynum*de2_length_mm*1000/de_spacing_um + cycle->de_ynum-1;
     cycle->color = cycling_color;
