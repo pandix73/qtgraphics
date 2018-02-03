@@ -15,6 +15,16 @@ int de_spacing_um = 500;
 int cp_spacing_um = 300;
 int pix_per_brick = 20;
 
+int de1_width = 5;
+int de1_length = 2;
+
+int de2_width = 4;
+int de2_length = 4;
+int space_bw_de_l = 2;
+int space_bw_de_w = 1;
+
+
+
 class unit :public QGraphicsItem
 {
 public:
@@ -148,20 +158,20 @@ MainWindow::~MainWindow()
 //    move->width = ui->move_width->text().toInt();
 //    move->xi = 1;
 //    move->yi = 2;
-////    move->type = ui->comboBox->currentText();
-////    a->length = ui->lineEdit->text().toInt();
-////    a->width = ui->lineEdit_2->text().toInt();
-////    a->xi = ui->lineEdit_3->text().toInt();
-////    a->yi = ui->lineEdit_4->text().toInt();
-////    a->type = ui->comboBox->currentText();
+//    move->type = ui->comboBox->currentText();
+//    a->length = ui->lineEdit->text().toInt();
+//    a->width = ui->lineEdit_2->text().toInt();
+//    a->xi = ui->lineEdit_3->text().toInt();
+//    a->yi = ui->lineEdit_4->text().toInt();
+//    a->type = ui->comboBox->currentText();
 
-////    if(ui->comboBox->currentIndex() == 0){
-////        a->color = Qt::yellow;
-////    } else if (ui->comboBox->currentIndex() == 1){
-////        a->color = Qt::blue;
-////    } else {
-////        a->color = Qt::red;
-////    }
+//    if(ui->comboBox->currentIndex() == 0){
+//        a->color = Qt::yellow;
+//    } else if (ui->comboBox->currentIndex() == 1){
+//        a->color = Qt::blue;
+//    } else {
+//        a->color = Qt::red;
+//    }
 //    ui->view->scene()->addItem(a);
 //}
 
@@ -175,6 +185,8 @@ void MainWindow::on_toolButton_clicked()
     }
 }
 
+
+//MOVE
 void MainWindow::on_move_create_clicked()
 {
     QBrush blueBrush(Qt::blue);
@@ -185,20 +197,30 @@ void MainWindow::on_move_create_clicked()
     int position = 5;
     while(number--){
         unit *move = new unit();
-        move->length = ui->move_length->text().toInt();
-        move->width = ui->move_width->text().toInt();
+//        here
+        if(ui->move_electrod->value() == 1){
+            move->length = ui->move_size->text().toInt() * (de1_length + space_bw_de_l) - space_bw_de_l;
+            move->width =  de1_width;
+        }
+        else if(ui->move_electrod->value() == 2){
+            move->length = ui->move_size->text().toInt() * (de2_length + space_bw_de_l) - space_bw_de_l;
+            move->width =  de2_width;
+        }
+
+        move->setRotation(ui->move_tilt->text().toInt());
         move->xi = position;
         move->yi = 5;
 
-        move->color = Qt::yellow;
+        move->color = QColor(249, 141, 151);
 
         ui->view->scene()->addItem(move);
 
-        position += ui->move_length->text().toInt() + 3;
+        position += 3;
     }
 }
 
 
+//DISPENSER
 void MainWindow::on_dispenser_create_clicked()
 {
     QBrush blueBrush(Qt::blue);
@@ -214,7 +236,7 @@ void MainWindow::on_dispenser_create_clicked()
         dispenser->xi = position;
         dispenser->yi = 10;
 
-        dispenser->color = Qt::red;
+        dispenser->color = QColor(149, 196, 190);
 
         ui->view->scene()->addItem(dispenser);
 
@@ -222,6 +244,8 @@ void MainWindow::on_dispenser_create_clicked()
     }
 }
 
+
+//MERGE
 void MainWindow::on_merge_create_clicked()
 {
     QBrush blueBrush(Qt::blue);
@@ -237,7 +261,7 @@ void MainWindow::on_merge_create_clicked()
         merge->xi = position;
         merge->yi = 15;
 
-        merge->color = Qt::blue;
+        merge->color = QColor(255, 208, 166);
 
         ui->view->scene()->addItem(merge);
 
@@ -245,6 +269,8 @@ void MainWindow::on_merge_create_clicked()
     }
 }
 
+
+//CYCLING
 void MainWindow::on_cycling_create_clicked()
 {
     QBrush blueBrush(Qt::blue);
@@ -255,12 +281,20 @@ void MainWindow::on_cycling_create_clicked()
     int position = 5;
     while(number--){
         unit *cycling = new unit();
-        cycling->length = ui->cycling_length->text().toInt();
-        cycling->width = ui->cycling_width->text().toInt();
+//      here
+        if(ui->cycling_electrod->value() == 1){
+            cycling->length = ui->cycling_length->text().toInt() * (de1_length + space_bw_de_l) - space_bw_de_l;
+            cycling->width =  ui->cycling_width->text().toInt() * (de2_width + space_bw_de_w) - space_bw_de_w;
+        }
+        else if(ui->cycling_electrod->value() == 2){
+            cycling->length = ui->cycling_length->text().toInt() * (de2_length + space_bw_de_l) - space_bw_de_l;
+            cycling->width =  ui->cycling_width->text().toInt() * (de2_width + space_bw_de_w) - space_bw_de_w;
+        }
+
         cycling->xi = position;
         cycling->yi = 20;
 
-        cycling->color = Qt::green;
+        cycling->color = QColor(198, 218, 219);
 
         ui->view->scene()->addItem(cycling);
 
@@ -270,6 +304,8 @@ void MainWindow::on_cycling_create_clicked()
 
 }
 
+
+//CREATE
 void MainWindow::on_heater_create_clicked()
 {
     QBrush blueBrush(Qt::blue);
@@ -285,7 +321,7 @@ void MainWindow::on_heater_create_clicked()
         heater->xi = position;
         heater->yi = 25;
 
-        heater->color = QColor(100, 100, 150);
+        heater->color = QColor(108, 138, 148);
 
         ui->view->scene()->addItem(heater);
 
