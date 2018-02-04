@@ -1,10 +1,12 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "switch.h"
+
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QPainter>
 #include <QGraphicsItem>
-
+#include <QPoint>
 
 
 bool deletemode = false;
@@ -200,8 +202,34 @@ MainWindow::MainWindow(QWidget *parent) :
     te->color = Qt::yellow;
     scene->addItem(te);
     */
-    ui->view->setScene(scene);
 
+    //TOOGLE BUTTON
+    SwitchControl *pSwitchControl = new SwitchControl(this->centralWidget());
+    pSwitchControl->setFixedWidth(55);
+    pSwitchControl->setFixedHeight(28);
+    pSwitchControl->move(365, 633);
+    scene->addWidget(pSwitchControl);
+    pSwitchControl->setToggle(false);
+    connect(pSwitchControl, SIGNAL(toggled(bool)), this, SLOT(label_2(bool)));
+
+//    connect(pSwitchControl, SIGNAL(toggled(bool)), this, SLOT(onToggled(bool)));
+//    now using absolute position. which is not good enough (we'll get problems whilel we can change window size)
+//    pSwitchControl->mapFromGlobal(QPoint(100, 1000));
+
+    ui->view->setScene(scene);
+}
+void MainWindow::label_2(bool bChecked){
+    if(bChecked){
+        ui->label_2->setText("CUSTOMIZED");
+    }
+    else{
+        ui->label_2->setText("SIMPLE");
+    }
+}
+
+void MainWindow::onToggled(bool bChecked)
+{
+//    qDebug() << "State : " << bChecked;
 }
 
 MainWindow::~MainWindow()
@@ -213,10 +241,13 @@ MainWindow::~MainWindow()
 void MainWindow::on_toolButton_clicked()
 {
     deletemode = 1-deletemode;
+    QCursor cursorErase = QCursor(QPixmap(":/MainWindow/Icons/Icons/eraser_cursor.png"),0 , 0);
     if(deletemode == true){
-        ui->toolButton->setStyleSheet("background-color: rgba(122,122,122,122); border:none;");
+        ui->toolButton->setStyleSheet("background-color: rgb(64, 72, 91);");
+        ui->view->setCursor(cursorErase);
     } else {
-        ui->toolButton->setStyleSheet("");
+        ui->toolButton->setStyleSheet("background-color: rgb(42, 48, 58);");
+        ui->view->setCursor(Qt::ArrowCursor);
     }
 }
 
