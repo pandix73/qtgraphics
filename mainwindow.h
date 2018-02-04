@@ -19,9 +19,6 @@ public:
     ~MainWindow();
 
 private slots:
-    //void on_w_rubberBandChanged(const QRect &viewportRect, const QPointF &fromScenePoint, const QPointF &toScenePoint);
-
-//    void on_pushButton_clicked();
     void on_toolButton_clicked();
 
     void on_move_create_clicked();

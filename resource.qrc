@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/MainWindow/Icons">
+        <file>Icons/eraser.png</file>
+    </qresource>
+</RCC>
