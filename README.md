@@ -1,4 +1,5 @@
 # qtgraphics
+2018.01.25
 new window name / 
 new color / 
 new electrod control / 
