@@ -16,6 +16,7 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = 0);
+    QGraphicsScene* mainscene;
     ~MainWindow();
 
 private slots:
@@ -43,8 +44,10 @@ private slots:
 
     void on_setting_btn_clicked();
 
+    void export_ai();
 private:
     Ui::MainWindow *ui;
+    QString path;
 };
 
 #endif // MAINWINDOW_H

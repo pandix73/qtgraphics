@@ -11,6 +11,12 @@
 #include <QPoint>
 
 
+#include <QMainWindow>
+#include <QSvgGenerator>
+#include <QFileDialog>
+#include <QPainter>
+
+
 bool deletemode = false;
 bool detailmode = false;
 
@@ -214,11 +220,10 @@ MainWindow::MainWindow(QWidget *parent) :
     pSwitchControl->setToggle(false);
     connect(pSwitchControl, SIGNAL(toggled(bool)), this, SLOT(label_2(bool)));
 
-
-
-//    connect(pSwitchControl, SIGNAL(toggled(bool)), this, SLOT(onToggled(bool)));
-//    now using absolute position. which is not good enough (we'll get problems whilel we can change window size)
-//    pSwitchControl->mapFromGlobal(QPoint(100, 1000));
+    //EXPORT
+    this->mainscene = scene;
+    QAction *Save = ui->actionSave;
+    connect(Save, SIGNAL(triggered()), this, SLOT(export_ai()));
 
     ui->view->setScene(scene);
 }
@@ -229,6 +234,34 @@ void MainWindow::label_2(bool bChecked){
     else{
         ui->label_2->setText("SIMPLE");
     }
+}
+
+void MainWindow::export_ai()
+{
+
+    //Take file path and name that will create
+    QString newPath = QFileDialog::getSaveFileName(this, "Save SVG",
+        path, tr("SVG files (*.svg)"));
+
+    if (newPath.isEmpty())
+        return;
+
+    path = newPath;
+
+    QSvgGenerator generator;        // Create a file generator object
+    generator.setFileName(path);    // We set the path to the file where to save vector graphics
+    generator.setSize(QSize(mainscene->width(), mainscene->height()));  // Set the dimensions of the working area of the document in millimeters
+    generator.setViewBox(QRect(0, 0, mainscene->width(), mainscene->height())); // Set the work area in the coordinates
+    generator.setTitle("Drag");                          // The title document
+    generator.setDescription("File created by SVG Example");
+
+    QPainter painter;
+    painter.begin(&generator);
+    mainscene->render(&painter);
+    painter.end();
+
+     //At the end we get a vector drawing file with the contents of the graphic scenes
+
 }
 
 //void MainWindow::onToggled(bool bChecked)
@@ -455,5 +488,7 @@ void MainWindow::on_setting_btn_clicked()
     chip->setWindowTitle("Setting");
     chip->show();
 }
+
+
 
 
