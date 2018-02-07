@@ -19,9 +19,6 @@ public:
     ~MainWindow();
 
 private slots:
-    //void on_w_rubberBandChanged(const QRect &viewportRect, const QPointF &fromScenePoint, const QPointF &toScenePoint);
-
-//    void on_pushButton_clicked();
     void on_toolButton_clicked();
 
     void on_move_create_clicked();
@@ -40,6 +37,9 @@ private slots:
 
     void on_toolButton_5_clicked();
 
+    void onToggled(bool bChecked);
+
+    void label_2(bool bChecked);
 private:
     Ui::MainWindow *ui;
 };
