@@ -26,14 +26,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    switch.cpp
+    switch.cpp \
+    chip_setting.cpp
 
 HEADERS += \
         mainwindow.h \
-    switch.h
+    switch.h \
+    chip_setting.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    chip_setting.ui
 
 RESOURCES += \
     resource.qrc

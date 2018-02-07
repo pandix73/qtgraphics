@@ -37,9 +37,12 @@ private slots:
 
     void on_toolButton_5_clicked();
 
-    void onToggled(bool bChecked);
+//    void onToggled(bool bChecked);
 
     void label_2(bool bChecked);
+
+    void on_setting_btn_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
 #include "switch.h"
+#include "chip_setting.h"
 
 #include <QGraphicsView>
 #include <QGraphicsScene>
@@ -212,6 +214,8 @@ MainWindow::MainWindow(QWidget *parent) :
     pSwitchControl->setToggle(false);
     connect(pSwitchControl, SIGNAL(toggled(bool)), this, SLOT(label_2(bool)));
 
+
+
 //    connect(pSwitchControl, SIGNAL(toggled(bool)), this, SLOT(onToggled(bool)));
 //    now using absolute position. which is not good enough (we'll get problems whilel we can change window size)
 //    pSwitchControl->mapFromGlobal(QPoint(100, 1000));
@@ -227,10 +231,10 @@ void MainWindow::label_2(bool bChecked){
     }
 }
 
-void MainWindow::onToggled(bool bChecked)
-{
-//    qDebug() << "State : " << bChecked;
-}
+//void MainWindow::onToggled(bool bChecked)
+//{
+////    qDebug() << "State : " << bChecked;
+//}
 
 MainWindow::~MainWindow()
 {
@@ -255,19 +259,23 @@ void MainWindow::on_toolButton_clicked()
 //MOVE
 void MainWindow::on_move_create_clicked()
 {
-
-    unit *move = new unit();
-    move->xi = 1;
-    move->yi = 1;
-    move->type = "move";
-    move->de_type = ui->move_num->value();
-    move->de_xnum = ui->move_size->text().toInt();
-    move->de_ynum = 1;
-    move->length = move->de_xnum*de1_length_mm*1000/de_spacing_um + move->de_xnum-1;
-    move->width = move->de_ynum*de1_width_mm*1000/de_spacing_um;
-    move->color = moving_color;
-    ui->view->scene()->addItem(move);
-    allunits.push_back(move);
+    int number = ui->move_num->value();
+    int position = 5;
+    while(number--){
+        unit *move = new unit();
+        move->xi = position;
+        move->yi = 1;
+        move->type = "move";
+        move->de_type = ui->move_num->value();
+        move->de_xnum = ui->move_size->text().toInt();
+        move->de_ynum = 1;
+        move->length = move->de_xnum*de1_length_mm*1000/de_spacing_um + move->de_xnum-1;
+        move->width = move->de_ynum*de1_width_mm*1000/de_spacing_um;
+        move->color = moving_color;
+        ui->view->scene()->addItem(move);
+        allunits.push_back(move);
+        position += ui->merge_length->text().toInt() + 3;
+    }
 
 }
 
@@ -276,18 +284,24 @@ void MainWindow::on_move_create_clicked()
 void MainWindow::on_dispenser_create_clicked()
 {
 
-    unit *dispenser = new unit();
-    dispenser->xi = 1;
-    dispenser->yi = 1;
-    dispenser->type = "dispenser";
-    dispenser->de_type = 0;
-    dispenser->de_xnum = 1;
-    dispenser->de_ynum = 1;
-    dispenser->length = ui->dispenser_length->text().toInt()*1000/de_spacing_um;
-    dispenser->width = ui->dispenser_width->text().toInt()*1000/de_spacing_um;
-    dispenser->color = dispenser_color;
-    ui->view->scene()->addItem(dispenser);
-    allunits.push_back(dispenser);
+    int number = ui->dispenser_num->value();
+    int position = 5;
+    while(number--){
+        unit *dispenser = new unit();
+        dispenser->xi = position;
+        dispenser->yi = 1;
+        dispenser->type = "dispenser";
+        dispenser->de_type = 0;
+        dispenser->de_xnum = 1;
+        dispenser->de_ynum = 1;
+        dispenser->length = ui->dispenser_length->text().toInt()*1000/de_spacing_um;
+        dispenser->width = ui->dispenser_width->text().toInt()*1000/de_spacing_um;
+        dispenser->color = dispenser_color;
+        ui->view->scene()->addItem(dispenser);
+        allunits.push_back(dispenser);
+        position += ui->merge_length->text().toInt() + 3;
+    }
+
 
 }
 
@@ -329,18 +343,24 @@ void MainWindow::on_merge_create_clicked()
 //CYCLING
 void MainWindow::on_cycling_create_clicked()
 {
-    unit *cycle = new unit();
-    cycle->xi = 1;
-    cycle->yi = 1;
-    cycle->type = "cycle";
-    cycle->de_type = 2; //ui->cycling_num->value();
-    cycle->de_xnum = ui->cycling_length->text().toInt();
-    cycle->de_ynum = ui->cycling_width->text().toInt();
-    cycle->length = cycle->de_xnum*de2_length_mm*1000/de_spacing_um + cycle->de_xnum-1;
-    cycle->width = cycle->de_ynum*de2_length_mm*1000/de_spacing_um + cycle->de_ynum-1;
-    cycle->color = cycling_color;
-    ui->view->scene()->addItem(cycle);
-    allunits.push_back(cycle);
+    int number = ui->cycling_num->value();
+    int position = 5;
+    while(number--){
+        unit *cycle = new unit();
+        cycle->xi = position;
+        cycle->yi = 1;
+        cycle->type = "cycle";
+        cycle->de_type = 2; //ui->cycling_num->value();
+        cycle->de_xnum = ui->cycling_length->text().toInt();
+        cycle->de_ynum = ui->cycling_width->text().toInt();
+        cycle->length = cycle->de_xnum*de2_length_mm*1000/de_spacing_um + cycle->de_xnum-1;
+        cycle->width = cycle->de_ynum*de2_length_mm*1000/de_spacing_um + cycle->de_ynum-1;
+        cycle->color = cycling_color;
+        ui->view->scene()->addItem(cycle);
+        allunits.push_back(cycle);
+        position += ui->merge_length->text().toInt() + 3;
+    }
+
 }
 
 
@@ -427,3 +447,13 @@ void MainWindow::on_toolButton_5_clicked()
 
     ui->view->scene()->update();
 }
+
+
+void MainWindow::on_setting_btn_clicked()
+{
+    chip_setting *chip = new chip_setting(this);
+    chip->setWindowTitle("Setting");
+    chip->show();
+}
+
+
