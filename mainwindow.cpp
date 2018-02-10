@@ -3,6 +3,7 @@
 
 #include "switch.h"
 #include "chip_setting.h"
+#include "svgreader.h"
 
 #include <QGraphicsView>
 #include <QGraphicsScene>
@@ -225,6 +226,10 @@ MainWindow::MainWindow(QWidget *parent) :
     QAction *Save = ui->actionSave;
     connect(Save, SIGNAL(triggered()), this, SLOT(export_ai()));
 
+
+    //LOAD
+    QAction *Load = ui->actionOpen;
+    connect(Load, SIGNAL(triggered()), this, SLOT(load_svg_clicked()));
     ui->view->setScene(scene);
 }
 void MainWindow::label_2(bool bChecked){
@@ -262,6 +267,27 @@ void MainWindow::export_ai()
 
      //At the end we get a vector drawing file with the contents of the graphic scenes
 
+}
+
+//load
+void MainWindow::load_svg_clicked()
+{
+    QString newPath = QFileDialog::getOpenFileName(this, "Open SVG",
+                                                   path, tr("SVG files (*.svg)"));
+    if (newPath.isEmpty())
+        return;
+
+    path = newPath;
+    mainscene->clear();
+
+    mainscene->setSceneRect(SvgReader::getSizes(path)); // Зададим размеры графической сцены
+
+    // Установим на графическую сцену объекты, получив их с помощью метода getElements
+    foreach (QGraphicsRectItem *item, SvgReader::getElements(path)) {
+        QGraphicsRectItem *rect = item;
+        mainscene->addItem(rect);
+    }
+    qDebug() << "State : ";
 }
 
 //void MainWindow::onToggled(bool bChecked)

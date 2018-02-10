@@ -1490,6 +1490,7 @@ QSpinBox{
      <string>File</string>
     </property>
     <addaction name="actionNEW"/>
+    <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
    </widget>
    <addaction name="menuFile"/>
@@ -1524,6 +1525,11 @@ QSpinBox{
    </property>
    <property name="text">
     <string> Save Chip</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open Chip</string>
    </property>
   </action>
  </widget>

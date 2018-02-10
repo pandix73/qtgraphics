@@ -45,6 +45,8 @@ private slots:
     void on_setting_btn_clicked();
 
     void export_ai();
+
+    void load_svg_clicked();
 private:
     Ui::MainWindow *ui;
     QString path;

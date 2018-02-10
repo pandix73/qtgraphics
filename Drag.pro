@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui widgets svg
+QT       += core gui widgets svg xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -27,12 +27,14 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     switch.cpp \
-    chip_setting.cpp
+    chip_setting.cpp \
+    svgreader.cpp
 
 HEADERS += \
         mainwindow.h \
     switch.h \
-    chip_setting.h
+    chip_setting.h \
+    svgreader.h
 
 FORMS += \
         mainwindow.ui \
