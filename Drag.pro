@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui widgets
+QT       += core gui widgets svg xml
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -26,14 +26,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    switch.cpp
+    switch.cpp \
+    chip_setting.cpp \
+    svgreader.cpp \
+    unit.cpp
 
 HEADERS += \
         mainwindow.h \
-    switch.h
+    switch.h \
+    chip_setting.h \
+    svgreader.h \
+    unit.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    chip_setting.ui
 
 RESOURCES += \
     resource.qrc

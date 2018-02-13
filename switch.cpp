@@ -62,7 +62,7 @@ void SwitchControl::paintEvent(QPaintEvent *event)
     // 绘制小椭圆
     painter.setBrush(thumbColor);
     painter.setOpacity(1.0);
-    painter.drawEllipse(QRectF(m_nX - (m_nHeight / 2), m_nY - (m_nHeight / 2), height(), height()));
+    painter.drawEllipse(QRectF(m_nX - (m_nHeight / 2) + 5, m_nY - (m_nHeight / 2) + 5, height() - 10 ,  height() - 10));
 }
 
 // 鼠标按下事件
