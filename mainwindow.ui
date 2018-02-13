@@ -42,7 +42,7 @@ QToolButton{
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QToolButton" name="toolButton">
+      <widget class="QToolButton" name="eraser">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
          <horstretch>1</horstretch>

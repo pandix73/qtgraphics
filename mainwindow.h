@@ -1,6 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
+#include "unit.h"
 #include <QMainWindow>
 #include <QtCore>
 #include <QtGui>
@@ -15,12 +15,14 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
+    QList<unit*> allunits;
+
     explicit MainWindow(QWidget *parent = 0);
     QGraphicsScene* mainscene;
     ~MainWindow();
 
 private slots:
-    void on_toolButton_clicked();
+    void on_eraser_clicked();
 
     void on_move_create_clicked();
 
@@ -44,7 +46,7 @@ private slots:
 
     void on_setting_btn_clicked();
 
-    void export_ai();
+    void save_svg();
 
     void load_svg_clicked();
 private:

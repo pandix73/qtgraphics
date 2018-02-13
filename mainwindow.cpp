@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "unit.h"
 #include "switch.h"
 #include "chip_setting.h"
 #include "svgreader.h"
@@ -38,135 +39,133 @@ int pix_per_brick = 20;
 //units color
 QColor de1_color = QColor(255, 0, 0, 127);
 QColor de2_color = QColor(0, 0, 255, 127);
+QColor merge_color = QColor(255, 208, 166, 127);
 QColor cycling_color = QColor(1, 96, 177, 127);
 QColor moving_color = QColor(255, 184, 184, 127);
 QColor dispenser_color = QColor(215, 230, 144, 127);
+QColor heat_color = QColor(108, 137, 147, 127);
 
+//class unit :public QGraphicsItem
+//{
+//public:
+//    unit();
 
-class unit :public QGraphicsItem
-{
-public:
-    unit();
+//    QRectF boundingRect() const;
 
-    QRectF boundingRect() const;
+//    // overriding paint()
+//    void paint(QPainter * painter,
+//               const QStyleOptionGraphicsItem * option,
+//               QWidget * widget);
 
-    // overriding paint()
-    void paint(QPainter * painter,
-               const QStyleOptionGraphicsItem * option,
-               QWidget * widget);
+//    // item state
+//    bool Pressed;
+//    int xi = 0;
+//    int yi = 0;
+//    int length = 1;
+//    int width = 1;
+//    int de_type = 0;
+//    int de_xnum = 0;
+//    int de_ynum = 0;
+//    QString type;
+//    QColor color = Qt::white;
+//protected:
+//    // overriding mouse events
+//    void mousePressEvent(QGraphicsSceneMouseEvent *event);
+//    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+//};
 
-    // item state
-    bool Pressed;
-    int xi = 0;
-    int yi = 0;
-    int length = 1;
-    int width = 1;
-    int de_type = 0;
-    int de_xnum = 0;
-    int de_ynum = 0;
-    QString type;
-    QColor color = Qt::white;
-protected:
-    // overriding mouse events
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-};
+//unit::unit()
+//{
+//    Pressed = false;
+//    setFlag(ItemIsMovable);
+//}
 
-QList<unit*> allunits;
+//QRectF unit::boundingRect() const
+//{
+//    // outer most edges
+//    return QRectF(xi*pix_per_brick, yi*pix_per_brick, length*pix_per_brick, width*pix_per_brick);
+//}
 
-unit::unit()
-{
-    Pressed = false;
-    setFlag(ItemIsMovable);
-}
+//void unit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+//{
+//    QRectF rect = boundingRect();
+//    QBrush brush(this->color);
+//    painter->setBrush(brush);
+//    if(Pressed)
+//    {
+//        QPen pen(Qt::lightGray, 1);
+//        painter->setPen(pen);
+//        painter->drawRect(rect);
+//    }
+//    else if (detailmode)
+//    {
+//        QPen pen(Qt::black, 1);
+//        painter->setPen(pen);
+//        if(this->type == "move"){
+//            for(int i = 0; i < this->de_xnum; i++){
+//                if(this->de_type == 1){
+//                    painter->setBrush(QBrush(de1_color));
+//                    painter->drawRect(rect.x()+i*(pix_per_brick*de1_length_mm*1000/de_spacing_um + pix_per_brick),
+//                                      rect.y(),
+//                                      pix_per_brick*de1_length_mm*1000/de_spacing_um,
+//                                      pix_per_brick*de1_width_mm*1000/de_spacing_um);
+//                } else {
+//                    painter->setBrush(QBrush(de2_color));
+//                    painter->drawRect(rect.x()+i*(pix_per_brick*de2_length_mm*1000/de_spacing_um + pix_per_brick),
+//                                      rect.y(),
+//                                      pix_per_brick*de2_length_mm*1000/de_spacing_um,
+//                                      pix_per_brick*de2_length_mm*1000/de_spacing_um);
+//                }
+//            }
+//        } else if (this->type == "cycle"){
+//            painter->setBrush(QBrush(de2_color));
+//            for(int i = 0; i < this->de_xnum; i++){
+//                for(int j = 0; j < this->de_ynum; j++){
+//                    if(i!=0 && i!=this->de_xnum-1 && j!=0 && j!=this->de_ynum-1) continue;
+//                    painter->drawRect(rect.x()+i*(pix_per_brick*de2_length_mm*1000/de_spacing_um + pix_per_brick),
+//                                      rect.y()+j*(pix_per_brick*de2_length_mm*1000/de_spacing_um + pix_per_brick),
+//                                      pix_per_brick*de2_length_mm*1000/de_spacing_um,
+//                                      pix_per_brick*de2_length_mm*1000/de_spacing_um);
+//                }
+//            }
+//        } else {
+//            painter->drawRect(rect);
+//        }
 
-QRectF unit::boundingRect() const
-{
-    // outer most edges
-    return QRectF(xi*pix_per_brick, yi*pix_per_brick, length*pix_per_brick, width*pix_per_brick);
-}
+//    }
+//    else
+//    {
+//        QPen pen(Qt::black, 1);
+//        painter->setPen(pen);
+//        painter->drawRect(rect);
+//    }
+//    painter->drawText(rect, type, Qt::AlignVCenter | Qt::AlignHCenter);
+//    Q_UNUSED(option);
+//    Q_UNUSED(widget);
+//}
 
-void unit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
-    QRectF rect = boundingRect();
-    QBrush brush(this->color);
-    painter->setBrush(brush);
-    if(Pressed)
-    {
-        QPen pen(Qt::lightGray, 1);
-        painter->setPen(pen);
-        painter->drawRect(rect);
-    }
-    else if (detailmode)
-    {
-        QPen pen(Qt::black, 1);
-        painter->setPen(pen);
-        if(this->type == "move"){
-            for(int i = 0; i < this->de_xnum; i++){
-                if(this->de_type == 1){
-                    painter->setBrush(QBrush(de1_color));
-                    painter->drawRect(rect.x()+i*(pix_per_brick*de1_length_mm*1000/de_spacing_um + pix_per_brick),
-                                      rect.y(),
-                                      pix_per_brick*de1_length_mm*1000/de_spacing_um,
-                                      pix_per_brick*de1_width_mm*1000/de_spacing_um);
-                } else {
-                    painter->setBrush(QBrush(de2_color));
-                    painter->drawRect(rect.x()+i*(pix_per_brick*de2_length_mm*1000/de_spacing_um + pix_per_brick),
-                                      rect.y(),
-                                      pix_per_brick*de2_length_mm*1000/de_spacing_um,
-                                      pix_per_brick*de2_length_mm*1000/de_spacing_um);
-                }
-            }
-        } else if (this->type == "cycle"){
-            painter->setBrush(QBrush(de2_color));
-            for(int i = 0; i < this->de_xnum; i++){
-                for(int j = 0; j < this->de_ynum; j++){
-                    if(i!=0 && i!=this->de_xnum-1 && j!=0 && j!=this->de_ynum-1) continue;
-                    painter->drawRect(rect.x()+i*(pix_per_brick*de2_length_mm*1000/de_spacing_um + pix_per_brick),
-                                      rect.y()+j*(pix_per_brick*de2_length_mm*1000/de_spacing_um + pix_per_brick),
-                                      pix_per_brick*de2_length_mm*1000/de_spacing_um,
-                                      pix_per_brick*de2_length_mm*1000/de_spacing_um);
-                }
-            }
-        } else {
-            painter->drawRect(rect);
-        }
+//void unit::mousePressEvent(QGraphicsSceneMouseEvent *event)
+//{
+//    Pressed = true;
+//    update();
+//    QGraphicsItem::mousePressEvent(event);
 
-    }
-    else
-    {
-        QPen pen(Qt::black, 1);
-        painter->setPen(pen);
-        painter->drawRect(rect);
-    }
-    painter->drawText(rect, type, Qt::AlignVCenter | Qt::AlignHCenter);
-    Q_UNUSED(option);
-    Q_UNUSED(widget);
-}
+//}
 
-void unit::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-    Pressed = true;
-    update();
-    QGraphicsItem::mousePressEvent(event);
+//void unit::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+//{
+//    Pressed = false;
+//    int xindex = qRound(this->x()/pix_per_brick);
+//    int yindex = qRound(this->y()/pix_per_brick);
+//    this->setPos(xindex*pix_per_brick, yindex*pix_per_brick);
+//    update();
+//    QGraphicsItem::mouseReleaseEvent(event);
+//    if(deletemode){
+//        delete(this);
+//    }
+//}
 
-}
-
-void unit::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
-    Pressed = false;
-    int xindex = qRound(this->x()/pix_per_brick);
-    int yindex = qRound(this->y()/pix_per_brick);
-    this->setPos(xindex*pix_per_brick, yindex*pix_per_brick);
-    update();
-    QGraphicsItem::mouseReleaseEvent(event);
-    if(deletemode){
-        delete(this);
-    }
-}
-
-
-
+//QList<unit*> allunits;
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -221,10 +220,10 @@ MainWindow::MainWindow(QWidget *parent) :
     pSwitchControl->setToggle(false);
     connect(pSwitchControl, SIGNAL(toggled(bool)), this, SLOT(label_2(bool)));
 
-    //EXPORT
+    //SAVE
     this->mainscene = scene;
     QAction *Save = ui->actionSave;
-    connect(Save, SIGNAL(triggered()), this, SLOT(export_ai()));
+    connect(Save, SIGNAL(triggered()), this, SLOT(save_svg()));
 
 
     //LOAD
@@ -232,6 +231,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(Load, SIGNAL(triggered()), this, SLOT(load_svg_clicked()));
     ui->view->setScene(scene);
 }
+
 void MainWindow::label_2(bool bChecked){
     if(bChecked){
         ui->label_2->setText("CUSTOMIZED");
@@ -241,7 +241,8 @@ void MainWindow::label_2(bool bChecked){
     }
 }
 
-void MainWindow::export_ai()
+//SAVE
+void MainWindow::save_svg()
 {
 
     //Take file path and name that will create
@@ -269,25 +270,22 @@ void MainWindow::export_ai()
 
 }
 
-//load
+//LOAD
 void MainWindow::load_svg_clicked()
 {
-    QString newPath = QFileDialog::getOpenFileName(this, "Open SVG",
-                                                   path, tr("SVG files (*.svg)"));
+    QString newPath = QFileDialog::getOpenFileName(this, "Open SVG", path, tr("SVG files (*.svg)"));
     if (newPath.isEmpty())
         return;
 
     path = newPath;
     mainscene->clear();
 
-    mainscene->setSceneRect(SvgReader::getSizes(path)); // Зададим размеры графической сцены
+    mainscene->setSceneRect(SvgReader::getSizes(path));
 
-    // Установим на графическую сцену объекты, получив их с помощью метода getElements
-    foreach (QGraphicsRectItem *item, SvgReader::getElements(path)) {
-        QGraphicsRectItem *rect = item;
+    foreach (unit *item, SvgReader::getElements(path)) {
+        unit *rect = item;
         mainscene->addItem(rect);
     }
-    qDebug() << "State : ";
 }
 
 //void MainWindow::onToggled(bool bChecked)
@@ -299,22 +297,34 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
-
-
-void MainWindow::on_toolButton_clicked()
+/////////////////////////////////////  TOOL  BAR  /////////////////////////////////////
+//DELETE (ERASER)
+void MainWindow::on_eraser_clicked()
 {
     deletemode = 1-deletemode;
+    qDebug() << "number : " << allunits.count();
+    qDebug() << "GLOBAL MODE : " <<deletemode;
+
     QCursor cursorErase = QCursor(QPixmap(":/MainWindow/Icons/Icons/eraser_cursor.png"),0 , 0);
     if(deletemode == true){
-        ui->toolButton->setStyleSheet("background-color: rgb(64, 72, 91);");
+        for(unit* unit : allunits){
+            unit->setDeleteMode(deletemode);
+            qDebug() << "MODE : " << unit->unit_deletemode;
+        }
+        ui->eraser->setStyleSheet("background-color: rgb(64, 72, 91);");
         ui->view->setCursor(cursorErase);
     } else {
-        ui->toolButton->setStyleSheet("background-color: rgb(42, 48, 58);");
+        for(unit* unit : allunits){
+            unit->setDeleteMode(deletemode);
+            qDebug() << "MODE : " << unit->unit_deletemode;
+        }
+        ui->eraser->setStyleSheet("background-color: rgb(42, 48, 58);");
         ui->view->setCursor(Qt::ArrowCursor);
     }
 }
 
 
+/////////////////////////////////////  CREATE COMPONENTS  /////////////////////////////////////
 //MOVE
 void MainWindow::on_move_create_clicked()
 {
@@ -322,9 +332,9 @@ void MainWindow::on_move_create_clicked()
     int position = 5;
     while(number--){
         unit *move = new unit();
+        move->type = "move";
         move->xi = position;
         move->yi = 1;
-        move->type = "move";
         move->de_type = ui->move_num->value();
         move->de_xnum = ui->move_size->text().toInt();
         move->de_ynum = 1;
@@ -332,7 +342,7 @@ void MainWindow::on_move_create_clicked()
         move->width = move->de_ynum*de1_width_mm*1000/de_spacing_um;
         move->color = moving_color;
         ui->view->scene()->addItem(move);
-        allunits.push_back(move);
+        allunits.prepend(move);
         position += ui->merge_length->text().toInt() + 3;
     }
 
@@ -347,9 +357,9 @@ void MainWindow::on_dispenser_create_clicked()
     int position = 5;
     while(number--){
         unit *dispenser = new unit();
+        dispenser->type = "dispenser";
         dispenser->xi = position;
         dispenser->yi = 1;
-        dispenser->type = "dispenser";
         dispenser->de_type = 0;
         dispenser->de_xnum = 1;
         dispenser->de_ynum = 1;
@@ -357,11 +367,9 @@ void MainWindow::on_dispenser_create_clicked()
         dispenser->width = ui->dispenser_width->text().toInt()*1000/de_spacing_um;
         dispenser->color = dispenser_color;
         ui->view->scene()->addItem(dispenser);
-        allunits.push_back(dispenser);
+        allunits.prepend(dispenser);
         position += ui->merge_length->text().toInt() + 3;
     }
-
-
 }
 
 
@@ -385,19 +393,19 @@ void MainWindow::on_merge_create_clicked()
     int position = 5;
     while(number--){
         unit *merge = new unit();
+        merge->type = "merge";
         merge->length = ui->merge_length->text().toInt();
         merge->width = ui->merge_width->text().toInt();
         merge->xi = position;
         merge->yi = 15;
 
-        merge->color = QColor(255, 208, 166);
+        merge->color = merge_color;
 
         ui->view->scene()->addItem(merge);
-
+        allunits.prepend(merge);
         position += ui->merge_length->text().toInt() + 3;
     }
 }
-
 
 //CYCLING
 void MainWindow::on_cycling_create_clicked()
@@ -416,13 +424,13 @@ void MainWindow::on_cycling_create_clicked()
         cycle->width = cycle->de_ynum*de2_length_mm*1000/de_spacing_um + cycle->de_ynum-1;
         cycle->color = cycling_color;
         ui->view->scene()->addItem(cycle);
-        allunits.push_back(cycle);
+        allunits.prepend(cycle);
         position += ui->merge_length->text().toInt() + 3;
     }
 
 }
 
-
+//HEATER
 void MainWindow::on_heater_create_clicked()
 {
     unit *heat = new unit();
@@ -431,8 +439,9 @@ void MainWindow::on_heater_create_clicked()
     heat->type = "heat";
     heat->de_xnum = 1;
     heat->de_ynum = 2;
+    heat->color = heat_color;
     ui->view->scene()->addItem(heat);
-    allunits.push_back(heat);
+    allunits.prepend(heat);
 }
 
 void MainWindow::on_checkBox_stateChanged(int arg1)
@@ -514,7 +523,3 @@ void MainWindow::on_setting_btn_clicked()
     chip->setWindowTitle("Setting");
     chip->show();
 }
-
-
-
-

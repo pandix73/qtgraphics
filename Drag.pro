@@ -28,13 +28,15 @@ SOURCES += \
         mainwindow.cpp \
     switch.cpp \
     chip_setting.cpp \
-    svgreader.cpp
+    svgreader.cpp \
+    unit.cpp
 
 HEADERS += \
         mainwindow.h \
     switch.h \
     chip_setting.h \
-    svgreader.h
+    svgreader.h \
+    unit.h
 
 FORMS += \
         mainwindow.ui \
