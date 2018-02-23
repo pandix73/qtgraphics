@@ -1,5 +1,4 @@
 #include "unit.h"
-#include "mainwindow.h"
 
 unit::unit()
 {
@@ -84,14 +83,19 @@ void unit::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     Pressed = false;
     int xindex = qRound(this->x()/unit_pix_per_brick);
     int yindex = qRound(this->y()/unit_pix_per_brick);
-    this->setPos(xindex*unit_pix_per_brick, yindex*unit_pix_per_brick);
+    //this->setPos(xindex*unit_pix_per_brick, yindex*unit_pix_per_brick);
+    this->xi += xindex;
+    this->yi += yindex;
+    this->setPos(0, 0);
     update();
     QGraphicsItem::mouseReleaseEvent(event);
     if(unit_deletemode){
-        delete(this);
+        emit delete_this_item(this);
     }
 }
 
-void unit::setDeleteMode(bool deletemode){
+void unit::setDeleteMode(bool deletemode)
+{
     unit_deletemode = deletemode;
 }
+

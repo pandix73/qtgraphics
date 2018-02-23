@@ -11,5 +11,6 @@
         <file>Icons/logo.png</file>
         <file>Icons/minus-symbol.png</file>
         <file>Icons/plus-symbol.png</file>
+        <file>Icons/folder.png</file>
     </qresource>
 </RCC>

@@ -4,7 +4,7 @@
 #include <QDialog>
 
 namespace Ui {
-class chip_setting;
+    class chip_setting;
 }
 
 class chip_setting : public QDialog

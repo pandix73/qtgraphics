@@ -1,23 +1,25 @@
+#ifndef UNIT_H
+#define UNIT_H
+
+#include <QObject>
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QPainter>
 #include <QGraphicsItem>
 #include <QPoint>
+#include <QWidget>
 
-#ifndef UNIT_H
-#define UNIT_H
-
-class unit :public QGraphicsItem
+class unit : public QObject, public QGraphicsItem
 {
+    Q_OBJECT
+    Q_INTERFACES(QGraphicsItem)
 public:
     unit();
 
     QRectF boundingRect() const;
 
     // overriding paint()
-    void paint(QPainter * painter,
-               const QStyleOptionGraphicsItem * option,
-               QWidget * widget);
+    void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget);
 
     // item state
     bool Pressed;
@@ -51,11 +53,12 @@ public:
     //units color
     QColor unit_de1_color = QColor(255, 0, 0, 127);
     QColor unit_de2_color = QColor(0, 0, 255, 127);
-    QColor unit_cycling_color = QColor(1, 96, 177, 127);
-    QColor unit_moving_color = QColor(255, 184, 184, 127);
-    QColor unit_dispenser_color = QColor(215, 230, 144, 127);
 
     void setDeleteMode(bool deletemode);
+
+signals:
+    void delete_this_item(unit *item);
+
 protected:
     // overriding mouse events
     void mousePressEvent(QGraphicsSceneMouseEvent *event);

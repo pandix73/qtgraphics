@@ -20,7 +20,8 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     QGraphicsScene* mainscene;
     ~MainWindow();
-
+public slots:
+    void delete_from_list(unit *a);
 private slots:
     void on_eraser_clicked();
 
@@ -40,8 +41,6 @@ private slots:
 
     void on_toolButton_5_clicked();
 
-//    void onToggled(bool bChecked);
-
     void label_2(bool bChecked);
 
     void on_setting_btn_clicked();
@@ -49,6 +48,11 @@ private slots:
     void save_svg();
 
     void load_svg_clicked();
+
+
+    //    void onToggled(bool bChecked);
+
+
 private:
     Ui::MainWindow *ui;
     QString path;
