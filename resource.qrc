@@ -12,5 +12,6 @@
         <file>Icons/minus-symbol.png</file>
         <file>Icons/plus-symbol.png</file>
         <file>Icons/folder.png</file>
+        <file>Icons/illustrator.png</file>
     </qresource>
 </RCC>

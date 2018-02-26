@@ -6,6 +6,8 @@
 #include <QtGui>
 #include <QGraphicsScene>
 #include <QGraphicsItem>
+
+
 namespace Ui {
 class MainWindow;
 }
@@ -49,7 +51,7 @@ private slots:
 
     void load_svg_clicked();
 
-
+    void export_clicked();
     //    void onToggled(bool bChecked);
 
 

@@ -4,7 +4,7 @@
 #include <QMessageBox>
 #include <QDomDocument>
 #include <QStringList>
-
+extern int pix_per_brick;
 SvgReader::SvgReader()
 {
 
@@ -36,14 +36,19 @@ QList<unit *> SvgReader::getElements(const QString filename)
             rect->setFlag(QGraphicsItem::ItemIsMovable);
 
             QDomElement gElement = gNode.toElement();
-            rect->xi = rectangle.attribute("x").toInt()/rect->unit_pix_per_brick;
-            rect->yi = rectangle.attribute("y").toInt()/rect->unit_pix_per_brick;
-            rect->length = rectangle.attribute("width").toInt()/rect->unit_pix_per_brick;
-            rect->width = rectangle.attribute("height").toInt()/rect->unit_pix_per_brick;
+//            rect->xi = rectangle.attribute("x").toInt()/pix_per_brick;
+//            rect->yi = rectangle.attribute("y").toInt()/pix_per_brick;
+//            rect->length = rectangle.attribute("width").toInt()/pix_per_brick;
+//            rect->width = rectangle.attribute("height").toInt()/pix_per_brick;
+            rect->xi = rectangle.attribute("x").toInt();
+            rect->yi = rectangle.attribute("y").toInt();
+            rect->length = rectangle.attribute("width").toInt();
+            rect->width = rectangle.attribute("height").toInt();
 
             QColor fillColor(gElement.attribute("fill", "#ffffff"));
             fillColor.setAlphaF(gElement.attribute("fill-opacity","0").toFloat());
             rect->color = fillColor;
+
 
             if(fillColor == QColor(255, 208, 166, 127)){
                 rect->type = "merge";
@@ -54,6 +59,8 @@ QList<unit *> SvgReader::getElements(const QString filename)
             }else if(fillColor == QColor(215, 230, 144, 127)){
                 rect->type = "dispenser";
             }else if(fillColor == QColor(108, 137, 147, 127)){
+                rect->type = "heat";
+            }else{
                 rect->type = "heat";
             }
 

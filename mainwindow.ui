@@ -208,9 +208,9 @@ QToolButton{
     </property>
     <property name="styleSheet">
      <string notr="true">QSplitter::handle:verticle{
-	background-color: rgb(46, 52, 66);
+	background-color: rgb(90, 118, 128);
 	height : 2px;
-	
+
 }</string>
     </property>
     <property name="orientation">
@@ -222,6 +222,12 @@ QToolButton{
        <horstretch>2</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>610</width>
+       <height>0</height>
+      </size>
      </property>
      <property name="autoFillBackground">
       <bool>false</bool>
@@ -286,7 +292,7 @@ QPushButton{
 </string>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
@@ -582,7 +588,7 @@ QSpinBox{
       <widget class="QGroupBox" name="dispensorBox">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>5</x>
          <y>90</y>
          <width>430</width>
          <height>81</height>
@@ -775,7 +781,7 @@ QSpinBox{
       <widget class="QGroupBox" name="mergeBox">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>5</x>
          <y>0</y>
          <width>430</width>
          <height>80</height>
@@ -962,7 +968,7 @@ QSpinBox{
       <widget class="QGroupBox" name="heaterBox">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>5</x>
          <y>440</y>
          <width>430</width>
          <height>81</height>
@@ -1014,7 +1020,7 @@ QSpinBox{
       <widget class="QGroupBox" name="movingBox">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>5</x>
          <y>180</y>
          <width>430</width>
          <height>121</height>
@@ -1230,7 +1236,7 @@ QSpinBox{
       <widget class="QGroupBox" name="cyclingBox">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>5</x>
          <y>310</y>
          <width>430</width>
          <height>121</height>
@@ -1492,6 +1498,7 @@ QSpinBox{
     <addaction name="actionNEW"/>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
+    <addaction name="actionExport"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -1534,6 +1541,15 @@ QSpinBox{
    </property>
    <property name="text">
     <string>Open Chip</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/MainWindow/Icons/Icons/illustrator.png</normaloff>:/MainWindow/Icons/Icons/illustrator.png</iconset>
+   </property>
+   <property name="text">
+    <string>Export Chip</string>
    </property>
   </action>
  </widget>

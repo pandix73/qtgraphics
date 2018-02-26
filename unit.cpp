@@ -1,5 +1,20 @@
 #include "unit.h"
+extern bool deletemode;
+extern bool detailmode;
 
+//setting parameter
+extern int chip_length_cm;
+extern int chip_width_cm;
+extern int chip_border_mm;
+extern int cp_length_mm;
+extern int cp_width_mm;
+extern int de1_length_mm;
+extern int de1_width_mm;
+extern int de2_length_mm;
+extern int de_spacing_um;
+extern int cp_spacing_um;
+extern int dispenser_mm;
+extern int pix_per_brick;
 unit::unit()
 {
     Pressed = false;
@@ -9,7 +24,7 @@ unit::unit()
 QRectF unit::boundingRect() const
 {
     // outer most edges
-    return QRectF(xi*unit_pix_per_brick, yi*unit_pix_per_brick, length*unit_pix_per_brick, width*unit_pix_per_brick);
+    return QRectF(xi*pix_per_brick, yi*pix_per_brick, length*pix_per_brick, width*pix_per_brick);
 }
 
 void unit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -23,7 +38,7 @@ void unit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
         painter->setPen(pen);
         painter->drawRect(rect);
     }
-    else if (unit_detailmode)
+    else if (detailmode)
     {
         QPen pen(Qt::black, 1);
         painter->setPen(pen);
@@ -31,16 +46,16 @@ void unit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
             for(int i = 0; i < this->de_xnum; i++){
                 if(this->de_type == 1){
                     painter->setBrush(QBrush(unit_de1_color));
-                    painter->drawRect(rect.x()+i*(unit_pix_per_brick*unit_de1_length_mm*1000/unit_de_spacing_um + unit_pix_per_brick),
+                    painter->drawRect(rect.x()+i*(pix_per_brick*de1_length_mm*1000/de_spacing_um + pix_per_brick),
                                       rect.y(),
-                                      unit_pix_per_brick*unit_de1_length_mm*1000/unit_de_spacing_um,
-                                      unit_pix_per_brick*unit_de1_width_mm*1000/unit_de_spacing_um);
+                                      pix_per_brick*de1_length_mm*1000/de_spacing_um,
+                                      pix_per_brick*de1_width_mm*1000/de_spacing_um);
                 } else {
                     painter->setBrush(QBrush(unit_de2_color));
-                    painter->drawRect(rect.x()+i*(unit_pix_per_brick*unit_de2_length_mm*1000/unit_de_spacing_um + unit_pix_per_brick),
+                    painter->drawRect(rect.x()+i*(pix_per_brick*de2_length_mm*1000/de_spacing_um + pix_per_brick),
                                       rect.y(),
-                                      unit_pix_per_brick*unit_de2_length_mm*1000/unit_de_spacing_um,
-                                      unit_pix_per_brick*unit_de2_length_mm*1000/unit_de_spacing_um);
+                                      pix_per_brick*de2_length_mm*1000/de_spacing_um,
+                                      pix_per_brick*de2_length_mm*1000/de_spacing_um);
                 }
             }
         } else if (this->type == "cycle"){
@@ -48,10 +63,10 @@ void unit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
             for(int i = 0; i < this->de_xnum; i++){
                 for(int j = 0; j < this->de_ynum; j++){
                     if(i!=0 && i!=this->de_xnum-1 && j!=0 && j!=this->de_ynum-1) continue;
-                    painter->drawRect(rect.x()+i*(unit_pix_per_brick*unit_de2_length_mm*1000/unit_de_spacing_um + unit_pix_per_brick),
-                                      rect.y()+j*(unit_pix_per_brick*unit_de2_length_mm*1000/unit_de_spacing_um + unit_pix_per_brick),
-                                      unit_pix_per_brick*unit_de2_length_mm*1000/unit_de_spacing_um,
-                                      unit_pix_per_brick*unit_de2_length_mm*1000/unit_de_spacing_um);
+                    painter->drawRect(rect.x()+i*(pix_per_brick*de2_length_mm*1000/de_spacing_um + pix_per_brick),
+                                      rect.y()+j*(pix_per_brick*de2_length_mm*1000/de_spacing_um + pix_per_brick),
+                                      pix_per_brick*de2_length_mm*1000/de_spacing_um,
+                                      pix_per_brick*de2_length_mm*1000/de_spacing_um);
                 }
             }
         } else {
@@ -81,21 +96,16 @@ void unit::mousePressEvent(QGraphicsSceneMouseEvent *event)
 void unit::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     Pressed = false;
-    int xindex = qRound(this->x()/unit_pix_per_brick);
-    int yindex = qRound(this->y()/unit_pix_per_brick);
-    //this->setPos(xindex*unit_pix_per_brick, yindex*unit_pix_per_brick);
+    int xindex = qRound(this->x()/pix_per_brick);
+    int yindex = qRound(this->y()/pix_per_brick);
+    //this->setPos(xindex*pix_per_brick, yindex*pix_per_brick);
     this->xi += xindex;
     this->yi += yindex;
     this->setPos(0, 0);
     update();
     QGraphicsItem::mouseReleaseEvent(event);
-    if(unit_deletemode){
+    if(deletemode){
         emit delete_this_item(this);
     }
-}
-
-void unit::setDeleteMode(bool deletemode)
-{
-    unit_deletemode = deletemode;
 }
 

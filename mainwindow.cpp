@@ -16,7 +16,7 @@
 #include <QSvgGenerator>
 #include <QFileDialog>
 #include <QPainter>
-
+#include <QPrinter>
 
 bool deletemode = false;
 bool detailmode = false;
@@ -53,20 +53,12 @@ MainWindow::MainWindow(QWidget *parent) :
     QPen redpen(Qt::red);
 
     QGraphicsScene* scene = new QGraphicsScene(0, 0, 600, 400, ui->view);
-    int tight = 0;
-    int pix_length_brick = 600/((10*chip_length_cm*1000)/de_spacing_um);
-    int pix_width_brick = 400/((10*chip_width_cm*1000)/de_spacing_um);
-    if(pix_length_brick < pix_width_brick){
-        pix_per_brick = pix_length_brick;
-        tight = 1;
-    }else{
-        pix_per_brick = pix_width_brick;
-        tight = 2;
-    }
+    pix_per_brick = fmin(600/((10*chip_length_cm*1000/de_spacing_um)),
+                         400/((10*chip_width_cm*1000/de_spacing_um)));
 
     scene->setBackgroundBrush(Qt::white);
 
-    //outer border(nothing to do with real chip size, just the canvas size)
+    //1. outer border(nothing to do with real chip size, just the canvas size)
     scene->addLine(0, 0, scene->width(), 0, graypen);
     scene->addLine(0, scene->height(), scene->width(), scene->height(), graypen);
     scene->addLine(0, 0, 0, scene->height(), graypen);
@@ -80,13 +72,10 @@ MainWindow::MainWindow(QWidget *parent) :
     int chip_height_px = brick_ynum*pix_per_brick+border_px*2;
     int brick_x_start;
     int brick_y_start;
-    if(tight == 1){
-        brick_x_start = (600 - chip_width_px)/2 + border_px;
-        brick_y_start = (400 - chip_height_px)/2 + border_px;
-    }else{
-        brick_x_start = (600 - chip_width_px)/2 + border_px;
-        brick_y_start = (400 - chip_height_px)/2 + border_px;
-    }
+
+    brick_x_start = (600 - chip_width_px)/2 + border_px;
+    brick_y_start = (400 - chip_height_px)/2 + border_px;
+
     for(int i = 0; i <= brick_xnum; i++){
         for(int j = 0; j <= brick_ynum; j++){
             scene->addEllipse(brick_x_start+i*pix_per_brick, brick_y_start+j*pix_per_brick, 1, 1, graypen);
@@ -101,10 +90,15 @@ MainWindow::MainWindow(QWidget *parent) :
     for(int i = 1; i < chip_width_cm; i++){
         scene->addEllipse(brick_x_start-border_px+2, brick_y_start-border_px + i*cm_to_px, 1, 1, redpen);
     }
-    //chip border
-    scene->addRect(brick_x_start-border_px, brick_y_start-border_px, chip_width_px, chip_height_px, redpen);
 
-//    1 cm = 10000/de_spacing_um*pix_per_brick
+    //2. pix_per_brick (save and load)
+    scene->addRect(0, 10, pix_per_brick, 10);
+
+    //3. border_px (save and load)
+    scene->addRect(0, 20, border_px, 10);
+
+    //4. chip border
+    scene->addRect(brick_x_start-border_px, brick_y_start-border_px, chip_width_px, chip_height_px, redpen);
 
     //TOOGLE BUTTON
     SwitchControl *pSwitchControl = new SwitchControl(this->centralWidget());
@@ -116,14 +110,18 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(pSwitchControl, SIGNAL(toggled(bool)), this, SLOT(label_2(bool)));
 
     //SAVE
-    this->mainscene = scene;
     QAction *Save = ui->actionSave;
     connect(Save, SIGNAL(triggered()), this, SLOT(save_svg()));
-
 
     //LOAD
     QAction *Load = ui->actionOpen;
     connect(Load, SIGNAL(triggered()), this, SLOT(load_svg_clicked()));
+
+    //EXPORT
+    QAction *Export = ui->actionExport;
+    connect(Export, SIGNAL(triggered()), this, SLOT(export_clicked()));
+
+    this->mainscene = scene;
     ui->view->setScene(scene);
 }
 
@@ -139,7 +137,6 @@ void MainWindow::label_2(bool bChecked){
 //SAVE
 void MainWindow::save_svg()
 {
-
     //Take file path and name that will create
     QString newPath = QFileDialog::getSaveFileName(this, "Save SVG",
         path, tr("SVG files (*.svg)"));
@@ -154,7 +151,6 @@ void MainWindow::save_svg()
     generator.setSize(QSize(mainscene->width(), mainscene->height()));  // Set the dimensions of the working area of the document in millimeters
     generator.setViewBox(QRect(0, 0, mainscene->width(), mainscene->height())); // Set the work area in the coordinates
     generator.setTitle("Drag");                          // The title document
-    generator.setDescription("File created by SVG Example");
 
     QPainter painter;
     painter.begin(&generator);
@@ -171,39 +167,103 @@ void MainWindow::load_svg_clicked()
     QString newPath = QFileDialog::getOpenFileName(this, "Open SVG", path, tr("SVG files (*.svg)"));
     if (newPath.isEmpty())
         return;
-
+    allunits.clear();
     path = newPath;
     mainscene->clear();
 
     mainscene->setSceneRect(SvgReader::getSizes(path));
 
-
-    int flag = 2;
+    int flag = 4;
+    int border_px;
     QPen graypen(Qt::gray);
+    QPen redpen(Qt::red);
     foreach (unit *item, SvgReader::getElements(path)) {
         unit *rect = item;
-        if(flag==2){
+        if(flag==4){
+            qDebug() << "outer box";
+            flag--;
+        }else if(flag==3){    
+            pix_per_brick = rect->length;
+            mainscene->addRect(0, 10, pix_per_brick, 10, redpen);
+            qDebug() << "pix_per_brick : "<< pix_per_brick;
+            flag--;
+        }else if(flag==2){
+            border_px = rect->length;
+            mainscene->addRect(0, 20, border_px, 10, redpen);
+            qDebug() << "border_px : " << border_px;
             flag--;
         }else if(flag==1){
-            int brick_start = pix_per_brick*chip_border_mm*2;
-            int brick_xnum = (10*rect->length - 2*chip_border_mm)*1000/de_spacing_um;
-            int brick_ynum = (10*rect->width - 2*chip_border_mm)*1000/de_spacing_um;
+            int brick_xnum = (rect->length - 2*border_px) / pix_per_brick;
+            int brick_ynum = (rect->width - 2*border_px) / pix_per_brick;
+            int chip_width_px = rect->length;
+            int chip_height_px = rect->width;
+            int brick_x_start;
+            int brick_y_start;
+
+            brick_x_start = (600 - chip_width_px)/2 + border_px;
+            brick_y_start = (400 - chip_height_px)/2 + border_px;
+
             for(int i = 0; i <= brick_xnum; i++){
                 for(int j = 0; j <= brick_ynum; j++){
-                    mainscene->addEllipse(brick_start+i*pix_per_brick, brick_start+j*pix_per_brick, 1, 1, graypen);
+                    mainscene->addEllipse(brick_x_start+i*pix_per_brick, brick_y_start+j*pix_per_brick, 1, 1, graypen);
                 }
             }
-                        qDebug() << "x :" << 10*rect->width/rect->unit_pix_per_brick;
-                        qDebug() << "y :" << 10*rect->length/rect->unit_pix_per_brick;
+
+            //chip scale
+            int cm_to_px = 10000/de_spacing_um*pix_per_brick;
+            for(int i = 1; i < chip_length_cm; i++){
+                mainscene->addEllipse(brick_x_start-border_px + i*cm_to_px, brick_y_start-border_px+chip_height_px-2, 1, 1, redpen);
+            }
+            for(int i = 1; i < chip_width_cm; i++){
+                mainscene->addEllipse(brick_x_start-border_px+2, brick_y_start-border_px + i*cm_to_px, 1, 1, redpen);
+            }
+            mainscene->addRect(brick_x_start-border_px, brick_y_start-border_px , rect->length, rect->width, redpen);
             flag--;
         }else{
+            rect->xi /= pix_per_brick;
+            rect->yi /= pix_per_brick;
+            rect->length /= pix_per_brick;
+            rect->width /= pix_per_brick;
             mainscene->addItem(rect);
-
+            allunits.prepend(rect);
         }
-
     }
+    qDebug() << allunits.size();
+}
+
+//EXPORT
+void MainWindow::export_clicked()
+{
+    QString newPath = QFileDialog::getSaveFileName(this, "Save PDF",
+        path, tr("PDF files (*.ai)"));
+
+    if (newPath.isEmpty())
+        return;
+
+    path = newPath;
+
+//    QSvgGenerator generator;        // Create a file generator object
+//    generator.setFileName(path);    // We set the path to the file where to save vector graphics
+//    generator.setSize(QSize(mainscene->width(), mainscene->height()));  // Set the dimensions of the working area of the document in millimeters
+//    generator.setViewBox(QRect(0, 0, mainscene->width(), mainscene->height())); // Set the work area in the coordinates
+//    generator.setTitle("Drag");                          // The title document
 
 
+    QPrinter printer( QPrinter::HighResolution );
+    printer.setPageSize( QPrinter::A4 );
+    printer.setOrientation( QPrinter::Portrait );
+    printer.setOutputFormat( QPrinter::NativeFormat );
+    printer.setOutputFileName(path); // file will be created in your build directory (where debug/release directories are)
+
+    QPainter p;
+
+       if( !p.begin( &printer ) )
+       {
+           qDebug() << "Error!";
+           return;
+       }
+       mainscene->render( &p );
+       p.end();
 
 }
 
@@ -226,17 +286,17 @@ void MainWindow::on_eraser_clicked()
 
     QCursor cursorErase = QCursor(QPixmap(":/MainWindow/Icons/Icons/eraser_cursor.png"),0 , 0);
     if(deletemode == true){
-        for(unit* unit : allunits){
-            unit->setDeleteMode(deletemode);
-            qDebug() << "MODE : " << unit->unit_deletemode;
-        }
+//        for(unit* unit : allunits){
+//            unit->unit_deletemode = deletemode;
+//            qDebug() << "MODE : " << unit->unit_deletemode;
+//        }
         ui->eraser->setStyleSheet("background-color: rgb(64, 72, 91);");
         ui->view->setCursor(cursorErase);
     } else {
-        for(unit* unit : allunits){
-            unit->setDeleteMode(deletemode);
-            qDebug() << "MODE : " << unit->unit_deletemode;
-        }
+//        for(unit* unit : allunits){
+//            unit->unit_deletemode = deletemode;
+//            qDebug() << "MODE : " << unit->unit_deletemode;
+//        }
         ui->eraser->setStyleSheet("background-color: rgb(42, 48, 58);");
         ui->view->setCursor(Qt::ArrowCursor);
     }
@@ -315,7 +375,6 @@ void MainWindow::on_merge_create_clicked()
         merge->width = ui->merge_width->text().toInt();
         merge->xi = position;
         merge->yi = 10;
-
         merge->color = merge_color;
 
         ui->view->scene()->addItem(merge);
@@ -390,18 +449,8 @@ void MainWindow::on_setting_update_clicked()
     QPen graypen(Qt::gray);
     QPen redpen(Qt::red);
     QGraphicsScene* newscene = new QGraphicsScene(0, 0, 600, 400, ui->view);
-//    pix_per_brick = fmin(600/((10*chip_length_cm*1000/de_spacing_um)),
-//                         400/((10*chip_width_cm*1000/de_spacing_um)));
-    int tight = 0;
-    int pix_length_brick = 600/((10*chip_length_cm*1000)/de_spacing_um);
-    int pix_width_brick = 400/((10*chip_width_cm*1000)/de_spacing_um);
-    if(pix_length_brick < pix_width_brick){
-        pix_per_brick = pix_length_brick;
-        tight = 1;
-    }else{
-        pix_per_brick = pix_width_brick;
-        tight = 2;
-    }
+    pix_per_brick = fmin(600/((10*chip_length_cm*1000/de_spacing_um)),
+                         400/((10*chip_width_cm*1000/de_spacing_um)));
     newscene->setBackgroundBrush(Qt::white);
 
     //outer border
@@ -409,7 +458,6 @@ void MainWindow::on_setting_update_clicked()
     newscene->addLine(0, newscene->height(), newscene->width(), newscene->height(), graypen);
     newscene->addLine(0, 0, 0, newscene->height(), graypen);
     newscene->addLine(newscene->width(), 0, newscene->width(), newscene->height(), graypen);
-
 
 //    int brick_start = pix_per_brick*chip_border_mm*2;
 //    int brick_xnum = (10*chip_length_cm - 2*chip_border_mm)*1000/de_spacing_um;
@@ -426,13 +474,10 @@ void MainWindow::on_setting_update_clicked()
     int chip_height_px = brick_ynum*pix_per_brick+border_px*2;
     int brick_x_start;
     int brick_y_start;
-    if(tight == 1){
-        brick_x_start = (600 - chip_width_px)/2 + border_px;
-        brick_y_start = (400 - chip_height_px)/2 + border_px;
-    }else{
-        brick_x_start = (600 - chip_width_px)/2 + border_px;
-        brick_y_start = (400 - chip_height_px)/2 + border_px;
-    }
+
+    brick_x_start = (600 - chip_width_px)/2 + border_px;
+    brick_y_start = (400 - chip_height_px)/2 + border_px;
+
     for(int i = 0; i <= brick_xnum; i++){
         for(int j = 0; j <= brick_ynum; j++){
             newscene->addEllipse(brick_x_start+i*pix_per_brick, brick_y_start+j*pix_per_brick, 1, 1, graypen);
@@ -448,10 +493,15 @@ void MainWindow::on_setting_update_clicked()
         newscene->addEllipse(brick_x_start-border_px+2, brick_y_start-border_px + i*cm_to_px, 1, 1, redpen);
     }
 
+    newscene->addRect(0, 10, pix_per_brick, 10);
+    newscene->addRect(0, 20, border_px, 10);
     //chip border
     newscene->addRect(brick_x_start-border_px, brick_y_start-border_px, chip_width_px, chip_height_px, redpen);
     delete(ui->view->scene());
+//    delete(mainscene);
     allunits.clear();
+
+    this->mainscene = newscene;
     ui->view->setScene(newscene);
 }
 
