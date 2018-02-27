@@ -24,22 +24,6 @@ QWidget{
 }
 </string>
   </property>
-  <widget class="QDialogButtonBox" name="buttonBox">
-   <property name="geometry">
-    <rect>
-     <x>80</x>
-     <y>450</y>
-     <width>341</width>
-     <height>32</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-   </property>
-  </widget>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
@@ -89,7 +73,7 @@ QLineEdit{
    </property>
    <layout class="QGridLayout" name="gridLayout_3">
     <item row="4" column="3">
-     <widget class="QLineEdit" name="cp_spacing_2">
+     <widget class="QLineEdit" name="cp_spacing">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -191,7 +175,7 @@ QLineEdit{
      </widget>
     </item>
     <item row="3" column="4">
-     <widget class="QLineEdit" name="de2_length_3">
+     <widget class="QLineEdit" name="de2_length">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -201,7 +185,7 @@ QLineEdit{
      </widget>
     </item>
     <item row="2" column="4">
-     <widget class="QLineEdit" name="de1_length_3">
+     <widget class="QLineEdit" name="de1_length">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -211,7 +195,7 @@ QLineEdit{
      </widget>
     </item>
     <item row="2" column="6">
-     <widget class="QLineEdit" name="de1_width_3">
+     <widget class="QLineEdit" name="de1_width">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -221,7 +205,7 @@ QLineEdit{
      </widget>
     </item>
     <item row="3" column="6">
-     <widget class="QLineEdit" name="de2_width_3">
+     <widget class="QLineEdit" name="de2_width">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -252,7 +236,7 @@ QLineEdit{
      </widget>
     </item>
     <item row="4" column="4">
-     <widget class="QLineEdit" name="de_spacing_3">
+     <widget class="QLineEdit" name="de_spacing">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -383,42 +367,43 @@ QLineEdit{
     </item>
    </layout>
   </widget>
+  <widget class="QPushButton" name="setting">
+   <property name="geometry">
+    <rect>
+     <x>300</x>
+     <y>440</y>
+     <width>113</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton{
+	border-radius: 5px;
+	padding : 6px;
+	background-color: rgb(31, 35, 44);
+}
+</string>
+   </property>
+   <property name="text">
+    <string>open new chip</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_111">
+   <property name="geometry">
+    <rect>
+     <x>160</x>
+     <y>440</y>
+     <width>60</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>1</string>
+   </property>
+  </widget>
  </widget>
  <resources>
   <include location="resource.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>chip_setting</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>chip_setting</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

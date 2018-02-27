@@ -11,6 +11,7 @@ extern int cp_width_mm;
 extern int de1_length_mm;
 extern int de1_width_mm;
 extern int de2_length_mm;
+extern int de2_width_mm;
 extern int de_spacing_um;
 extern int cp_spacing_um;
 extern int dispenser_mm;

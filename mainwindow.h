@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 #include "unit.h"
+#include "chip_setting.h"
 #include <QMainWindow>
 #include <QtCore>
 #include <QtGui>
@@ -41,9 +42,9 @@ private slots:
 
     void on_setting_update_clicked();
 
-    void on_toolButton_5_clicked();
+    void on_connect_btn_clicked();
 
-    void label_2(bool bChecked);
+    void mode_label(bool bChecked);
 
     void on_setting_btn_clicked();
 
@@ -54,7 +55,9 @@ private slots:
     void export_clicked();
     //    void onToggled(bool bChecked);
 
+    void debugging();
 
+    void reset_setting(chip_setting *);
 private:
     Ui::MainWindow *ui;
     QString path;
