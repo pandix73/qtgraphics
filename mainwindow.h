@@ -38,7 +38,7 @@ private slots:
 
     void on_heater_create_clicked();
 
-    void on_checkBox_stateChanged(int arg1);
+//    void on_checkBox_stateChanged(int arg1);
 
     void on_setting_update_clicked();
 
