@@ -3,10 +3,13 @@
 #include <QObject>
 #include <QGraphicsView>
 #include <QGraphicsScene>
+//#include <QGraphicsSceneContextMenuEvent>
 #include <QPainter>
 #include <QGraphicsItem>
 #include <QPoint>
 #include <QWidget>
+#include <QMenu>
+#include <QAction>
 
 
 class unit : public QObject, public QGraphicsItem

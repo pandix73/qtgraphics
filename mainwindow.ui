@@ -109,7 +109,7 @@ QToolButton{
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="toolButton_3">
+      <widget class="QToolButton" name="temp_line">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
          <horstretch>1</horstretch>
@@ -292,261 +292,20 @@ QPushButton{
 </string>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
+     </property>
+     <property name="tabBarAutoHide">
+      <bool>false</bool>
      </property>
      <widget class="QWidget" name="tab_2">
       <attribute name="title">
-       <string>Setting</string>
+       <string>Import</string>
       </attribute>
-      <widget class="QWidget" name="layoutWidget_5">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>10</y>
-         <width>341</width>
-         <height>268</height>
-        </rect>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="1" column="4">
-         <widget class="QLabel" name="label_6">
-          <property name="text">
-           <string>width</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLabel" name="label_10">
-          <property name="text">
-           <string>Setting</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="3">
-         <widget class="QLineEdit" name="cp_spacing">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="4">
-         <widget class="QLabel" name="label_29">
-          <property name="text">
-           <string>width</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="4">
-         <widget class="QLabel" name="label_45">
-          <property name="text">
-           <string>width</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="5">
-         <widget class="QLineEdit" name="lineEdit_18">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="5">
-         <widget class="QLineEdit" name="chip_width">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="2">
-         <widget class="QLabel" name="label_42">
-          <property name="text">
-           <string>length</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="1">
-         <widget class="QLabel" name="label_41">
-          <property name="text">
-           <string>driving electrode 2 size</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="3">
-         <widget class="QLineEdit" name="de_spacing">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="QLabel" name="label_11">
-          <property name="text">
-           <string>line width</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1">
-         <widget class="QLabel" name="label_40">
-          <property name="text">
-           <string>driving electrode 1 size</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="1">
-         <widget class="QLabel" name="label_46">
-          <property name="text">
-           <string>spacing b/w D.E.</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="3">
-         <widget class="QLineEdit" name="de1_length">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="5">
-         <widget class="QLineEdit" name="de2_width">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="5">
-         <widget class="QLineEdit" name="de1_width">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="2">
-         <widget class="QLabel" name="label_43">
-          <property name="text">
-           <string>length</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="3">
-         <widget class="QLineEdit" name="de2_length">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="1">
-         <widget class="QLabel" name="label_51">
-          <property name="text">
-           <string>spacing b/w C.P.</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="4">
-         <widget class="QLabel" name="label_44">
-          <property name="text">
-           <string>width</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QLabel" name="label_12">
-          <property name="text">
-           <string>length</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="3">
-         <widget class="QLineEdit" name="lineEdit_7">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="3">
-         <widget class="QLineEdit" name="lineEdit_8">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="3">
-         <widget class="QLineEdit" name="chip_length">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="2">
-         <widget class="QLabel" name="label_13">
-          <property name="text">
-           <string>length</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QLabel" name="label_7">
-          <property name="text">
-           <string>control pad size</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLabel" name="label_9">
-          <property name="text">
-           <string>total size</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>spacing of chip edge</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="3">
-         <widget class="QLineEdit" name="chip_border"/>
-        </item>
-       </layout>
-      </widget>
       <widget class="QPushButton" name="setting_update">
        <property name="geometry">
         <rect>
-         <x>230</x>
-         <y>290</y>
+         <x>290</x>
+         <y>490</y>
          <width>113</width>
          <height>32</height>
         </rect>
@@ -1495,7 +1254,7 @@ QSpinBox{
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionNEW"/>
+    <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
     <addaction name="actionExport"/>
@@ -1514,7 +1273,7 @@ QSpinBox{
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="actionNEW">
+  <action name="actionNew">
    <property name="icon">
     <iconset resource="resource.qrc">
      <normaloff>:/MainWindow/Icons/Icons/new-file.png</normaloff>

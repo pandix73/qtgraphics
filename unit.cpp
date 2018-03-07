@@ -109,4 +109,3 @@ void unit::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         emit delete_this_item(this);
     }
 }
-

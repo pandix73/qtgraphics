@@ -16,20 +16,25 @@
 /////////////////////////////////////  CHIP INFO  /////////////////////////////////////
 bool deletemode = false;
 bool detailmode = false;
-
+bool addlinemode = false;
 //setting parameter
 int chip_length_cm = 3;
 int chip_width_cm = 2;
 int chip_border_mm = 3;
+
 int cp_length_mm = 2;
 int cp_width_mm = 4;
+
 int de1_length_mm = 1;
 int de1_width_mm = 5;
 int de2_length_mm = 3;
 int de2_width_mm = 3;
+
 int de_spacing_um = 500;
 int cp_spacing_um = 300;
-int dispenser_mm = 10;
+int line_width_mm = 3;
+
+//int dispenser_mm = 10;
 int pix_per_brick = 20;
 
 //unit color
@@ -43,6 +48,7 @@ QColor heat_color = QColor(108, 137, 147, 127);
 QPen graypen(Qt::gray);
 QPen redpen(Qt::red);
 QPen blackpen(Qt::black);
+QPen whitepen(Qt::white);
 
 //
 int border_px;
@@ -61,57 +67,62 @@ MainWindow::MainWindow(QWidget *parent) :
     setAcceptDrops(true);
     ui->setupUi(this);
 
-    QGraphicsScene* scene = new QGraphicsScene(0, 0, 600, 400, ui->view);               //create a new scene
-    scene->setBackgroundBrush(Qt::white);
+//    QGraphicsScene* scene = new QGraphicsScene(0, 0, 600, 400, ui->view);               //create a new scene
+//    scene->setBackgroundBrush(Qt::white);
 
-    pix_per_brick = fmin(600/((10*chip_length_cm*1000/de_spacing_um)),                  //calculate the size of each brick that fits the screeen the most
-                         400/((10*chip_width_cm*1000/de_spacing_um)));
+//    pix_per_brick = fmin(600/((10*chip_length_cm*1000/de_spacing_um)),                  //calculate the size of each brick that fits the screeen the most
+//                         400/((10*chip_width_cm*1000/de_spacing_um)));
 
-    //1. outer border(nothing to do with real chip size, just the canvas size)
-    scene->addLine(0, 0, scene->width(), 0, graypen);
-    scene->addLine(0, scene->height(), scene->width(), scene->height(), graypen);
-    scene->addLine(0, 0, 0, scene->height(), graypen);
-    scene->addLine(scene->width(), 0, scene->width(), scene->height(), graypen);
+    this->mainscene = this->CreateNewScene();
 
-    border_px = chip_border_mm*1000/de_spacing_um*pix_per_brick;                    //border width in pixel
-    brick_xnum = (10*chip_length_cm - 2*chip_border_mm)*1000/de_spacing_um;         //how many background dots are needed in x-azis
-    brick_ynum = (10*chip_width_cm - 2*chip_border_mm)*1000/de_spacing_um;          //how many background dots are needed in y-axis
-    chip_height_px = brick_ynum*pix_per_brick+border_px*2;                          //chip_length in pixel
-    chip_width_px = brick_xnum*pix_per_brick+border_px*2;                           //chip_width in pixel
+//    //1. outer border(nothing to do with real chip size, just the canvas size)
+//    scene->addLine(0, 0, scene->width(), 0, graypen);
+//    scene->addLine(0, scene->height(), scene->width(), scene->height(), graypen);
+//    scene->addLine(0, 0, 0, scene->height(), graypen);
+//    scene->addLine(scene->width(), 0, scene->width(), scene->height(), graypen);
+
+//    border_px = chip_border_mm*1000/de_spacing_um*pix_per_brick;                        //border width in pixel
+//    brick_xnum = (10*chip_length_cm - 2*chip_border_mm)*1000/de_spacing_um;             //how many background dots are needed in x-azis
+//    brick_ynum = (10*chip_width_cm - 2*chip_border_mm)*1000/de_spacing_um;              //how many background dots are needed in y-axis
+//    chip_height_px = brick_ynum*pix_per_brick+border_px*2;                              //chip_length in pixel
+//    chip_width_px = brick_xnum*pix_per_brick+border_px*2;                               //chip_width in pixel
 
 
-    brick_x_start = (600 - chip_width_px)/2 + border_px;                            //where to start drawing dots in y-axis
-    brick_y_start = (400 - chip_height_px)/2 + border_px;
+//    brick_x_start = (600 - chip_width_px)/2 + border_px;                                //where to start drawing dots in y-axis
+//    brick_y_start = (400 - chip_height_px)/2 + border_px;
 
-    //background grid (in dotted form)
-    for(int i = 0; i <= brick_xnum; i++){
-        for(int j = 0; j <= brick_ynum; j++){
-            scene->addEllipse(brick_x_start+i*pix_per_brick, brick_y_start+j*pix_per_brick, 1, 1, graypen);
-        }
-    }
+//    //background grid (in dotted form)
+//    for(int i = 0; i <= brick_xnum; i++){
+//        for(int j = 0; j <= brick_ynum; j++){
+//            scene->addEllipse(brick_x_start+i*pix_per_brick, brick_y_start+j*pix_per_brick, 1, 1, graypen);
+//        }
+//    }
 
-    //chip scale                                                                        //show dots of scale near the chip border, each interval stands for 1cm in real size
-    int cm_to_px = 10000/de_spacing_um*pix_per_brick;                                   //how many pixels are in 1 cm
-    for(int i = 1; i < chip_length_cm; i++){
-        scene->addEllipse(brick_x_start-border_px + i*cm_to_px, brick_y_start-border_px+chip_height_px-2, 1, 1, redpen);
-    }
-    for(int i = 1; i < chip_width_cm; i++){
-        scene->addEllipse(brick_x_start-border_px+2, brick_y_start-border_px + i*cm_to_px, 1, 1, redpen);
-    }
+//    //chip scale                                                                        //show dots of scale near the chip border, each interval stands for 1cm in real size
+//    int cm_to_px = 10000/de_spacing_um*pix_per_brick;                                   //how many pixels are in 1 cm
+//    for(int i = 1; i < chip_length_cm; i++){
+//        scene->addEllipse(brick_x_start-border_px + i*cm_to_px, brick_y_start-border_px+chip_height_px-2, 1, 1, redpen);
+//        QString j = QString::number(i);
+//        QGraphicsTextItem *text = mainscene->addText(j + "cm");
+//        text->setPos(400, 400);
+//    }
+//    for(int i = 1; i < chip_width_cm; i++){
+//        scene->addEllipse(brick_x_start-border_px+2, brick_y_start-border_px + i*cm_to_px, 1, 1, redpen);
+//    }
 
-    //2. pix_per_brick (save and load)                                                  //show this to save data, prepared for the next LOAD
-    scene->addRect(0, 10, pix_per_brick, 10);
+//    //2. pix_per_brick (save and load)                                                  //show this to save data, prepared for the next LOAD
+//    scene->addRect(0, 10, pix_per_brick, 10, whitepen);
 
-    //3. border_px (save and load)
-    scene->addRect(0, 20, border_px, 10);                                               //show this to save data, prepared for the next LOAD
+//    //3. border_px (save and load)
+//    scene->addRect(0, 20, border_px, 10, whitepen);                                               //show this to save data, prepared for the next LOAD
 
-    //4. chip border
-    scene->addRect(brick_x_start-border_px, brick_y_start-border_px, chip_width_px, chip_height_px, redpen);    //the exact border of the chip
+//    //4. chip border
+//    scene->addRect(brick_x_start-border_px, brick_y_start-border_px, chip_width_px, chip_height_px, redpen);    //the exact border of the chip
 
-    //5. scale item                                                                     //show a 1cm scale
-    scene->addRect(brick_x_start - border_px + (chip_length_cm-1) * cm_to_px , 460, cm_to_px, 2, redpen);
-    QGraphicsTextItem *text = scene->addText("1cm");
-    text->setPos(400, 415);
+//    //5. scale item                                                                     //show a 1cm scale
+//    scene->addRect(brick_x_start - border_px + (chip_length_cm-1) * cm_to_px , 460, cm_to_px, 2, redpen);
+//    QGraphicsTextItem *text = scene->addText("1cm");
+//    text->setPos(brick_x_start - border_px + (chip_length_cm-1) * cm_to_px + (cm_to_px/2) - 10, 463);
 
 
     //TOOGLE BUTTON
@@ -119,29 +130,97 @@ MainWindow::MainWindow(QWidget *parent) :
     pSwitchControl->setFixedWidth(55);
     pSwitchControl->setFixedHeight(28);
     pSwitchControl->move(365, 633);
-    scene->addWidget(pSwitchControl);
+    mainscene->addWidget(pSwitchControl);
     pSwitchControl->setToggle(false);
     connect(pSwitchControl, SIGNAL(toggled(bool)), this, SLOT(mode_label(bool)));
 
+    //NEW ACTION
+    QAction *New = ui->actionNew;
+    New->setShortcuts(QKeySequence::New);
+    connect(New, SIGNAL(triggered()), this, SLOT(new_chip_clicked()));
+
     //SAVE ACTION
     QAction *Save = ui->actionSave;
+    Save->setShortcuts(QKeySequence::Save);
     connect(Save, SIGNAL(triggered()), this, SLOT(save_svg()));
 
     //LOAD ACTION
     QAction *Load = ui->actionOpen;
+    Load->setShortcuts(QKeySequence::Open);
     connect(Load, SIGNAL(triggered()), this, SLOT(load_svg_clicked()));
 
     //EXPORT ACTION
     QAction *Export = ui->actionExport;
+    Export->setShortcuts(QKeySequence::Italic);
     connect(Export, SIGNAL(triggered()), this, SLOT(export_clicked()));
 
-    this->mainscene = scene;
-    ui->view->setScene(scene);
+//    this->mainscene = scene;
+//    ui->view->setScene(scene);
+    ui->view->setScene(mainscene);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+//Create New Scene
+QGraphicsScene* MainWindow::CreateNewScene(){
+    QGraphicsScene* scene = new QGraphicsScene(0, 0, 600, 400, ui->view);               //create a new scene
+    scene->setBackgroundBrush(Qt::white);
+
+    pix_per_brick = fmin(600/((10*chip_length_cm*1000/de_spacing_um)),                  //calculate the size of each brick that fits the screeen the most
+                         400/((10*chip_width_cm*1000/de_spacing_um)));
+
+        //1. outer border(nothing to do with real chip size, just the canvas size)
+        scene->addLine(0, 0, scene->width(), 0, graypen);
+        scene->addLine(0, scene->height(), scene->width(), scene->height(), graypen);
+        scene->addLine(0, 0, 0, scene->height(), graypen);
+        scene->addLine(scene->width(), 0, scene->width(), scene->height(), graypen);
+
+        border_px = chip_border_mm*1000/de_spacing_um*pix_per_brick;                        //border width in pixel
+        brick_xnum = (10*chip_length_cm - 2*chip_border_mm)*1000/de_spacing_um;             //how many background dots are needed in x-azis
+        brick_ynum = (10*chip_width_cm - 2*chip_border_mm)*1000/de_spacing_um;              //how many background dots are needed in y-axis
+        chip_height_px = brick_ynum*pix_per_brick+border_px*2;                              //chip_length in pixel
+        chip_width_px = brick_xnum*pix_per_brick+border_px*2;                               //chip_width in pixel
+
+
+        brick_x_start = (600 - chip_width_px)/2 + border_px;                                //where to start drawing dots in y-axis
+        brick_y_start = (400 - chip_height_px)/2 + border_px;
+
+        //background grid (in dotted form)
+        for(int i = 0; i <= brick_xnum; i++){
+            for(int j = 0; j <= brick_ynum; j++){
+                scene->addEllipse(brick_x_start+i*pix_per_brick, brick_y_start+j*pix_per_brick, 1, 1, graypen);
+            }
+        }
+
+        //chip scale                                                                        //show dots of scale near the chip border, each interval stands for 1cm in real size
+        int cm_to_px = 10000/de_spacing_um*pix_per_brick;                                   //how many pixels are in 1 cm
+        for(int i = 1; i < chip_length_cm; i++){
+            scene->addEllipse(brick_x_start-border_px + i*cm_to_px, brick_y_start-border_px+chip_height_px-2, 1, 1, redpen);
+            QString j = QString::number(i);
+            QGraphicsTextItem *text = mainscene->addText(j + "cm");
+            text->setPos(400, 400);
+        }
+        for(int i = 1; i < chip_width_cm; i++){
+            scene->addEllipse(brick_x_start-border_px+2, brick_y_start-border_px + i*cm_to_px, 1, 1, redpen);
+        }
+
+        //2. pix_per_brick (save and load)                                                  //show this to save data, prepared for the next LOAD
+        scene->addRect(0, 10, pix_per_brick, 10, whitepen);
+
+        //3. border_px (save and load)
+        scene->addRect(0, 20, border_px, 10, whitepen);                                               //show this to save data, prepared for the next LOAD
+
+        //4. chip border
+        scene->addRect(brick_x_start-border_px, brick_y_start-border_px, chip_width_px, chip_height_px, redpen);    //the exact border of the chip
+
+        //5. scale item                                                                     //show a 1cm scale
+        scene->addRect(brick_x_start - border_px + (chip_length_cm-1) * cm_to_px , 460, cm_to_px, 2, redpen);
+        QGraphicsTextItem *text = scene->addText("1cm");
+        text->setPos(brick_x_start - border_px + (chip_length_cm-1) * cm_to_px + (cm_to_px/2) - 10, 463);
+
+        return scene;
 }
 
 //MODE LABEL                                                                            //shows the mode its in
@@ -155,6 +234,66 @@ void MainWindow::mode_label(bool bChecked){
 }
 
 /////////////////////////////////////  ACTIONS  /////////////////////////////////////
+void MainWindow::new_chip_clicked()
+{
+    this->save_svg();
+
+    QGraphicsScene* newscene = new QGraphicsScene(0, 0, 600, 400, ui->view);
+    pix_per_brick = fmin(600/((10*chip_length_cm*1000/de_spacing_um)),
+                         400/((10*chip_width_cm*1000/de_spacing_um)));
+    newscene->setBackgroundBrush(Qt::white);
+
+    //1. outer border
+    newscene->addLine(0, 0, newscene->width(), 0, graypen);
+    newscene->addLine(0, newscene->height(), newscene->width(), newscene->height(), graypen);
+    newscene->addLine(0, 0, 0, newscene->height(), graypen);
+    newscene->addLine(newscene->width(), 0, newscene->width(), newscene->height(), graypen);
+
+    border_px = chip_border_mm*1000/de_spacing_um*pix_per_brick;
+    brick_xnum = (10*chip_length_cm - 2*chip_border_mm)*1000/de_spacing_um;
+    brick_ynum = (10*chip_width_cm - 2*chip_border_mm)*1000/de_spacing_um;
+    chip_width_px = brick_xnum*pix_per_brick+border_px*2;
+    chip_height_px = brick_ynum*pix_per_brick+border_px*2;
+
+    brick_x_start = (600 - chip_width_px)/2 + border_px;
+    qDebug() << "NEW START" << brick_x_start;
+    brick_y_start = (400 - chip_height_px)/2 + border_px;
+
+    //background grid
+    for(int i = 0; i <= brick_xnum; i++){
+        for(int j = 0; j <= brick_ynum; j++){
+            newscene->addEllipse(brick_x_start+i*pix_per_brick, brick_y_start+j*pix_per_brick, 1, 1, graypen);
+        }
+    }
+
+    //chip scale
+    int cm_to_px = 10000/de_spacing_um*pix_per_brick;
+    for(int i = 1; i < chip_length_cm; i++){
+        newscene->addEllipse(brick_x_start-border_px + i*cm_to_px, brick_y_start-border_px+chip_height_px-2, 1, 1, redpen);
+    }
+    for(int i = 1; i < chip_width_cm; i++){
+        newscene->addEllipse(brick_x_start-border_px+2, brick_y_start-border_px + i*cm_to_px, 1, 1, redpen);
+    }
+    //2. pix_per_brick
+    newscene->addRect(0, 10, pix_per_brick, 10, whitepen);
+
+    //3. border_px
+    newscene->addRect(0, 20, border_px, 10, whitepen);
+
+    //4. chip border
+    newscene->addRect(brick_x_start-border_px, brick_y_start-border_px, chip_width_px, chip_height_px, redpen);
+
+    //5. scale item
+    newscene->addRect(brick_x_start - border_px + (chip_length_cm-1) * cm_to_px , 460, cm_to_px, 2, redpen);
+    QGraphicsTextItem *text = newscene->addText("1cm");
+    text->setPos(brick_x_start - border_px + (chip_length_cm-1) * cm_to_px + (cm_to_px/2) - 10, 463);
+
+    delete(ui->view->scene());
+    allunits.clear();
+    this->mainscene = newscene;
+    ui->view->setScene(newscene);
+}
+
 //SAVE SVG
 void MainWindow::save_svg()
 {
@@ -189,13 +328,6 @@ void MainWindow::load_svg_clicked()
     mainscene->setSceneRect(SvgReader::getSizes(path));
 
     int flag = 4;
-//    int border_px;
-//    int brick_xnum;
-//    int brick_ynum;
-//    int chip_width_px;
-//    int chip_height_px;
-//    int brick_x_start;
-//    int brick_y_start;
 
     foreach (unit *item, SvgReader::getElements(path)) {
         unit *rect = item;
@@ -210,13 +342,13 @@ void MainWindow::load_svg_clicked()
         }else if(flag==3){
             pix_per_brick = rect->length;
             //2. pix_per_brick
-            mainscene->addRect(0, 10, pix_per_brick, 10, redpen);
+            mainscene->addRect(0, 10, pix_per_brick, 10, whitepen);
             qDebug() << "pix_per_brick : "<< pix_per_brick;
             flag--;
         }else if(flag==2){
             border_px = rect->length;
             //3. border_px
-            mainscene->addRect(0, 20, border_px, 10, redpen);
+            mainscene->addRect(0, 20, border_px, 10, whitepen);
             qDebug() << "border_px : " << border_px;
             flag--;
         }else if(flag==1){
@@ -260,7 +392,7 @@ void MainWindow::load_svg_clicked()
     int cm_to_px = 10000/de_spacing_um*pix_per_brick;
     mainscene->addRect(brick_x_start - border_px + (chip_length_cm-1) * cm_to_px , 460, cm_to_px, 2, redpen);
     QGraphicsTextItem *text = mainscene->addText("1cm");
-    text->setPos(400, 415);
+    text->setPos(brick_x_start - border_px + (chip_length_cm-1) * cm_to_px + (cm_to_px/2) - 10, 463);
 }
 
 //EXPORT AI
@@ -322,11 +454,6 @@ void MainWindow::export_clicked()
        p.end();
 }
 
-//void MainWindow::onToggled(bool bChecked)
-//{
-////    qDebug() << "State : " << bChecked;
-//}
-
 /////////////////////////////////////  TOOL  BAR  /////////////////////////////////////
 //DELETE (ERASER)
 void MainWindow::on_eraser_clicked()
@@ -353,7 +480,11 @@ void MainWindow::delete_from_list(unit *item)
     delete item;
 }
 
-
+void MainWindow::on_temp_line_clicked()
+{
+    addlinemode = 1 - addlinemode;
+    qDebug() << "MODE" << addlinemode;
+}
 /////////////////////////////////////  CREATE COMPONENTS  /////////////////////////////////////
 //MOVE
 void MainWindow::on_move_create_clicked()
@@ -401,7 +532,6 @@ void MainWindow::on_dispenser_create_clicked()
         connect(dispenser, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
     }
 }
-
 
 //MERGE
 void MainWindow::on_merge_create_clicked()
@@ -468,88 +598,6 @@ void MainWindow::on_heater_create_clicked()
     }
 }
 
-//void MainWindow::on_checkBox_stateChanged(int arg1)
-//{
-//    detailmode = arg1;
-//    ui->view->scene()->update(0, 0, ui->view->scene()->width(), ui->view->scene()->height());
-//}
-
-/////////////////////////////////////  SETTING  /////////////////////////////////////
-void MainWindow::on_setting_update_clicked()
-{
-    if(!ui->chip_length->text().isEmpty()) chip_length_cm = ui->chip_length->text().toInt();
-    if(!ui->chip_width->text().isEmpty()) chip_width_cm = ui->chip_width->text().toInt();
-    if(!ui->chip_border->text().isEmpty()) chip_border_mm = ui->chip_border->text().toInt();
-    if(!ui->de1_length->text().isEmpty()) de1_length_mm = ui->de1_length->text().toInt();
-    if(!ui->de1_width->text().isEmpty()) de1_width_mm = ui->de1_width->text().toInt();
-    if(!ui->de2_length->text().isEmpty()) de2_length_mm = ui->de2_length->text().toInt();
-    if(!ui->de_spacing->text().isEmpty()) de_spacing_um = ui->de_spacing->text().toInt();
-    if(!ui->cp_spacing->text().isEmpty()) cp_spacing_um = ui->cp_spacing->text().toInt();
-
-    QGraphicsScene* newscene = new QGraphicsScene(0, 0, 600, 400, ui->view);
-    pix_per_brick = fmin(600/((10*chip_length_cm*1000/de_spacing_um)),
-                         400/((10*chip_width_cm*1000/de_spacing_um)));
-    newscene->setBackgroundBrush(Qt::white);
-
-    //1. outer border
-    newscene->addLine(0, 0, newscene->width(), 0, graypen);
-    newscene->addLine(0, newscene->height(), newscene->width(), newscene->height(), graypen);
-    newscene->addLine(0, 0, 0, newscene->height(), graypen);
-    newscene->addLine(newscene->width(), 0, newscene->width(), newscene->height(), graypen);
-
-
-//    int brick_start = pix_per_brick*chip_border_mm*2;
-//    int brick_xnum = (10*chip_length_cm - 2*chip_border_mm)*1000/de_spacing_um;
-//    int brick_ynum = (10*chip_width_cm - 2*chip_border_mm)*1000/de_spacing_um;
-//    for(int i = 0; i <= brick_xnum; i++)
-//        newscene->addLine(brick_start+i*pix_per_brick, brick_start, brick_start+i*pix_per_brick, newscene->height()-brick_start, graypen);
-//    for(int i = 0; i <= brick_ynum; i++)
-//        newscene->addLine(brick_start, brick_start+i*pix_per_brick, newscene->width()-brick_start, brick_start+i*pix_per_brick, graypen);
-//    int brick_start = pix_per_brick*chip_border_mm*2;
-    border_px = chip_border_mm*1000/de_spacing_um*pix_per_brick;
-    brick_xnum = (10*chip_length_cm - 2*chip_border_mm)*1000/de_spacing_um;
-    brick_ynum = (10*chip_width_cm - 2*chip_border_mm)*1000/de_spacing_um;
-    chip_width_px = brick_xnum*pix_per_brick+border_px*2;
-    chip_height_px = brick_ynum*pix_per_brick+border_px*2;
-
-    brick_x_start = (600 - chip_width_px)/2 + border_px;
-    brick_y_start = (400 - chip_height_px)/2 + border_px;
-
-    //background grid
-    for(int i = 0; i <= brick_xnum; i++){
-        for(int j = 0; j <= brick_ynum; j++){
-            newscene->addEllipse(brick_x_start+i*pix_per_brick, brick_y_start+j*pix_per_brick, 1, 1, graypen);
-        }
-    }
-
-    //chip scale
-    int cm_to_px = 10000/de_spacing_um*pix_per_brick;
-    for(int i = 1; i < chip_length_cm; i++){
-        newscene->addEllipse(brick_x_start-border_px + i*cm_to_px, brick_y_start-border_px+chip_height_px-2, 1, 1, redpen);
-    }
-    for(int i = 1; i < chip_width_cm; i++){
-        newscene->addEllipse(brick_x_start-border_px+2, brick_y_start-border_px + i*cm_to_px, 1, 1, redpen);
-    }
-    //2. pix_per_brick
-    newscene->addRect(0, 10, pix_per_brick, 10);
-
-    //3. border_px
-    newscene->addRect(0, 20, border_px, 10);
-
-    //4. chip border
-    newscene->addRect(brick_x_start-border_px, brick_y_start-border_px, chip_width_px, chip_height_px, redpen);
-
-    //5. scale item
-    newscene->addRect(brick_x_start - border_px + (chip_length_cm-1) * cm_to_px , 460, cm_to_px, 2, redpen);
-    QGraphicsTextItem *text = newscene->addText("1cm");
-    text->setPos(400, 415);
-
-    delete(ui->view->scene());
-    allunits.clear();
-    this->mainscene = newscene;
-    ui->view->setScene(newscene);
-}
-
 
 void MainWindow::on_connect_btn_clicked()
 {
@@ -581,13 +629,14 @@ void MainWindow::debugging()
 {
     qDebug() << "connected";
 }
+
+/////////////////////////////////////  SETTING  /////////////////////////////////////
 void MainWindow::on_setting_btn_clicked()
 {
     chip_setting *chip = new chip_setting(this);
     chip->setWindowTitle("Setting");
     connect(chip, SIGNAL(reset(chip_setting *)), this, SLOT(reset_setting(chip_setting *)));
     chip->show();
-
 }
 
 void MainWindow::reset_setting(chip_setting *new_chip)
@@ -595,11 +644,18 @@ void MainWindow::reset_setting(chip_setting *new_chip)
     chip_length_cm = new_chip->chip_length_cm;
     chip_width_cm = new_chip->chip_width_cm;
     chip_border_mm = new_chip->chip_border_mm;
+
+    cp_length_mm = new_chip->cp_length_mm;
+    cp_width_mm = new_chip->cp_width_mm;
+
     de1_length_mm = new_chip->de1_length_mm;
     de1_width_mm = new_chip->de1_width_mm;
     de2_length_mm = new_chip->de2_length_mm;
+    de2_width_mm = new_chip->de2_width_mm;
+
     de_spacing_um = new_chip->de_spacing_um;
     cp_spacing_um = new_chip->cp_spacing_um;
+    line_width_mm = new_chip->line_width_mm;
 
     QGraphicsScene* newscene = new QGraphicsScene(0, 0, 600, 400, ui->view);
     pix_per_brick = fmin(600/((10*chip_length_cm*1000/de_spacing_um)),
@@ -612,15 +668,6 @@ void MainWindow::reset_setting(chip_setting *new_chip)
     newscene->addLine(0, 0, 0, newscene->height(), graypen);
     newscene->addLine(newscene->width(), 0, newscene->width(), newscene->height(), graypen);
 
-
-//    int brick_start = pix_per_brick*chip_border_mm*2;
-//    int brick_xnum = (10*chip_length_cm - 2*chip_border_mm)*1000/de_spacing_um;
-//    int brick_ynum = (10*chip_width_cm - 2*chip_border_mm)*1000/de_spacing_um;
-//    for(int i = 0; i <= brick_xnum; i++)
-//        newscene->addLine(brick_start+i*pix_per_brick, brick_start, brick_start+i*pix_per_brick, newscene->height()-brick_start, graypen);
-//    for(int i = 0; i <= brick_ynum; i++)
-//        newscene->addLine(brick_start, brick_start+i*pix_per_brick, newscene->width()-brick_start, brick_start+i*pix_per_brick, graypen);
-//    int brick_start = pix_per_brick*chip_border_mm*2;
     border_px = chip_border_mm*1000/de_spacing_um*pix_per_brick;
     brick_xnum = (10*chip_length_cm - 2*chip_border_mm)*1000/de_spacing_um;
     brick_ynum = (10*chip_width_cm - 2*chip_border_mm)*1000/de_spacing_um;
@@ -647,10 +694,10 @@ void MainWindow::reset_setting(chip_setting *new_chip)
         newscene->addEllipse(brick_x_start-border_px+2, brick_y_start-border_px + i*cm_to_px, 1, 1, redpen);
     }
     //2. pix_per_brick
-    newscene->addRect(0, 10, pix_per_brick, 10);
+    newscene->addRect(0, 10, pix_per_brick, 10, whitepen);
 
     //3. border_px
-    newscene->addRect(0, 20, border_px, 10);
+    newscene->addRect(0, 20, border_px, 10, whitepen);
 
     //4. chip border
     newscene->addRect(brick_x_start-border_px, brick_y_start-border_px, chip_width_px, chip_height_px, redpen);
@@ -658,11 +705,38 @@ void MainWindow::reset_setting(chip_setting *new_chip)
     //5. scale item
     newscene->addRect(brick_x_start - border_px + (chip_length_cm-1) * cm_to_px , 460, cm_to_px, 2, redpen);
     QGraphicsTextItem *text = newscene->addText("1cm");
-    text->setPos(400, 415);
+    text->setPos(brick_x_start - border_px + (chip_length_cm-1) * cm_to_px + (cm_to_px/2) - 10, 463);
 
     delete(ui->view->scene());
     allunits.clear();
     this->mainscene = newscene;
     ui->view->setScene(newscene);
 }
+
+/////////////////////////////////////  ADD LINE  /////////////////////////////////////
+//void MainWindow::mousePressEvent(QMouseEvent* event){
+//    if(addlinemode){
+//        P1 = event->pos();
+//        P2 = event->pos();
+////        mLine.setP1(event->pos());
+////        mLine.setP2(event->pos());
+//    }
+//}
+
+//void MainWindow::mouseMoveEvent(QMouseEvent* event){
+//    if(addlinemode){
+//        if(event->type() == QEvent::MouseMove){
+//            P2 = event->pos();
+////            mLine.setP2(event->pos());
+//        }
+//    }
+//}
+
+//void MainWindow::mouseReleaseEvent(QMouseEvent *event){
+//    if(addlinemode){
+//        mainscene->addLine(P1.x(), P1.y(), P2.x(), P2.y(), graypen);
+//        update();
+//    }
+//}
+
 
