@@ -12,3 +12,24 @@ chip_setting::~chip_setting()
 {
     delete ui;
 }
+
+// "open new chip" button clicked
+void chip_setting::on_setting_clicked()
+{
+    if(!ui->chip_length->text().isEmpty()) chip_length_cm = ui->chip_length->text().toInt();
+    if(!ui->chip_width->text().isEmpty()) chip_width_cm = ui->chip_width->text().toInt();
+    if(!ui->chip_border->text().isEmpty()) chip_border_mm = ui->chip_border->text().toInt();
+
+    if(!ui->cp_length->text().isEmpty()) cp_length_mm = ui->cp_length->text().toInt();
+    if(!ui->cp_width->text().isEmpty()) cp_width_mm = ui->cp_width->text().toInt();
+
+    if(!ui->de1_length->text().isEmpty()) de1_length_mm = ui->de1_length->text().toInt();
+    if(!ui->de1_width->text().isEmpty()) de1_width_mm = ui->de1_width->text().toInt();
+    if(!ui->de2_length->text().isEmpty()) de2_length_mm = ui->de2_length->text().toInt();
+    if(!ui->de2_width->text().isEmpty()) de2_width_mm = ui->de2_width->text().toInt();
+
+    if(!ui->de_spacing->text().isEmpty()) de_spacing_um = ui->de_spacing->text().toInt();
+    if(!ui->cp_spacing->text().isEmpty()) cp_spacing_um = ui->cp_spacing->text().toInt();
+    if(!ui->line_width->text().isEmpty()) line_width_mm = ui->line_width->text().toInt();
+    emit reset(this);
+}

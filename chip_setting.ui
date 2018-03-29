@@ -22,48 +22,26 @@ QWidget{
  font: 15pt &quot;American Typewriter&quot;;
  color: rgb(187, 210, 211);
 }
+
+QPushButton{
+	border-radius: 5px;
+	padding : 6px;
+	background-color: rgb(31, 35, 44);
+}
 </string>
   </property>
-  <widget class="QDialogButtonBox" name="buttonBox">
-   <property name="geometry">
-    <rect>
-     <x>80</x>
-     <y>450</y>
-     <width>341</width>
-     <height>32</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>220</x>
-     <y>20</y>
-     <width>51</width>
-     <height>51</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="pixmap">
-    <pixmap resource="resource.qrc">:/MainWindow/Icons/Icons/logo.png</pixmap>
-   </property>
-  </widget>
   <widget class="QLabel" name="label_10">
    <property name="geometry">
     <rect>
-     <x>70</x>
-     <y>40</y>
-     <width>143</width>
-     <height>18</height>
+     <x>190</x>
+     <y>30</y>
+     <width>81</width>
+     <height>31</height>
     </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">font: 24pt ;
+</string>
    </property>
    <property name="text">
     <string>Setting</string>
@@ -88,13 +66,65 @@ QLineEdit{
 }</string>
    </property>
    <layout class="QGridLayout" name="gridLayout_3">
+    <item row="2" column="6">
+     <widget class="QLabel" name="label_30">
+      <property name="text">
+       <string>x</string>
+      </property>
+     </widget>
+    </item>
     <item row="4" column="3">
-     <widget class="QLineEdit" name="cp_spacing_2">
+     <widget class="QLineEdit" name="cp_spacing">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="8">
+     <widget class="QLineEdit" name="cp_width">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="5">
+     <widget class="QLabel" name="label_7">
+      <property name="styleSheet">
+       <string notr="true">color :rgb(98, 114, 126);
+</string>
+      </property>
+      <property name="text">
+       <string>mm</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="3">
+     <widget class="QLineEdit" name="cp_length">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLabel" name="label_16">
+      <property name="text">
+       <string>control pad size</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QLabel" name="label_52">
+      <property name="text">
+       <string>spacing b/w C.P.</string>
       </property>
      </widget>
     </item>
@@ -108,50 +138,32 @@ QLineEdit{
       </property>
       <property name="sizeHint" stdset="0">
        <size>
-        <width>16</width>
+        <width>24</width>
         <height>20</height>
        </size>
       </property>
      </spacer>
     </item>
-    <item row="4" column="1">
-     <widget class="QLabel" name="label_52">
+    <item row="2" column="9">
+     <widget class="QLabel" name="label_8">
+      <property name="styleSheet">
+       <string notr="true">color :rgb(98, 114, 126);
+</string>
+      </property>
       <property name="text">
-       <string>spacing b/w C.P.</string>
+       <string>mm</string>
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
-     <widget class="QLabel" name="label_16">
+    <item row="4" column="5">
+     <widget class="QLabel" name="label_11">
+      <property name="styleSheet">
+       <string notr="true">color :rgb(98, 114, 126);
+
+</string>
+      </property>
       <property name="text">
-       <string>control pad size</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="6">
-     <widget class="QLineEdit" name="lineEdit_19">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="5">
-     <widget class="QLabel" name="label_30">
-      <property name="text">
-       <string>x</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="3">
-     <widget class="QLineEdit" name="lineEdit_10">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
+       <string>um</string>
       </property>
      </widget>
     </item>
@@ -176,10 +188,58 @@ QLineEdit{
 }</string>
    </property>
    <layout class="QGridLayout" name="gridLayout_4">
-    <item row="3" column="1">
-     <widget class="QLabel" name="label_58">
+    <item row="3" column="6">
+     <widget class="QLabel" name="label_59">
       <property name="text">
-       <string>D.E.2 size</string>
+       <string>x</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="5">
+     <widget class="QLabel" name="label_12">
+      <property name="styleSheet">
+       <string notr="true">color :rgb(98, 114, 126);
+</string>
+      </property>
+      <property name="text">
+       <string>mm</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="4">
+     <widget class="QLineEdit" name="de_spacing">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="6">
+     <widget class="QLabel" name="label_61">
+      <property name="text">
+       <string>x</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="4">
+     <widget class="QLineEdit" name="de1_length">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="7">
+     <widget class="QLineEdit" name="de2_width">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
      </widget>
     </item>
@@ -190,57 +250,20 @@ QLineEdit{
       </property>
      </widget>
     </item>
-    <item row="3" column="4">
-     <widget class="QLineEdit" name="de2_length_3">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="4">
-     <widget class="QLineEdit" name="de1_length_3">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="6">
-     <widget class="QLineEdit" name="de1_width_3">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="6">
-     <widget class="QLineEdit" name="de2_width_3">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="5">
-     <widget class="QLabel" name="label_59">
+    <item row="3" column="1">
+     <widget class="QLabel" name="label_58">
       <property name="text">
-       <string>x</string>
+       <string>D.E.2 size</string>
       </property>
      </widget>
     </item>
-    <item row="2" column="5">
-     <widget class="QLabel" name="label_61">
-      <property name="text">
-       <string>x</string>
+    <item row="2" column="7">
+     <widget class="QLineEdit" name="de1_width">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
      </widget>
     </item>
@@ -251,8 +274,8 @@ QLineEdit{
       </property>
      </widget>
     </item>
-    <item row="4" column="4">
-     <widget class="QLineEdit" name="de_spacing_3">
+    <item row="3" column="4">
+     <widget class="QLineEdit" name="de2_length">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -271,11 +294,55 @@ QLineEdit{
       </property>
       <property name="sizeHint" stdset="0">
        <size>
-        <width>16</width>
+        <width>24</width>
         <height>20</height>
        </size>
       </property>
      </spacer>
+    </item>
+    <item row="3" column="8">
+     <widget class="QLabel" name="label_13">
+      <property name="styleSheet">
+       <string notr="true">color :rgb(98, 114, 126);
+</string>
+      </property>
+      <property name="text">
+       <string>mm</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="8">
+     <widget class="QLabel" name="label_14">
+      <property name="styleSheet">
+       <string notr="true">color :rgb(98, 114, 126);
+</string>
+      </property>
+      <property name="text">
+       <string>mm</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="5">
+     <widget class="QLabel" name="label_15">
+      <property name="styleSheet">
+       <string notr="true">color :rgb(98, 114, 126);
+</string>
+      </property>
+      <property name="text">
+       <string>mm</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="5">
+     <widget class="QLabel" name="label_17">
+      <property name="styleSheet">
+       <string notr="true">color :rgb(98, 114, 126);
+</string>
+      </property>
+      <property name="text">
+       <string>um</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -314,9 +381,13 @@ QLineEdit{
      <number>-1</number>
     </property>
     <item row="0" column="2">
-     <widget class="QLabel" name="label_6">
+     <widget class="QLabel" name="label">
+      <property name="styleSheet">
+       <string notr="true">color :rgb(98, 114, 126);
+</string>
+      </property>
       <property name="text">
-       <string>x</string>
+       <string>cm</string>
       </property>
      </widget>
     </item>
@@ -330,8 +401,8 @@ QLineEdit{
       </property>
      </widget>
     </item>
-    <item row="0" column="3">
-     <widget class="QLineEdit" name="chip_width">
+    <item row="2" column="1">
+     <widget class="QLineEdit" name="line_width">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -347,13 +418,6 @@ QLineEdit{
       </property>
      </widget>
     </item>
-    <item row="0" column="0">
-     <widget class="QLabel" name="label_9">
-      <property name="text">
-       <string>total size</string>
-      </property>
-     </widget>
-    </item>
     <item row="1" column="0">
      <widget class="QLabel" name="label_2">
       <property name="text">
@@ -361,13 +425,17 @@ QLineEdit{
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
-     <widget class="QLineEdit" name="lineEdit_9">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
+    <item row="0" column="3">
+     <widget class="QLabel" name="label_6">
+      <property name="text">
+       <string>x</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QLabel" name="label_9">
+      <property name="text">
+       <string>total size</string>
       </property>
      </widget>
     </item>
@@ -381,44 +449,73 @@ QLineEdit{
       </property>
      </widget>
     </item>
+    <item row="0" column="4">
+     <widget class="QLineEdit" name="chip_width">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="5">
+     <widget class="QLabel" name="label_3">
+      <property name="styleSheet">
+       <string notr="true">color :rgb(98, 114, 126);
+</string>
+      </property>
+      <property name="text">
+       <string>cm</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2">
+     <widget class="QLabel" name="label_4">
+      <property name="styleSheet">
+       <string notr="true">color :rgb(98, 114, 126);
+</string>
+      </property>
+      <property name="text">
+       <string>mm</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="2">
+     <widget class="QLabel" name="label_5">
+      <property name="styleSheet">
+       <string notr="true">color :rgb(98, 114, 126);
+</string>
+      </property>
+      <property name="text">
+       <string>mm</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
+  <widget class="QPushButton" name="setting">
+   <property name="geometry">
+    <rect>
+     <x>300</x>
+     <y>440</y>
+     <width>113</width>
+     <height>32</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton{
+	border-radius: 5px;
+	padding : 6px;
+	background-color: rgb(31, 35, 44);
+}
+</string>
+   </property>
+   <property name="text">
+    <string>open new chip</string>
+   </property>
+  </widget>
  </widget>
- <resources>
-  <include location="resource.qrc"/>
- </resources>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>chip_setting</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>chip_setting</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <resources/>
+ <connections/>
 </ui>
