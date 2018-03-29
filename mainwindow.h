@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 #include "unit.h"
 #include "chip_setting.h"
+#include "save_yn_dialog.h"
+#include "line.h"
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QGraphicsItem>
@@ -10,7 +12,7 @@
 
 
 namespace Ui {
-class MainWindow;
+    class MainWindow;
 }
 
 class MainWindow : public QMainWindow
@@ -22,11 +24,13 @@ public:
 
     explicit MainWindow(QWidget *parent = 0);
     QGraphicsScene* mainscene;
+//    QGraphicsScene* linescene;
     ~MainWindow();
 
 public slots:
     void delete_from_list(unit *a);                 // remove the unit from list when it's deleted
     QGraphicsScene* CreateNewScene();
+    QGraphicsScene* CreateLineScene();
 private slots:
 
     // TOOLBAR
@@ -50,9 +54,11 @@ private slots:
     void save_svg();
     void load_svg_clicked();
     void export_clicked();
+    void close_clicked();
 
     void debugging();
 
+    void close_window(save_yn_dialog *);
     void reset_setting(chip_setting *);
 //protected:
 //    void mousePressEvent(QMouseEvent *event);

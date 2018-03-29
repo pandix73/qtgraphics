@@ -29,18 +29,23 @@ SOURCES += \
     switch.cpp \
     chip_setting.cpp \
     svgreader.cpp \
-    unit.cpp
+    unit.cpp \
+    save_yn_dialog.cpp \
+    line.cpp
 
 HEADERS += \
         mainwindow.h \
     switch.h \
     chip_setting.h \
     svgreader.h \
-    unit.h
+    unit.h \
+    save_yn_dialog.h \
+    line.h
 
 FORMS += \
         mainwindow.ui \
-    chip_setting.ui
+    chip_setting.ui \
+    save_yn_dialog.ui
 
 RESOURCES += \
     resource.qrc

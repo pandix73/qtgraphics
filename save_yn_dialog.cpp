@@ -12,3 +12,16 @@ save_yn_dialog::~save_yn_dialog()
 {
     delete ui;
 }
+
+void save_yn_dialog::on_yes_clicked()
+{
+    want_to_save = true;
+    this->close();
+    emit yes_save(this);
+}
+
+void save_yn_dialog::on_no_clicked()
+{
+    this->close();
+//    emit yes_save(this);
+}
