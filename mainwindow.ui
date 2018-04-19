@@ -195,6 +195,44 @@ QToolButton{
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QToolButton" name="controlpad_btn">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>1</horstretch>
+         <verstretch>1</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>delete</string>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="text">
+        <string notr="true">delete</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resource.qrc">
+         <normaloff>:/MainWindow/Icons/Icons/controlpad.png</normaloff>:/MainWindow/Icons/Icons/controlpad.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>30</width>
+         <height>23</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoRaise">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
    <widget class="QSplitter" name="splitter">
@@ -1256,8 +1294,11 @@ QSpinBox{
     </property>
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
+    <addaction name="separator"/>
     <addaction name="actionSave"/>
     <addaction name="actionExport"/>
+    <addaction name="actionPdf"/>
+    <addaction name="separator"/>
     <addaction name="actionClose"/>
    </widget>
    <addaction name="menuFile"/>
@@ -1277,8 +1318,7 @@ QSpinBox{
   <action name="actionNew">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/MainWindow/Icons/Icons/new-file.png</normaloff>
-     <normalon>:/MainWindow/Icons/Icons/save.png</normalon>:/MainWindow/Icons/Icons/new-file.png</iconset>
+     <normaloff>:/actions/Icons/new-file.png</normaloff>:/actions/Icons/new-file.png</iconset>
    </property>
    <property name="text">
     <string>New Chip</string>
@@ -1286,18 +1326,17 @@ QSpinBox{
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset>
-     <normalon>:/MainWindow/Icons/Icons/save.png</normalon>
-    </iconset>
+    <iconset resource="resource.qrc">
+     <normaloff>:/actions/Icons/save.png</normaloff>:/actions/Icons/save.png</iconset>
    </property>
    <property name="text">
-    <string> Save Chip</string>
+    <string>Save Chip</string>
    </property>
   </action>
   <action name="actionOpen">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/MainWindow/Icons/Icons/folder.png</normaloff>:/MainWindow/Icons/Icons/folder.png</iconset>
+     <normaloff>:/actions/Icons/folder.png</normaloff>:/actions/Icons/folder.png</iconset>
    </property>
    <property name="text">
     <string>Open Chip</string>
@@ -1306,7 +1345,7 @@ QSpinBox{
   <action name="actionExport">
    <property name="icon">
     <iconset resource="resource.qrc">
-     <normaloff>:/MainWindow/Icons/Icons/illustrator.png</normaloff>:/MainWindow/Icons/Icons/illustrator.png</iconset>
+     <normaloff>:/actions/Icons/save_ai.png</normaloff>:/actions/Icons/save_ai.png</iconset>
    </property>
    <property name="text">
     <string>Export Chip</string>
@@ -1315,6 +1354,15 @@ QSpinBox{
   <action name="actionClose">
    <property name="text">
     <string>Close</string>
+   </property>
+  </action>
+  <action name="actionPdf">
+   <property name="icon">
+    <iconset resource="resource.qrc">
+     <normaloff>:/actions/Icons/save_pdf.png</normaloff>:/actions/Icons/save_pdf.png</iconset>
+   </property>
+   <property name="text">
+    <string>Export PDF</string>
    </property>
   </action>
  </widget>

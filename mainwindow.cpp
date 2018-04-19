@@ -12,12 +12,12 @@
 #include <QMainWindow>
 #include <QSvgGenerator>
 #include <QFileDialog>
-#include <QPainter>
 #include <QPrinter>
 /////////////////////////////////////  CHIP INFO  /////////////////////////////////////
 bool deletemode = false;
+bool linemode = false;
 bool detailmode = false;
-bool addlinemode = false;
+
 //setting parameter
 int chip_length_cm = 3;
 int chip_width_cm = 2;
@@ -51,6 +51,8 @@ QPen redpen(Qt::red);
 QPen blackpen(Qt::black);
 QPen whitepen(Qt::white);
 
+//Brush setting
+QBrush nullitem(QColor(94, 94, 94, 54));
 //
 int border_px;
 int brick_xnum;
@@ -61,15 +63,13 @@ int brick_x_start;
 int brick_y_start;
 
 /////////////////////////////////////  MAINWINDOW  /////////////////////////////////////
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent), ui(new Ui::MainWindow)
 {
     setAcceptDrops(true);
     ui->setupUi(this);
+    this->linescene = this->CreateLineScene();
     this->mainscene = this->CreateNewScene();
-//    this->linescene = new QGraphicsScene(0, 0, 600, 400, ui->view);
-//    this->linescene = new QGraphicsScene(0, 0, 400, 600, NULL);
+
     //TOOGLE BUTTON
     SwitchControl *pSwitchControl = new SwitchControl(this->centralWidget());
     pSwitchControl->setFixedWidth(55);
@@ -104,6 +104,11 @@ MainWindow::MainWindow(QWidget *parent) :
     Close->setShortcut(QKeySequence::Close);
     connect(Close, SIGNAL(triggered()), this, SLOT(close_clicked()));
 
+    //EXPORT PDF ACTION
+    QAction *Pdf = ui->actionPdf;
+//    Pdf->setShortcuts(QKeySequence::);
+    connect(Pdf, SIGNAL(triggered()), this, SLOT(pdf_clicked()));
+
     ui->view->setScene(mainscene);
 }
 
@@ -113,7 +118,9 @@ MainWindow::~MainWindow()
 }
 //Create New Scene
 QGraphicsScene* MainWindow::CreateNewScene(){
-    QGraphicsScene* scene = new QGraphicsScene(0, 0, 600, 400, ui->view);               //create a new scene
+    QGraphicsScene * scene = new QGraphicsScene(0, 0, 600, 400, ui->view);
+//    graphicsscene* scene = new graphicsscene(ui->view);               //create a new scene
+//    scene->setSceneRect(QRectF(0, 0, 600, 400));
     scene->setBackgroundBrush(Qt::white);
 
     pix_per_brick = fmin(600/((10*chip_length_cm*1000/de_spacing_um)),                  //calculate the size of each brick that fits the screeen the most
@@ -171,10 +178,10 @@ QGraphicsScene* MainWindow::CreateNewScene(){
         return scene;
 }
 
-QGraphicsScene* MainWindow::CreateLineScene(){
-    QGraphicsScene* scene = new QGraphicsScene(0, 0, 600, 400, ui->view);               //create a new scene
+graphicsscene* MainWindow::CreateLineScene(){
+    graphicsscene* scene = new graphicsscene(ui->view);                                 //create a new scene
+    scene->setSceneRect(QRectF(0, 0, 600, 400));
     scene->setBackgroundBrush(Qt::white);
-
     pix_per_brick = fmin(600/((10*chip_length_cm*1000/de_spacing_um)),                  //calculate the size of each brick that fits the screeen the most
                          400/((10*chip_width_cm*1000/de_spacing_um)));
 
@@ -230,29 +237,33 @@ QGraphicsScene* MainWindow::CreateLineScene(){
 //MODE LABEL                                                                            //shows the mode its in
 void MainWindow::mode_label(bool bChecked){
 
-    QGraphicsScene *linescene = this->CreateLineScene();               //create a new scene
-//        this->linescene = newscene;
-//    linescene->setBackgroundBrush(Qt::white);
-    line *line_widget = new line;
-    line_widget->setAttribute(Qt::WA_TranslucentBackground, true);
-
-    for(unit *item : allunits){
-        linescene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->width*pix_per_brick, item->length*pix_per_brick, redpen);
-    }
-
-    QGraphicsProxyWidget *proxyWidget = linescene->addWidget(line_widget);
-
     if(bChecked){
+        for(unit *item : allunits){
+            linescene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
+        }
         ui->view->setScene(linescene);
+        linemode = true;
         ui->mode_label->setText("CUSTOMIZED");
+        QPixmap *e = new QPixmap(":/MainWindow/Icons/Icons/pencil_cursor.png");
+        QCursor pencil = QCursor(*e, -10, -10);
+        ui->view->setCursor(pencil);
+
     }
     else{
+        for(QLineF *line : linescene->alllines){
+            qDebug() << line->x1() << line->y1() << line->x2() <<line->y2();
+            mainscene->addLine(line->x1(), line->y1(), line->x2(), line->y2(), graypen);
+        }
+        qDebug() << "line size : "<< linescene->alllines.size();
         ui->view->setScene(mainscene);
+        linemode = false;
         ui->mode_label->setText("SIMPLE");
+        ui->view->setCursor(Qt::ArrowCursor);
     }
 }
 
-/////////////////////////////////////  ACTIONS  /////////////////////////////////////
+//////////////////////////////////
+//////  ACTIONS  /////////////////////////////////////
 void MainWindow::new_chip_clicked()
 {
     this->save_svg();
@@ -422,6 +433,64 @@ void MainWindow::export_clicked()
        export_scene->render(&p);
        p.end();
 }
+//EXPORT PDF
+void MainWindow::pdf_clicked()
+{
+    QString newPath = QFileDialog::getSaveFileName(this, "Save Pdf", path, tr("PDF files (*.pdf)"));
+    if (newPath.isEmpty()) return;
+    path = newPath;
+
+    QPrinter printer( QPrinter::HighResolution );
+    printer.setPageSize( QPrinter::A4 );
+    printer.setOrientation( QPrinter::Portrait );
+    printer.setOutputFormat( QPrinter::NativeFormat );
+    printer.setOutputFileName(path); // file will be created in your build directory (where debug/release directories are)
+
+    QPainter p;
+
+       if( !p.begin( &printer ) )
+       {
+           qDebug() << "Error!";
+           return;
+       }
+        // reset all sizes to REAL SIZE
+       QGraphicsScene *export_scene = new QGraphicsScene(0, 0, 9921, 14031);
+       float px_to_cm = 9921/21;
+
+       // border in REAL SIZE
+       export_scene->addRect(0, 0, chip_length_cm*px_to_cm, chip_width_cm*px_to_cm, redpen);
+
+       //units in REAL SIZE
+       for(unit *item : allunits){
+            unit *export_item = new unit();
+            //export_item = item;
+            export_item->xi = (item->xi - (brick_x_start-border_px)/pix_per_brick) * de_spacing_um* px_to_cm  / 10000 / pix_per_brick;
+            export_item->yi = item->yi * de_spacing_um * px_to_cm  / 10000 / pix_per_brick;
+            export_item->length = item->length * de_spacing_um * px_to_cm  / 10000 / pix_per_brick;
+            export_item->width = item->width *de_spacing_um * px_to_cm  / 10000 / pix_per_brick;
+            if(item->type == "merge"){
+                export_item->color = merge_color;
+            }else if(item->type == "dispenser"){
+                export_item->color = dispenser_color;
+            }else if(item->type == "move"){
+                export_item->color = moving_color;
+            }else if(item->type == "cycle"){
+                export_item->color = cycling_color;
+            }else{
+                export_item->color = heat_color;
+            }
+            export_scene->addItem(export_item);
+            qDebug() << "brick_x_start" << brick_x_start;
+            qDebug() << "border_px" << border_px;
+            qDebug() << "pix_per_brick" << pix_per_brick;
+            qDebug() << "xi" << export_item->xi*pix_per_brick;
+            qDebug() << "yi" << export_item->yi*pix_per_brick;
+            qDebug() << "length" << export_item->length * pix_per_brick;
+            qDebug() << "width" << export_item->width * pix_per_brick;
+       }
+       export_scene->render(&p);
+       p.end();
+}
 
 // CLOSE
 void MainWindow::close_clicked()
@@ -473,10 +542,16 @@ void MainWindow::delete_from_list(unit *item)
     delete item;
 }
 
-void MainWindow::on_temp_line_clicked()
+void MainWindow::on_controlpad_btn_clicked()
 {
-    addlinemode = 1 - addlinemode;
-    qDebug() << "MODE" << addlinemode;
+    int size = allunits.size();
+    int mm_to_px = 1000/de_spacing_um*pix_per_brick;
+    int cp_start = brick_x_start;
+
+    for(int i=0; i<size; i++){
+        mainscene->addRect(cp_start, brick_y_start, cp_length_mm*mm_to_px, cp_width_mm*mm_to_px, graypen, QColor(94, 93, 93, 54));
+        cp_start += cp_length_mm*mm_to_px + cp_spacing_um * mm_to_px / 1000;
+    }
 }
 /////////////////////////////////////  CREATE COMPONENTS  /////////////////////////////////////
 //MOVE
@@ -657,31 +732,5 @@ void MainWindow::reset_setting(chip_setting *new_chip)
     this->mainscene = newscene;
     ui->view->setScene(newscene);
 }
-
-/////////////////////////////////////  ADD LINE  /////////////////////////////////////
-//void MainWindow::mousePressEvent(QMouseEvent* event){
-//    if(addlinemode){
-//        P1 = event->pos();
-//        P2 = event->pos();
-////        mLine.setP1(event->pos());
-////        mLine.setP2(event->pos());
-//    }
-//}
-
-//void MainWindow::mouseMoveEvent(QMouseEvent* event){
-//    if(addlinemode){
-//        if(event->type() == QEvent::MouseMove){
-//            P2 = event->pos();
-////            mLine.setP2(event->pos());
-//        }
-//    }
-//}
-
-//void MainWindow::mouseReleaseEvent(QMouseEvent *event){
-//    if(addlinemode){
-//        mainscene->addLine(P1.x(), P1.y(), P2.x(), P2.y(), graypen);
-//        update();
-//    }
-//}
 
 

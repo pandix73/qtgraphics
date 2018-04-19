@@ -4,14 +4,20 @@
         <file>Icons/connect.png</file>
         <file>Icons/redo.png</file>
         <file>Icons/undo.png</file>
-        <file>Icons/save.png</file>
-        <file>Icons/new-file.png</file>
         <file>Icons/eraser_cursor.png</file>
         <file>Icons/settings.png</file>
-        <file>Icons/logo.png</file>
         <file>Icons/minus-symbol.png</file>
         <file>Icons/plus-symbol.png</file>
+        <file>Icons/controlpad.png</file>
+        <file>Icons/pencil_cursor.png</file>
+    </qresource>
+    <qresource prefix="/actions">
+        <file>Icons/save_ai.png</file>
+        <file>Icons/save_edit.png</file>
+        <file>Icons/save_pdf.png</file>
+        <file>Icons/save_png.png</file>
         <file>Icons/folder.png</file>
-        <file>Icons/illustrator.png</file>
+        <file>Icons/new-file.png</file>
+        <file>Icons/save.png</file>
     </qresource>
 </RCC>
