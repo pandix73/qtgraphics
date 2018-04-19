@@ -1,4 +1,5 @@
 #include "unit.h"
+#include <QDebug>
 extern bool deletemode;
 extern bool detailmode;
 
@@ -91,11 +92,11 @@ void unit::mousePressEvent(QGraphicsSceneMouseEvent *event)
     Pressed = true;
     update();
     QGraphicsItem::mousePressEvent(event);
-
 }
 
 void unit::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+
     Pressed = false;
     int xindex = qRound(this->x()/pix_per_brick);
     int yindex = qRound(this->y()/pix_per_brick);
@@ -108,4 +109,5 @@ void unit::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     if(deletemode){
         emit delete_this_item(this);
     }
+
 }

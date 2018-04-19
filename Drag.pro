@@ -31,6 +31,7 @@ SOURCES += \
     svgreader.cpp \
     unit.cpp \
     save_yn_dialog.cpp \
+    graphicsscene.cpp \
     line.cpp
 
 HEADERS += \
@@ -40,6 +41,7 @@ HEADERS += \
     svgreader.h \
     unit.h \
     save_yn_dialog.h \
+    graphicsscene.h \
     line.h
 
 FORMS += \

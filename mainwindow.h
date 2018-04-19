@@ -3,7 +3,7 @@
 #include "unit.h"
 #include "chip_setting.h"
 #include "save_yn_dialog.h"
-#include "line.h"
+#include "graphicsscene.h"
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QGraphicsItem>
@@ -25,12 +25,14 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     QGraphicsScene* mainscene;
 //    QGraphicsScene* linescene;
+    graphicsscene* linescene;
     ~MainWindow();
 
 public slots:
     void delete_from_list(unit *a);                 // remove the unit from list when it's deleted
     QGraphicsScene* CreateNewScene();
-    QGraphicsScene* CreateLineScene();
+//    QGraphicsScene* CreateLineScene();
+    graphicsscene* CreateLineScene();
 private slots:
 
     // TOOLBAR
@@ -38,7 +40,7 @@ private slots:
 
     void on_setting_btn_clicked();                  // "setting button" clicked, open new setting window
     void on_connect_btn_clicked();
-    void on_temp_line_clicked();
+    void on_controlpad_btn_clicked();
 
     // CREATE UNITS
     void on_move_create_clicked();                  // "create move" clicked
@@ -55,18 +57,20 @@ private slots:
     void load_svg_clicked();
     void export_clicked();
     void close_clicked();
-
+    void pdf_clicked();
     void debugging();
 
     void close_window(save_yn_dialog *);
     void reset_setting(chip_setting *);
 //protected:
-//    void mousePressEvent(QMouseEvent *event);
-//    void mouseMoveEvent(QMouseEvent *event);
-//    void mouseReleaseEvent(QMouseEvent *event);
+//    void mousePressEvent(QMouseEvent *mouseEvent);
+//    void mouseMoveEvent(QMouseEvent *mouseEvent);
+//    void mouseReleaseEvent(QMouseEvent *mouseEvent);
+
 private:
     Ui::MainWindow *ui;
     QString path;
+    QGraphicsLineItem *myline;
 //    QLine mLine;
 //    QPoint P1;
 //    QPoint P2;
