@@ -26,10 +26,6 @@ public:
 
     // item state
     bool Pressed;
-//    int xi;
-//    int yi;
-//    int length = 1;
-//    int width = 1;
     float xi;
     float yi;
     float length = 1;

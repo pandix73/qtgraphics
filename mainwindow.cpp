@@ -244,15 +244,14 @@ void MainWindow::mode_label(bool bChecked){
         ui->view->setScene(linescene);
         linemode = true;
         ui->mode_label->setText("CUSTOMIZED");
-        QPixmap *e = new QPixmap(":/MainWindow/Icons/Icons/pencil_cursor.png");
+        QPixmap *e = new QPixmap(":/MainWindow/Icons/Icons/cursor.png");
         QCursor pencil = QCursor(*e, -10, -10);
         ui->view->setCursor(pencil);
-
     }
     else{
-        for(QLineF *line : linescene->alllines){
-            qDebug() << line->x1() << line->y1() << line->x2() <<line->y2();
-            mainscene->addLine(line->x1(), line->y1(), line->x2(), line->y2(), graypen);
+        for(line *turnline : linescene->alllines){
+//            qDebug() << turnline->x[0] << turnline->y[0] << turnline->x[1] << turnline->y[1];
+//            mainscene->addLine(line->x1(), line->y1(), line->x2(), line->y2(), graypen);
         }
         qDebug() << "line size : "<< linescene->alllines.size();
         ui->view->setScene(mainscene);
@@ -516,6 +515,7 @@ void MainWindow::on_eraser_clicked()
 {
     deletemode = 1-deletemode;
     qDebug() << "number : " << allunits.count();
+    qDebug() << "line number : "<< linescene->alllines.count();
     qDebug() << "GLOBAL MODE : " <<deletemode;
 
 
@@ -732,5 +732,6 @@ void MainWindow::reset_setting(chip_setting *new_chip)
     this->mainscene = newscene;
     ui->view->setScene(newscene);
 }
+
 
 

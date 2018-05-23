@@ -71,9 +71,6 @@ private:
     Ui::MainWindow *ui;
     QString path;
     QGraphicsLineItem *myline;
-//    QLine mLine;
-//    QPoint P1;
-//    QPoint P2;
 };
 
 
