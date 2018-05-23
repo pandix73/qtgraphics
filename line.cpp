@@ -19,25 +19,47 @@ QRectF line::boundingRect() const
     }
 
 
-//    for(int i=1; i<this->segments; i++){
-//        int slope = (y[i+1] - y[i]) / (x[i+1] - x[i]);
-//        if(slope > 1 || slope < -1){
-//            return QRectF(x[i], y[i], 10, y[i+1] - y[i]);
-//        }
-//        else{
-//            return QRectF(x[i], y[i], x[i+1] - x[i], 10);
-//        }
+//    int slope = (y[i+1] - y[i]) / (x[i+1] - x[i]);
+//    if(slope > 1 || slope < -1){
+//        return QRectF(x[i], y[i], 10, y[i+1] - y[i]);
+//    }
+//    else{
+//        return QRectF(x[i], y[i], x[i+1] - x[i], 10);
 //    }
 }
 
 void line::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    QRectF rect = boundingRect();
+    QPainterPath path;
+    QRectF rect;
+    int slope = (y[1] - y[0]) / (x[1] - x[0]);
+    if(slope > 1 || slope < -1){
+        rect =  QRectF(x[0], y[0], 10, y[1] - y[0]);
+    }
+    else{
+        rect =  QRectF(x[0], y[0], x[1] - x[0], 10);
+    }
+
+    path.addRect(rect);
+    for(int i=1; i<this->segments; i++){
+        QRectF rect1;
+        int slope = (y[i+1] - y[i]) / (x[i+1] - x[i]);
+        if(slope > 1 || slope < -1){
+            rect1 =  QRectF(x[i], y[i], 10, y[i+1] - y[i]);
+        }
+        else{
+            rect1 =  QRectF(x[i], y[i], x[i+1] - x[i], 10);
+        }
+
+        path.addRect(rect1);
+    }
     QBrush brush(Qt::gray);
     painter->setBrush(brush);
     QPen pen(Qt::black, 1);
     painter->setPen(pen);
-    painter->drawRect(rect);
+    //painter->drawRect(rect);
+
+    painter->drawPath(path);
     update();
 
     Q_UNUSED(option);

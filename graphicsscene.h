@@ -15,7 +15,6 @@ public:
     graphicsscene(QObject *parent);
     QList<line*> alllines;
     QList<line*> to_destroy;
-    QGraphicsItemGroup *group;
 public slots:
     void delete_from_list(line *delete_line);
 

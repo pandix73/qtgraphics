@@ -134,12 +134,12 @@ void graphicsscene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent){
 
     if(!deletemode){
         int size_to_destroy = to_destroy.count();
-//        for(int i=0; i<size_to_destroy; i++){
-//            delete to_destroy.last();
-//            to_destroy.pop_back();
-//        }
-//        qDebug() << turnline->segments;
-        //group = this->createItemGroup(to_destroy);
+        for(int i=0; i<size_to_destroy; i++){
+            delete to_destroy.last();
+            to_destroy.pop_back();
+        }
+        qDebug() << turnline->segments;
+        this->addItem(turnline);
         connect(turnline, SIGNAL(delete_this_line(line *)), this, SLOT(delete_from_list(line *)));
         alllines.prepend(turnline);
         pressed = false;
