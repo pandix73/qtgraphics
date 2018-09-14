@@ -1,7 +1,8 @@
 #include "graphicsscene.h"
 #include <QDebug>
+#include <math.h>
 extern int pix_per_brick;
-extern int deletemode;
+extern bool deletemode;
 // TODO:
 // delete line
 // right angle turnning instead of sloped line
@@ -10,61 +11,145 @@ graphicsscene::graphicsscene(QObject *parent) :QGraphicsScene(parent)
 
 }
 
+
 // Start drawing line
 void graphicsscene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
+    if(deletemode){
+        QGraphicsScene::mousePressEvent(mouseEvent);
+    }
+   if(!deletemode){
+    if(!pressed){                                             // start a new turnning line
         int roundx1 = (int)mouseEvent->scenePos().x() % pix_per_brick;
         int roundy1 = (int)mouseEvent->scenePos().y() % pix_per_brick;
-        myline = new QGraphicsLineItem(mouseEvent->scenePos().x() - roundx1, mouseEvent->scenePos().y() - roundy1,
-                                       mouseEvent->scenePos().x() - roundx1, mouseEvent->scenePos().y() - roundy1);
-        myline->setPen(QPen(Qt::black, 2));         // TODO: the later version needs to deal with the EXACT line width
-        this->addItem(myline);
-        pressed = true;
 
+        line *drawline = new line();
+        drawline->x[0] = mouseEvent->scenePos().x() - roundx1;
+        drawline->y[0] = mouseEvent->scenePos().y() - roundy1;
+        drawline->x[1] = drawline->x[0];
+        drawline->y[1] = drawline->y[0];
+        segline = drawline;                                                 // the first segment
+        turnline = new line();
+        pressed = true;
+        qDebug() << "Start a new line";
+//        qDebug() << "press" << drawline->x[turnline->segments] << drawline->x[turnline->segments] << drawline->y[turnline->segments+1] << drawline->y[turnline->segments+1] << pressed;
+    }
+    else if(pressed){
+        if(turnline->segments % 2 != 0){
+            to_destroy.push_back(segline2);
+            this->addItem(segline2);
+            connect(segline2, SIGNAL(delete_this_line(line *)), this, SLOT(delete_from_list(line *)));
+            qDebug() << "Add a segment" << turnline->segments << "||" << segline2->x[0] << segline2->y[0] << segline2->x[1] << segline2->y[1];
+            //update data to turnline
+            turnline->x[turnline->segments] = segline2->x[0];
+            turnline->y[turnline->segments] = segline2->y[0];
+            turnline->x[turnline->segments+1] = segline2->x[1];
+            turnline->y[turnline->segments+1] = segline2->y[1];
+            turnline->segments++;
+
+        // start a new segnemt
+            line *drawline = new line();
+            drawline->x[0] = turnline->x[turnline->segments];
+            drawline->y[0] = turnline->y[turnline->segments];
+            drawline->x[1] = turnline->x[turnline->segments];
+            drawline->y[1] = turnline->y[turnline->segments];
+            segline = drawline;
+        }
+        else{
+            to_destroy.push_back(segline);
+            this->addItem(segline);
+            connect(segline, SIGNAL(delete_this_line(line *)), this, SLOT(delete_from_list(line *)));
+            qDebug() << "Add a segment" << turnline->segments << "||" << segline->x[0] << segline->y[0] << segline->x[1] << segline->y[1];
+            //update data to turnline
+            turnline->x[turnline->segments] = segline->x[0];
+            turnline->y[turnline->segments] = segline->y[0];
+            turnline->x[turnline->segments+1] = segline->x[1];
+            turnline->y[turnline->segments+1] = segline->y[1];
+            turnline->segments++;
+
+            line *drawline = new line();
+            drawline->x[0] = turnline->x[turnline->segments];
+            drawline->y[0] = turnline->y[turnline->segments];
+            drawline->x[1] = turnline->x[turnline->segments];
+            drawline->y[1] = turnline->y[turnline->segments];
+            segline2 = drawline;
+        }
+    }
+   }
 }
 
 // Move the line with the cursor while drawing line
 void graphicsscene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
-
-//    turnline= new QGraphicsLineItem(mouseEvent->scenePos().x() - roundx1, mouseEvent->scenePos().y() - roundy1,
-//                                        mouseEvent->scenePos().x() - roundx1, mouseEvent->scenePos().y() - roundy1);
+    if(!deletemode){
     if(pressed){
-        if((mouseEvent->scenePos().x() - myline->line().p1().y()) == 0){
-            myline->setLine(QLineF(myline->line().p1().x(), myline->line().p1().y(), myline->line().p1().x(), mouseEvent->scenePos().y()));
+        if(turnline->segments % 2 == 0){
+            if(abs((mouseEvent->scenePos().x() - segline->x[0])) < 0.1){
+                segline->x[1] = segline->x[0];
+                segline->y[1] = mouseEvent->scenePos().y();
+            }
+            else{
+                slope = (mouseEvent->scenePos().y() - segline->y[0]) / (mouseEvent->scenePos().x() - segline->x[0]);
+                if(slope > 1 || slope < -1){
+                    segline->x[1] = segline->x[0];
+                    segline->y[1] = mouseEvent->scenePos().y();
+                }
+                else{
+                    segline->x[1] = mouseEvent->scenePos().x();
+                    segline->y[1] = segline->y[0];
+                }
+            }
+            qDebug() << "A" << segline->x[0] << segline->y[0] << segline->x[1] << segline->y[1];
         }
         else{
-            slope = (mouseEvent->scenePos().y() - myline->line().p1().y()) / (mouseEvent->scenePos().x() - myline->line().p1().x());
-            if(slope > 1 || slope < -1)
-                myline->setLine(QLineF(myline->line().p1().x(), myline->line().p1().y(), myline->line().p1().x(), mouseEvent->scenePos().y()));
-            else
-                myline->setLine(QLineF(myline->line().p1().x(), myline->line().p1().y(), mouseEvent->scenePos().x(), myline->line().p1().y()));
+            if(abs((mouseEvent->scenePos().x() - segline2->x[0])) < 0.1){
+                segline2->x[1] = segline2->x[0];
+                segline2->y[1] = mouseEvent->scenePos().y();
+            }
+            else{
+                slope = (mouseEvent->scenePos().y() - segline2->y[0]) / (mouseEvent->scenePos().x() - segline2->x[0]);
+                if(slope > 1 || slope < -1){
+                    segline2->x[1] = segline2->x[0];
+                    segline2->y[1] = mouseEvent->scenePos().y();
+                }
+                else{
+                    segline2->x[1] = mouseEvent->scenePos().x();
+                    segline2->y[1] = segline2->y[0];
+                }
+            }
+            qDebug() << "B" << segline2->x[0] << segline2->y[0] << segline2->x[1] << segline2->y[1];
         }
+
+    }
     }
 }
 
 // Draw the line following the grid
-void graphicsscene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
-{
-//        int roundx2 = (int)mouseEvent->scenePos().x() % pix_per_brick;
-//        int roundy2 = (int)mouseEvent->scenePos().y() % pix_per_brick;
-        int roundx2 = (int)myline->line().p2().x() % pix_per_brick;
-        int roundy2 = (int)myline->line().p2().y() % pix_per_brick;
-        QLineF *newline = new QLineF(myline->line().p1().x(), myline->line().p1().y(), (myline->line().p2().x() - roundx2), (myline->line().p2().y() - roundy2));
+//void graphicsscene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
+//{
 
-        //qDebug() << newline->x1() << newline->y1() << newline->x2() << newline->y2();
-        myline->setLine(*newline);
-//        myline->setLine(QLineF(0 , 0, 10, 10));
-        line *thisline = new line();
-        thisline->x1 = newline->x1();
-        thisline->y1 = newline->y1();
-        thisline->x2 = newline->x2();
-        thisline->y2 = newline->y2();
-        alllines.prepend(newline);
+//}
+
+void graphicsscene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent){
+
+    if(!deletemode){
+        int size_to_destroy = to_destroy.count();
+        for(int i=0; i<size_to_destroy; i++){
+            delete to_destroy.last();
+            to_destroy.pop_back();
+        }
+        qDebug() << turnline->segments;
+        this->addItem(turnline);
+        connect(turnline, SIGNAL(delete_this_line(line *)), this, SLOT(delete_from_list(line *)));
+        alllines.prepend(turnline);
         pressed = false;
-//        if(deletemode){
-//            alllines.removeOne()
-//        }
-        //        QLineF newline(myline->line().p1().x(), myline->line().p1().y(), (mouseEvent->scenePos().x() - roundx2), (mouseEvent->scenePos().y() - roundy2));
-        //        qDebug() << myline->line().p1().x() <<  myline->line().p1().y() << (mouseEvent->scenePos().x() - roundx2) <<  (mouseEvent->scenePos().y() - roundy2);
+        qDebug() << "End a line";
+    }
+}
+
+void graphicsscene::delete_from_list(line *delete_line)
+{
+    qDebug() << delete_line->x[0];
+    alllines.removeOne(delete_line);
+    delete delete_line;
 }
