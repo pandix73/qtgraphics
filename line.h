@@ -18,7 +18,6 @@ public:
     QRectF boundingRect() const;
     void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget);
 
-
     float x[10];
     float y[10];
     int segments = 0;

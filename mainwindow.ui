@@ -336,21 +336,568 @@ QPushButton{
       <bool>false</bool>
      </property>
      <widget class="QWidget" name="tab_2">
+      <property name="styleSheet">
+       <string notr="true">QGroupBox{
+	background-color : rgb(46, 52, 66);
+	border-radius: 5px;
+	padding: 18px 0px 8px 8px;
+	text-decoration: underline;
+}
+
+QLabel{
+	background-color : rgb(46, 52, 66);
+}
+
+QLineEdit{
+	padding-left: 4px; 
+	border-radius: 5px;
+	background-color : rgb(56, 63, 81);
+}
+
+QSpinBox{
+	background-color : rgb(56, 63, 81);
+}
+
+
+</string>
+      </property>
       <attribute name="title">
-       <string>Import</string>
+       <string>Info</string>
       </attribute>
-      <widget class="QPushButton" name="setting_update">
+      <widget class="QGroupBox" name="mergeBox_2">
        <property name="geometry">
         <rect>
-         <x>290</x>
-         <y>490</y>
-         <width>113</width>
-         <height>32</height>
+         <x>5</x>
+         <y>10</y>
+         <width>430</width>
+         <height>271</height>
         </rect>
        </property>
-       <property name="text">
-        <string>open new chip</string>
+       <property name="font">
+        <font>
+         <family>American Typewriter</family>
+         <pointsize>15</pointsize>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+         <underline>true</underline>
+        </font>
        </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="title">
+        <string>Chip Information</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_9">
+        <item row="0" column="0">
+         <widget class="QWidget" name="widget_7" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>240</height>
+           </size>
+          </property>
+          <property name="baseSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QWidget{	
+	background-color: rgb(46, 52, 66);
+}
+QLineEdit{
+	border-radius: 5px;
+	background-color : rgb(56, 63, 81);
+}</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_5">
+           <item row="8" column="5">
+            <widget class="QLabel" name="label_15">
+             <property name="styleSheet">
+              <string notr="true">color :rgb(98, 114, 126);
+</string>
+             </property>
+             <property name="text">
+              <string>mm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="4">
+            <widget class="QLabel" name="chip_border_label">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="8">
+            <widget class="QLabel" name="label_13">
+             <property name="styleSheet">
+              <string notr="true">color :rgb(98, 114, 126);
+</string>
+             </property>
+             <property name="text">
+              <string>mm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="1">
+            <widget class="QLabel" name="label_62">
+             <property name="text">
+              <string>D.E.1 size</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="8">
+            <widget class="QLabel" name="label_14">
+             <property name="styleSheet">
+              <string notr="true">color :rgb(98, 114, 126);
+</string>
+             </property>
+             <property name="text">
+              <string>mm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="7">
+            <widget class="QLabel" name="de2_width_label">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="5">
+            <widget class="QLabel" name="label_17">
+             <property name="styleSheet">
+              <string notr="true">color :rgb(98, 114, 126);
+</string>
+             </property>
+             <property name="text">
+              <string>um</string>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="1">
+            <widget class="QLabel" name="label_51">
+             <property name="text">
+              <string>spacing b/w D.E.</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="1">
+            <widget class="QLabel" name="label_58">
+             <property name="text">
+              <string>D.E.2 size</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="Line" name="line">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLabel" name="label_18">
+             <property name="text">
+              <string>line width</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="5">
+            <widget class="QLabel" name="label_16">
+             <property name="styleSheet">
+              <string notr="true">color :rgb(98, 114, 126);
+</string>
+             </property>
+             <property name="text">
+              <string>cm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>spacing of chip edge</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="5">
+            <widget class="QLabel" name="label_20">
+             <property name="styleSheet">
+              <string notr="true">color :rgb(98, 114, 126);
+</string>
+             </property>
+             <property name="text">
+              <string>mm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="6">
+            <widget class="QLabel" name="label_61">
+             <property name="styleSheet">
+              <string notr="true">color :rgb(98, 114, 126);
+</string>
+             </property>
+             <property name="text">
+              <string>x</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="4">
+            <widget class="QLabel" name="line_width_label">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="8">
+            <widget class="QLabel" name="label_26">
+             <property name="styleSheet">
+              <string notr="true">color :rgb(98, 114, 126);
+</string>
+             </property>
+             <property name="text">
+              <string>mm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLabel" name="label_22">
+             <property name="text">
+              <string>control pad size</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="4">
+            <widget class="QLabel" name="cp_length_label">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="5">
+            <widget class="QLabel" name="label_12">
+             <property name="styleSheet">
+              <string notr="true">color :rgb(98, 114, 126);
+</string>
+             </property>
+             <property name="text">
+              <string>mm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="4">
+            <widget class="QLabel" name="de1_length_label">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="label_9">
+             <property name="text">
+              <string>total size</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="5">
+            <widget class="QLabel" name="label_24">
+             <property name="styleSheet">
+              <string notr="true">color :rgb(98, 114, 126);
+</string>
+             </property>
+             <property name="text">
+              <string>mm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="4">
+            <widget class="QLabel" name="cp_sapcing_label">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="6">
+            <widget class="QLabel" name="label_59">
+             <property name="styleSheet">
+              <string notr="true">color :rgb(98, 114, 126);</string>
+             </property>
+             <property name="text">
+              <string>x</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="7">
+            <widget class="QLabel" name="cp_width_label">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="5">
+            <widget class="QLabel" name="label_25">
+             <property name="styleSheet">
+              <string notr="true">color :rgb(98, 114, 126);
+</string>
+             </property>
+             <property name="text">
+              <string>um</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="7">
+            <widget class="QLabel" name="de1_width_label">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="8">
+            <widget class="QLabel" name="label_19">
+             <property name="styleSheet">
+              <string notr="true">color :rgb(98, 114, 126);
+</string>
+             </property>
+             <property name="text">
+              <string>cm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="4">
+            <widget class="QLabel" name="de_spacing">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="5">
+            <widget class="QLabel" name="label_21">
+             <property name="styleSheet">
+              <string notr="true">color :rgb(98, 114, 126);
+</string>
+             </property>
+             <property name="text">
+              <string>mm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="Line" name="line_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="4">
+            <widget class="QLabel" name="de2_length_label">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QLabel" name="label_23">
+             <property name="text">
+              <string>spacing b/w C.P.</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="2">
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>24</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="0" column="6">
+            <widget class="QLabel" name="label_64">
+             <property name="styleSheet">
+              <string notr="true">color :rgb(98, 114, 126);
+</string>
+             </property>
+             <property name="text">
+              <string>x</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="6">
+            <widget class="QLabel" name="label_65">
+             <property name="styleSheet">
+              <string notr="true">color :rgb(98, 114, 126);
+</string>
+             </property>
+             <property name="text">
+              <string>x</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="4">
+            <widget class="QLabel" name="chip_length_label">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="7">
+            <widget class="QLabel" name="chip_width_label">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QGroupBox" name="mergeBox_3">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>300</y>
+         <width>430</width>
+         <height>231</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>American Typewriter</family>
+         <pointsize>15</pointsize>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+         <underline>true</underline>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="title">
+        <string>Components Information</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_10">
+        <item row="3" column="0">
+         <widget class="QWidget" name="widget_9" native="true">
+          <property name="styleSheet">
+           <string notr="true">QWidget{	
+	background-color: rgb(46, 52, 66);
+}
+QLineEdit{
+	border-radius: 5px;
+	background-color : rgb(56, 63, 81);
+}</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_13">
+           <item row="0" column="1">
+            <widget class="QLabel" name="label_27">
+             <property name="text">
+              <string>Number of Y-Merge</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLabel" name="num_merge">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <spacer name="horizontalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Fixed</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>24</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="3" column="3">
+            <widget class="QLabel" name="num_moving">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QLabel" name="label_54">
+             <property name="text">
+              <string>Number of Heater</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QLabel" name="num_dispenser">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLabel" name="label_60">
+             <property name="text">
+              <string>Number of Cycling</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="label_53">
+             <property name="text">
+              <string>Number of Dispenser</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLabel" name="label_63">
+             <property name="text">
+              <string>Number of Moving</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="3">
+            <widget class="QLabel" name="num_cycling">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="3">
+            <widget class="QLabel" name="num_heater">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
      <widget class="QWidget" name="tab">

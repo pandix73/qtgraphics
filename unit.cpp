@@ -1,7 +1,7 @@
 #include "unit.h"
 #include <QDebug>
 extern bool deletemode;
-extern bool detailmode;
+bool detailmode = false;
 
 //setting parameter
 extern int chip_length_cm;
@@ -47,12 +47,14 @@ void unit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
         if(this->type == "move"){
             for(int i = 0; i < this->de_xnum; i++){
                 if(this->de_type == 1){
+                    qDebug() << "TYPE 1";
                     painter->setBrush(QBrush(unit_de1_color));
                     painter->drawRect(rect.x()+i*(pix_per_brick*de1_length_mm*1000/de_spacing_um + pix_per_brick),
                                       rect.y(),
                                       pix_per_brick*de1_length_mm*1000/de_spacing_um,
                                       pix_per_brick*de1_width_mm*1000/de_spacing_um);
                 } else {
+                    qDebug() << "TYPE 2";
                     painter->setBrush(QBrush(unit_de2_color));
                     painter->drawRect(rect.x()+i*(pix_per_brick*de2_length_mm*1000/de_spacing_um + pix_per_brick),
                                       rect.y(),

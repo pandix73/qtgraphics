@@ -29,13 +29,15 @@ public:
 
     int de_spacing_um = 500;
     int cp_spacing_um = 300;
-    int line_width_mm = 3;
+    int line_width_um = 3;
 
 signals:
     void reset(chip_setting *);
 
 private slots:
     void on_setting_clicked();                  // "open new chip" button
+
+    void on_setting_cancel_clicked();
 
 private:
     Ui::chip_setting *ui;

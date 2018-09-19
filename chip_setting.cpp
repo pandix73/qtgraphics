@@ -28,6 +28,12 @@ void chip_setting::on_setting_clicked()
 
     if(!ui->de_spacing->text().isEmpty()) de_spacing_um = ui->de_spacing->text().toInt();
     if(!ui->cp_spacing->text().isEmpty()) cp_spacing_um = ui->cp_spacing->text().toInt();
-    if(!ui->line_width->text().isEmpty()) line_width_mm = ui->line_width->text().toInt();
+    if(!ui->line_width->text().isEmpty()) line_width_um = ui->line_width->text().toInt();
     emit reset(this);
+    this->close();
+}
+
+void chip_setting::on_setting_cancel_clicked()
+{
+    this->close();
 }
