@@ -24,6 +24,9 @@ public:
     // overriding paint()
     void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget);
 
+    void Disable();
+    void Enable();
+
     // item state
     bool Pressed;
     float xi;
@@ -41,8 +44,10 @@ public:
     QColor unit_de2_color = QColor(0, 0, 255, 127);
 
 
+
 signals:
     void delete_this_item(unit *item);
+
 
 protected:
     // overriding mouse events

@@ -556,6 +556,22 @@ QLineEdit{
    </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>chip_length</tabstop>
+  <tabstop>chip_width</tabstop>
+  <tabstop>chip_border</tabstop>
+  <tabstop>line_width</tabstop>
+  <tabstop>cp_length</tabstop>
+  <tabstop>cp_width</tabstop>
+  <tabstop>cp_spacing</tabstop>
+  <tabstop>de1_length</tabstop>
+  <tabstop>de1_width</tabstop>
+  <tabstop>de2_length</tabstop>
+  <tabstop>de2_width</tabstop>
+  <tabstop>de_spacing</tabstop>
+  <tabstop>setting</tabstop>
+  <tabstop>setting_cancel</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

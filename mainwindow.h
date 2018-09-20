@@ -29,9 +29,10 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
+    void GetScreenSize(int width, int length);
     QList<unit*> allunits;                          // save all present units in list
-
     explicit MainWindow(QWidget *parent = 0);
+    //MainWindow(QWidget *parent = 0, int width, int length);
     QGraphicsScene* mainscene;
     graphicsscene* linescene;
     ~MainWindow();
@@ -73,6 +74,15 @@ private slots:
     void close_window(save_yn_dialog *);
     void reset_setting(chip_setting *);
 
+    void ChipParameters();
+    void OuterBorder(QGraphicsScene *);
+    void BackgroundGrid(QGraphicsScene *);
+    void ChipScaleDots(QGraphicsScene *);
+    void DataForSaveLoad(QGraphicsScene *);
+    void ChipBorder(QGraphicsScene *);
+    void ChipScale(QGraphicsScene *);
+
+    void Info();
 private:
     Ui::MainWindow *ui;
     QString path;

@@ -31,6 +31,12 @@ QToolButton{
 }</string>
   </property>
   <widget class="QWidget" name="centralWidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <widget class="QWidget" name="horizontalWidget" native="true">
     <property name="geometry">
      <rect>
@@ -1914,6 +1920,36 @@ QSpinBox{
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>merge_length</tabstop>
+  <tabstop>merge_width</tabstop>
+  <tabstop>merge_num</tabstop>
+  <tabstop>merge_create</tabstop>
+  <tabstop>dispenser_length</tabstop>
+  <tabstop>dispenser_width</tabstop>
+  <tabstop>dispenser_num</tabstop>
+  <tabstop>dispenser_create</tabstop>
+  <tabstop>move_size</tabstop>
+  <tabstop>move_tilt</tabstop>
+  <tabstop>move_electrod</tabstop>
+  <tabstop>move_num</tabstop>
+  <tabstop>move_create</tabstop>
+  <tabstop>cycling_length</tabstop>
+  <tabstop>cycling_width</tabstop>
+  <tabstop>cycling_electrod</tabstop>
+  <tabstop>cycling_num</tabstop>
+  <tabstop>cycling_create</tabstop>
+  <tabstop>heater_num</tabstop>
+  <tabstop>heater_create</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>eraser</tabstop>
+  <tabstop>connect_btn</tabstop>
+  <tabstop>temp_line</tabstop>
+  <tabstop>toolButton_4</tabstop>
+  <tabstop>setting_btn</tabstop>
+  <tabstop>controlpad_btn</tabstop>
+  <tabstop>view</tabstop>
+ </tabstops>
  <resources>
   <include location="resource.qrc"/>
  </resources>

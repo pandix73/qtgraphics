@@ -12,10 +12,10 @@ QRectF line::boundingRect() const
     // outer most edges
     int slope = (y[1] - y[0]) / (x[1] - x[0]);
     if(slope > 1 || slope < -1){
-        return QRectF(x[0], y[0], 10, y[1] - y[0]);
+        return QRectF(x[0], y[0], line_width_um, y[1] - y[0]);
     }
     else{
-        return QRectF(x[0], y[0], x[1] - x[0], 10);
+        return QRectF(x[0], y[0], x[1] - x[0], line_width_um);
     }
 }
 
@@ -25,10 +25,16 @@ void line::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
     QRectF rect;
     int slope = (y[1] - y[0]) / (x[1] - x[0]);
     if(slope > 1 || slope < -1){
-        rect =  QRectF(x[0], y[0], line_width_um, y[1] - y[0]);
+        if(y[0] < y[1])
+            rect =  QRectF(x[0], y[0], line_width_um, y[1] - y[0]);
+        else
+            rect =  QRectF(x[0], y[1], line_width_um, y[0] - y[1]);
     }
     else{
-        rect =  QRectF(x[0], y[0], x[1] - x[0], line_width_um);
+        if(x[0] < x[1])
+            rect =  QRectF(x[0], y[0], x[1] - x[0], line_width_um);
+        else
+            rect =  QRectF(x[1], y[0], x[0] - x[1], line_width_um);
     }
 
     path.addRect(rect);
@@ -47,7 +53,6 @@ void line::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
             else
                 rect1 =  QRectF(x[i+1], y[i], x[i] - x[i+1], line_width_um);
         }
-
         path.addRect(rect1);
     }
     QBrush brush(Qt::gray);

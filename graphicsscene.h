@@ -17,12 +17,15 @@ public:
     QList<line*> to_destroy;
 public slots:
     void delete_from_list(line *delete_line);
+    line *PassSegToTurn(line *segline);
+    void MouseToSeg(line *segline, QGraphicsSceneMouseEvent *mouseEvent);
 
+    int ReturnSegments();
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent);
-    //void mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent);
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent);
+
 private:
      line *turnline;
      line *segline;

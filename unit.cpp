@@ -21,6 +21,15 @@ unit::unit()
 {
     Pressed = false;
     setFlag(ItemIsMovable);
+
+}
+
+void unit::Disable(){
+    setEnabled(false);
+}
+
+void unit::Enable(){
+    setEnabled(true);
 }
 
 QRectF unit::boundingRect() const
