@@ -22,6 +22,7 @@ void save_yn_dialog::on_yes_clicked()
 
 void save_yn_dialog::on_no_clicked()
 {
+    want_to_save = false;
     this->close();
-//    emit yes_save(this);
+    emit yes_save(this);
 }

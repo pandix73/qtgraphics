@@ -1,9 +1,9 @@
 #include "line.h"
 #include <QDebug>
 extern bool deletemode;
+extern int line_width_um;
 line::line()
 {
-//    setFlag(ItemIsMovable);
     setFlags(ItemIsSelectable);
 }
 
@@ -17,15 +17,6 @@ QRectF line::boundingRect() const
     else{
         return QRectF(x[0], y[0], x[1] - x[0], 10);
     }
-
-
-//    int slope = (y[i+1] - y[i]) / (x[i+1] - x[i]);
-//    if(slope > 1 || slope < -1){
-//        return QRectF(x[i], y[i], 10, y[i+1] - y[i]);
-//    }
-//    else{
-//        return QRectF(x[i], y[i], x[i+1] - x[i], 10);
-//    }
 }
 
 void line::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -34,10 +25,10 @@ void line::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
     QRectF rect;
     int slope = (y[1] - y[0]) / (x[1] - x[0]);
     if(slope > 1 || slope < -1){
-        rect =  QRectF(x[0], y[0], 10, y[1] - y[0]);
+        rect =  QRectF(x[0], y[0], line_width_um, y[1] - y[0]);
     }
     else{
-        rect =  QRectF(x[0], y[0], x[1] - x[0], 10);
+        rect =  QRectF(x[0], y[0], x[1] - x[0], line_width_um);
     }
 
     path.addRect(rect);
@@ -45,10 +36,16 @@ void line::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
         QRectF rect1;
         int slope = (y[i+1] - y[i]) / (x[i+1] - x[i]);
         if(slope > 1 || slope < -1){
-            rect1 =  QRectF(x[i], y[i], 10, y[i+1] - y[i]);
+            if(y[i] < y[i+1])
+                rect1 =  QRectF(x[i], y[i], line_width_um, y[i+1] - y[i]);
+            else
+                rect1 =  QRectF(x[i], y[i+1], line_width_um, y[i] - y[i+1]);
         }
         else{
-            rect1 =  QRectF(x[i], y[i], x[i+1] - x[i], 10);
+            if(x[i] < x[i+1])
+                rect1 =  QRectF(x[i], y[i], x[i+1] - x[i], line_width_um);
+            else
+                rect1 =  QRectF(x[i+1], y[i], x[i] - x[i+1], line_width_um);
         }
 
         path.addRect(rect1);
@@ -57,8 +54,6 @@ void line::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
     painter->setBrush(brush);
     QPen pen(Qt::black, 1);
     painter->setPen(pen);
-    //painter->drawRect(rect);
-
     painter->drawPath(path);
     update();
 
@@ -76,7 +71,7 @@ void line::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     QGraphicsItem::mouseReleaseEvent(event);
     if(deletemode){
-        qDebug() << "delete!!!" << this->x[0];
+        qDebug() << "delete a line!!!";
         emit delete_this_line(this);
     }
 }

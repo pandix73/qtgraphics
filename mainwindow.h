@@ -3,12 +3,24 @@
 #include "unit.h"
 #include "chip_setting.h"
 #include "save_yn_dialog.h"
+#include "switch.h"
+#include "svgreader.h"
 #include "graphicsscene.h"
+#include "line.h"
+
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QGraphicsItem>
 #include <QtCore>
 #include <QtGui>
+
+#include <QGraphicsView>
+#include <QPainter>
+#include <QPoint>
+#include <QSvgGenerator>
+#include <QFileDialog>
+#include <QPrinter>
+
 
 /////////////////////////////////////  CHIP INFO  /////////////////////////////////////
 extern bool deletemode;
@@ -72,17 +84,17 @@ public:
 
     explicit MainWindow(QWidget *parent = nullptr);
     QGraphicsScene* mainscene;
-//    QGraphicsScene* linescene;
     graphicsscene* linescene;
     ~MainWindow();
 
 public slots:
     void delete_from_list(unit *a);                 // remove the unit from list when it's deleted
     QGraphicsScene* CreateNewScene();
-//    QGraphicsScene* CreateLineScene();
     graphicsscene* CreateLineScene();
-private slots:
 
+private slots:
+    // LINESCENE
+    void RefreshLineScene();
     // TOOLBAR
     void on_eraser_clicked();                       // "eraser" clicked
 
@@ -91,6 +103,7 @@ private slots:
     void on_controlpad_btn_clicked();
 
     // CREATE UNITS
+    void EnableCreateUnit(bool enable);
     void on_move_create_clicked();                  // "create move" clicked
     void on_dispenser_create_clicked();             // "create dispenser" clicked
     void on_merge_create_clicked();                 // "create merge" clicked
@@ -110,10 +123,6 @@ private slots:
 
     void close_window(save_yn_dialog *);
     void reset_setting(chip_setting *);
-//protected:
-//    void mousePressEvent(QMouseEvent *mouseEvent);
-//    void mouseMoveEvent(QMouseEvent *mouseEvent);
-//    void mouseReleaseEvent(QMouseEvent *mouseEvent);
 
 private:
     Ui::MainWindow *ui;

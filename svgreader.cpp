@@ -4,7 +4,7 @@
 #include <QMessageBox>
 #include <QDomDocument>
 #include <QStringList>
-extern int pix_per_brick;
+
 SvgReader::SvgReader()
 {
 
