@@ -4,6 +4,11 @@
 #include "svgreader.h"
 //#include "save_yn_dialog.h"
 
+#include <string>
+#include <vector>
+#include <iostream>
+#include <limits>
+
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QPainter>
@@ -13,6 +18,7 @@
 #include <QSvgGenerator>
 #include <QFileDialog>
 #include <QPrinter>
+
 /////////////////////////////////////  CHIP INFO  /////////////////////////////////////
 bool deletemode = false;
 bool linemode = false;
@@ -123,8 +129,8 @@ QGraphicsScene* MainWindow::CreateNewScene(){
 //    scene->setSceneRect(QRectF(0, 0, 600, 400));
     scene->setBackgroundBrush(Qt::white);
 
-    pix_per_brick = fmin(600/((10*chip_length_cm*1000/de_spacing_um)),                  //calculate the size of each brick that fits the screeen the most
-                         400/((10*chip_width_cm*1000/de_spacing_um)));
+    pix_per_brick = int(fmin(600/(10*chip_length_cm*1000/de_spacing_um),                  //calculate the size of each brick that fits the screeen the most
+                         400/(10*chip_width_cm*1000/de_spacing_um)));
 
         //1. outer border(nothing to do with real chip size, just the canvas size)
         scene->addLine(0, 0, scene->width(), 0, graypen);
@@ -182,8 +188,8 @@ graphicsscene* MainWindow::CreateLineScene(){
     graphicsscene* scene = new graphicsscene(ui->view);                                 //create a new scene
     scene->setSceneRect(QRectF(0, 0, 600, 400));
     scene->setBackgroundBrush(Qt::white);
-    pix_per_brick = fmin(600/((10*chip_length_cm*1000/de_spacing_um)),                  //calculate the size of each brick that fits the screeen the most
-                         400/((10*chip_width_cm*1000/de_spacing_um)));
+    pix_per_brick = int(fmin(600/((10*chip_length_cm*1000/de_spacing_um)),                  //calculate the size of each brick that fits the screeen the most
+                         400/((10*chip_width_cm*1000/de_spacing_um))));
 
         //1. outer border(nothing to do with real chip size, just the canvas size)
         scene->addLine(0, 0, scene->width(), 0, graypen);
@@ -239,7 +245,7 @@ void MainWindow::mode_label(bool bChecked){
 
     if(bChecked){
         for(unit *item : allunits){
-            linescene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
+            linescene->addRect(int(item->xi)*pix_per_brick, int(item->yi)*pix_per_brick, int(item->length)*pix_per_brick, int(item->width)*pix_per_brick, redpen, nullitem);
         }
         ui->view->setScene(linescene);
         linemode = true;
@@ -250,7 +256,7 @@ void MainWindow::mode_label(bool bChecked){
     }
     else{
         for(line *turnline : linescene->alllines){
-//            qDebug() << turnline->x[0] << turnline->y[0] << turnline->x[1] << turnline->y[1];
+            qDebug() << turnline->x[0] << turnline->y[0] << turnline->x[1] << turnline->y[1];
 //            mainscene->addLine(line->x1(), line->y1(), line->x2(), line->y2(), graypen);
         }
         qDebug() << "line size : "<< linescene->alllines.size();
@@ -283,8 +289,8 @@ void MainWindow::save_svg()
 
     QSvgGenerator generator;                                                            //Create a file generator object
     generator.setFileName(path);                                                        //We set the path to the file where to save vector graphics
-    generator.setSize(QSize(mainscene->width(), mainscene->height()));                  //Set the dimensions of the working area of the document in millimeters
-    generator.setViewBox(QRect(0, 0, mainscene->width(), mainscene->height()));         //Set the work area in the coordinates
+    generator.setSize(QSize(int(mainscene->width()), int(mainscene->height())));                  //Set the dimensions of the working area of the document in millimeters
+    generator.setViewBox(QRect(0, 0, int(mainscene->width()), int(mainscene->height())));         //Set the work area in the coordinates
     generator.setTitle("Drag");                                                         //The title document
 
     QPainter painter;
@@ -319,22 +325,22 @@ void MainWindow::load_svg_clicked()
             mainscene->addLine(mainscene->width(), 0, mainscene->width(), mainscene->height(), graypen);
             flag--;
         }else if(flag==3){
-            pix_per_brick = rect->length;
+            pix_per_brick = int(rect->length);
             //2. pix_per_brick
             mainscene->addRect(0, 10, pix_per_brick, 10, whitepen);
             qDebug() << "pix_per_brick : "<< pix_per_brick;
             flag--;
         }else if(flag==2){
-            border_px = rect->length;
+            border_px = int(rect->length);
             //3. border_px
             mainscene->addRect(0, 20, border_px, 10, whitepen);
             qDebug() << "border_px : " << border_px;
             flag--;
         }else if(flag==1){
-            brick_xnum = (rect->length - 2*border_px) / pix_per_brick;
-            brick_ynum = (rect->width - 2*border_px) / pix_per_brick;
-            chip_width_px = rect->length;
-            chip_height_px = rect->width;
+            brick_xnum = (int(rect->length) - 2*border_px) / pix_per_brick;
+            brick_ynum = (int(rect->width) - 2*border_px) / pix_per_brick;
+            chip_width_px = int(rect->length);
+            chip_height_px = int(rect->width);
 
             brick_x_start = (600 - chip_width_px)/2 + border_px;
             brick_y_start = (400 - chip_height_px)/2 + border_px;
@@ -354,7 +360,7 @@ void MainWindow::load_svg_clicked()
                 mainscene->addEllipse(brick_x_start-border_px+2, brick_y_start-border_px + i*cm_to_px, 1, 1, redpen);
             }
             //4. border
-            mainscene->addRect(brick_x_start-border_px, brick_y_start-border_px , rect->length, rect->width, redpen);
+            mainscene->addRect(brick_x_start-border_px, brick_y_start-border_px , qreal(rect->length), qreal(rect->width), redpen);
             flag--;
         }else{
             //reload all units that were created
@@ -399,7 +405,7 @@ void MainWindow::export_clicked()
        float px_to_cm = 9921/21;
 
        // border in REAL SIZE
-       export_scene->addRect(0, 0, chip_length_cm*px_to_cm, chip_width_cm*px_to_cm, redpen);
+       export_scene->addRect(0, 0, chip_length_cm*int(px_to_cm), chip_width_cm*int(px_to_cm), redpen);
 
        //units in REAL SIZE
        for(unit *item : allunits){
@@ -457,7 +463,7 @@ void MainWindow::pdf_clicked()
        float px_to_cm = 9921/21;
 
        // border in REAL SIZE
-       export_scene->addRect(0, 0, chip_length_cm*px_to_cm, chip_width_cm*px_to_cm, redpen);
+       export_scene->addRect(0, 0, chip_length_cm*int(px_to_cm), chip_width_cm*int(px_to_cm), redpen);
 
        //units in REAL SIZE
        for(unit *item : allunits){
@@ -666,17 +672,140 @@ void MainWindow::on_heater_create_clicked()
     }
 }
 
+#include <vector>
+
 
 void MainWindow::on_connect_btn_clicked()
 {
+
+    int xsize = 70;
+    int ysize = 170;
+
+    struct edge{
+        int flow, cap, cost;
+        unsigned to, rev;
+        edge(unsigned to, int cap, int cost, unsigned rev){
+            this->to = to;
+            this->cap = cap;
+            this->cost = cost;
+            this->rev = rev;
+            this->flow = 0;
+        }
+    };
+
+    std::vector<std::vector<edge>> graph(unsigned(xsize*ysize));
+    auto addEdge = [&graph](unsigned s, unsigned t, int cost, int cap){
+        graph[s].push_back(edge(t, cap, cost, graph[t].size()));
+        graph[t].push_back(edge(s, 0, -cost, graph[s].size()-1));
+    };
+
+    qDebug() << "here";
+    // flow node connection
+    for(int i = 0; i < xsize; i++){
+        for(int j = 0; j < ysize; j++){
+            if (i != xsize-1) {
+                unsigned from = unsigned(i*ysize+j);
+                unsigned to = unsigned((i+1)*ysize+j);
+                addEdge(from, to, 1, 1);
+                addEdge(to, from, 1, 1);
+            }
+            if (j != ysize-1) {
+                unsigned from = unsigned(i*ysize+j);
+                unsigned to = unsigned(i*ysize+j+1);
+                addEdge(from, to, 1, 1);
+                addEdge(to, from, 1, 1);
+            }
+        }
+    }
+
+    // set source and target
+    unsigned s = unsigned((xsize-1)*(ysize-1) + 1);
+    unsigned t = unsigned((xsize-1)*(ysize-1) + 2);
+
     int count = 0;
+    int de_num = 0;
     for(unit* unit : allunits){
         count += unit->de_xnum*unit->de_ynum;
+        qDebug() << unit->xi << unit->yi;
+        addEdge(s, unsigned(unit->xi*ysize+unit->yi), 1, 1);
+        addEdge(unsigned(de_num++), t, 1, 1);
     }
+
+    unsigned n = graph.size();
+    std::vector<int> distance(n);
+    std::vector<int> currflow(n);
+    std::vector<int> prevedge(n);
+    std::vector<int> prevnode(n);
+
+
+    // find path by bellmanFord
+    auto bellmanFord = [n, s, &graph, &distance, &currflow, &prevedge,&prevnode](){
+        std::fill(distance.begin(), distance.end(), INT_MAX);
+        distance[s] = 0;
+        currflow[s] = INT_MAX;
+        std::vector<bool> inqueue(n);
+        std::vector<int> q(n);
+        int qt = 0;
+        q[unsigned(qt++)] = int(s);
+        for (int qh = 0; unsigned(abs(qh - qt)) % n != 0; qh++) {
+            unsigned u = unsigned(q[unsigned(qh) % n]);
+            inqueue[u] = false;
+            for (unsigned i = 0; i < graph[u].size(); i++) {
+                edge e = graph[u][i];
+                if (e.flow >= e.cap)
+                    continue;
+                unsigned v = e.to;
+                int ndist = distance[u] + e.cost;
+                if (distance[v] > ndist) {
+                    distance[v] = ndist;
+                    prevnode[v] = int(u);
+                    prevedge[v] = int(i);
+                    currflow[v] = std::min(currflow[u], e.cap - e.flow);
+                    if (!inqueue[v]) {
+                        inqueue[v] = true;
+                        q[unsigned(qt++) % n] = int(v);
+                    }
+                }
+            }
+        }
+    };
+
+    // min cost flow
+    int flow = 0;
+    int flowCost = 0;
+    int maxflow = 10;
+
+    while (flow < maxflow) {
+        bellmanFord();
+        if (distance[unsigned(t)] == INT_MAX)
+            break;
+        int df = std::min(currflow[t], maxflow - flow);
+        flow += df;
+        for (unsigned v = t; v != s; v = unsigned(prevnode[v])) {
+            edge* e;
+            e = &graph[unsigned(prevnode[v])][unsigned(prevedge[v])];
+            e->flow += df;
+            graph[v][e->rev].flow -= df;
+            flowCost += df * e->cost;
+            delete(e);
+        }
+    }
+
+    qDebug() << flow << flowCost;
+
     int top = count / 2;
     int bot = count / 2 + count % 2;
     int start = chip_length_cm*10 - top*cp_length_mm;
     QBrush blackgr(Qt::black);
+
+    for(int i = 0; i < xsize; i++){
+        for(int j = 0; j < ysize; j++){
+            for(edge e : graph[unsigned(i*ysize+j)]){
+                if(e.flow > 0)
+                    ui->view->scene()->addRect(i*pix_per_brick, j*pix_per_brick, pix_per_brick, pix_per_brick, graypen, blackgr);
+            }
+        }
+    }
 
 
     for(int i = 0, x = start*pix_per_brick; i < top; i++){

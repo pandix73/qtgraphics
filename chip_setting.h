@@ -12,7 +12,7 @@ class chip_setting : public QDialog
     Q_OBJECT
 
 public:
-    explicit chip_setting(QWidget *parent = 0);
+    explicit chip_setting(QWidget *parent = nullptr);
     ~chip_setting();
 
     int chip_length_cm = 3;

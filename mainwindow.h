@@ -10,6 +10,54 @@
 #include <QtCore>
 #include <QtGui>
 
+/////////////////////////////////////  CHIP INFO  /////////////////////////////////////
+extern bool deletemode;
+extern bool linemode;
+extern bool detailmode;
+
+//setting parameter
+extern int chip_length_cm;
+extern int chip_width_cm;
+extern int chip_border_mm;
+
+extern int cp_length_mm;
+extern int cp_width_mm;
+
+extern int de1_length_mm;
+extern int de1_width_mm;
+extern int de2_length_mm;
+extern int de2_width_mm;
+
+extern int de_spacing_um;
+extern int cp_spacing_um;
+extern int line_width_mm;
+
+//int dispenser_mm = 10;
+extern int pix_per_brick;
+
+//unit color
+extern QColor merge_color;
+extern QColor cycling_color;
+extern QColor moving_color;
+extern QColor dispenser_color;
+extern QColor heat_color;
+
+//Pen setting
+extern QPen graypen;
+extern QPen redpen;
+extern QPen blackpen;
+extern QPen whitepen;
+
+//Brush setting
+extern QBrush nullitem;
+//
+extern int border_px;
+extern int brick_xnum;
+extern int brick_ynum;
+extern int chip_width_px;
+extern int chip_height_px;
+extern int brick_x_start;
+extern int brick_y_start;
 
 namespace Ui {
     class MainWindow;
@@ -22,7 +70,7 @@ class MainWindow : public QMainWindow
 public:
     QList<unit*> allunits;                          // save all present units in list
 
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
     QGraphicsScene* mainscene;
 //    QGraphicsScene* linescene;
     graphicsscene* linescene;
