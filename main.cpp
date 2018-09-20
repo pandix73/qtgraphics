@@ -16,9 +16,8 @@ int main(int argc, char *argv[])
     MainWindow m;
     m.GetScreenSize(width, length);
 
-    qDebug() << width << length;
 //    m.showFullScreen();
-    m.showMaximized();
-//    m.show();
+//    m.showMaximized();
+    m.show();
     return a.exec();
 }

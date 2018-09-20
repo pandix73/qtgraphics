@@ -53,7 +53,12 @@ QPen whitepen(Qt::white);
 //Brush setting
 QBrush nullitem(QColor(94, 94, 94, 54));
 
-
+//Number of units
+int num_merge = 0;
+int num_dispenser = 0;
+int num_move = 0;
+int num_cycling = 0;
+int num_heater = 0;
 /////////////////////////////////////  MAINWINDOW  /////////////////////////////////////
 MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -101,6 +106,7 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent), ui(new Ui::MainWin
     connect(Pdf, SIGNAL(triggered()), this, SLOT(pdf_clicked()));
 
     ui->view->setScene(mainscene);
+
 }
 
 MainWindow::~MainWindow()
@@ -117,7 +123,6 @@ void MainWindow::GetScreenSize(int width, int length){
 void MainWindow::ChipParameters(){
     pix_per_brick = fmin(600/((10*chip_length_cm*1000/de_spacing_um)),                  //calculate the size of each brick that fits the screeen the most
                          400/((10*chip_width_cm*1000/de_spacing_um)));
-    qDebug() << "PIXEL" << pix_per_brick;
     cm_to_px = 10000/de_spacing_um*pix_per_brick;
 
     border_px = chip_border_mm*1000/de_spacing_um*pix_per_brick;                        //border width in pixel
@@ -191,6 +196,12 @@ void MainWindow::Info(){
     ui->de2_length_label->setText(QString::number(de2_length_mm));
     ui->de2_width_label->setText(QString::number(de2_width_mm));
     ui->de_spacing->setText(QString::number(de_spacing_um));
+
+    ui->num_merge->setText(QString::number(num_merge));
+    ui->num_dispenser->setText(QString::number(num_dispenser));
+    ui->num_move->setText(QString::number(num_move));
+    ui->num_cycling->setText(QString::number(num_cycling));
+    ui->num_heater->setText(QString::number(num_heater));
 }
 
 //Create New Scene
@@ -229,18 +240,6 @@ graphicsscene* MainWindow::CreateLineScene(){
     return scene;
 }
 
-void MainWindow::RefreshLineScene(){
-    linescene->clear();
-    ChipParameters();
-    OuterBorder(linescene);
-    BackgroundGrid(linescene);
-    ChipScaleDots(linescene);
-    DataForSaveLoad(linescene);
-    ChipBorder(linescene);
-    ChipScale(linescene);
-    return;
-}
-
 void MainWindow::EnableCreateUnit(bool enable){
     ui->merge_create->setEnabled(enable);
     ui->dispenser_create->setEnabled(enable);
@@ -253,52 +252,42 @@ void MainWindow::EnableCreateUnit(bool enable){
 void MainWindow::mode_label(bool bChecked){
     /////// LINE MODE ///////
     if(bChecked){
-        //RefreshLineScene();
         EnableCreateUnit(false);
-        for(unit *item: allunits){
-            item->Disable();
+
+        for(unit *item : allunits){
+            if(item->type == "move"){                   //Show detail components for "move"
+                for(int i = 0; i < item->de_xnum; i++){
+                    if(item->de_type == 1){
+                                DestroyRect << linescene->addRect((item->xi+i*(de1_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
+                                           item->yi*pix_per_brick,
+                                           pix_per_brick*de1_length_mm*1000/de_spacing_um,
+                                           pix_per_brick*de1_width_mm*1000/de_spacing_um,
+                                           redpen, nullitem);
+                    } else {
+                                DestroyRect << linescene->addRect((item->xi+i*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
+                                           item->yi*pix_per_brick,
+                                           pix_per_brick*de2_length_mm*1000/de_spacing_um,
+                                           pix_per_brick*de2_length_mm*1000/de_spacing_um,
+                                           redpen, nullitem);
+                    }
+                }
+            }
+            else if(item->type == "cycle"){             //Show detail components for 'cycling"
+                for(int i = 0; i < item->de_xnum; i++){
+                    for(int j = 0; j < item->de_ynum; j++){
+                        if(i!=0 && i!=item->de_xnum-1 && j!=0 && j!=item->de_ynum-1) continue;
+                                DestroyRect << linescene->addRect((item->xi+i*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
+                                          (item->yi+j*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
+                                          pix_per_brick*de2_length_mm*1000/de_spacing_um,
+                                          pix_per_brick*de2_length_mm*1000/de_spacing_um,
+                                          redpen, nullitem);
+                    }
+                }
+            }
+            else
+                        DestroyRect << linescene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
         }
-//        for(unit *item : allunits){
-
-//            if(item->type == "move"){                   //Show detail components for "move"
-//                for(int i = 0; i < item->de_xnum; i++){
-//                    if(item->de_type == 1){
-//                        linescene->addRect((item->xi+i*(de1_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
-//                                           item->yi*pix_per_brick,
-//                                           pix_per_brick*de1_length_mm*1000/de_spacing_um,
-//                                           pix_per_brick*de1_width_mm*1000/de_spacing_um,
-//                                           redpen, nullitem);
-//                    } else {
-//                        linescene->addRect((item->xi+i*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
-//                                           item->yi*pix_per_brick,
-//                                           pix_per_brick*de2_length_mm*1000/de_spacing_um,
-//                                           pix_per_brick*de2_length_mm*1000/de_spacing_um,
-//                                           redpen, nullitem);
-//                    }
-//                }
-//            }
-//            else if(item->type == "cycle"){             //Show detail components for 'cycling"
-//                for(int i = 0; i < item->de_xnum; i++){
-//                    for(int j = 0; j < item->de_ynum; j++){
-//                        if(i!=0 && i!=item->de_xnum-1 && j!=0 && j!=item->de_ynum-1) continue;
-//                        linescene->addRect((item->xi+i*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
-//                                          (item->yi+j*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
-//                                          pix_per_brick*de2_length_mm*1000/de_spacing_um,
-//                                          pix_per_brick*de2_length_mm*1000/de_spacing_um,
-//                                          redpen, nullitem);
-//                    }
-//                }
-//            }
-//            else
-//                linescene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
-//        }
-
-//        for (QList<line*>::const_iterator iter = linescene->alllines.begin(),
-//                                end = linescene->alllines.end(); iter != end; ++iter){
-//            qDebug() << (**iter).segments;
-//        }
-
-        qDebug() << "line size : "<< linescene->alllines.size();
+        qDebug() << "DESTROY RECT" << DestroyRect.size();
         ui->view->setScene(linescene);
         linemode = true;
         ui->mode_label->setText("CUSTOMIZED");
@@ -308,17 +297,17 @@ void MainWindow::mode_label(bool bChecked){
     }
     /////// UNIT MODE ///////
     else{
-        EnableCreateUnit(true);
-        for(unit *item: allunits){
-            item->Enable();
+        for(QGraphicsItem* rect: DestroyRect){
+             delete rect;
         }
+        DestroyRect.clear();
+        EnableCreateUnit(true);
         for(line *turnline : linescene->alllines){
-            qDebug() << "num of segments" << turnline->segments;
+            qDebug() << "MAIN" << linescene->alllines[0]->segments;
             for(int i=0; i<turnline->segments; i++){
                 mainscene->addLine(turnline->x[i], turnline->y[i], turnline->x[i+1], turnline->y[i+1], graypen);
             }
         }
-        //qDebug() << "line size : "<< linescene->alllines.size();
         ui->view->setScene(mainscene);
         linemode = false;
         ui->mode_label->setText("SIMPLE");
@@ -355,6 +344,7 @@ void MainWindow::save_svg()
     painter.begin(&generator);
     mainscene->render(&painter);
     painter.end();
+
 
     //At the end we get a vector drawing file with the contents of the graphic scenes
 }
@@ -601,20 +591,35 @@ void MainWindow::on_eraser_clicked()
 //    QPixmap e(":/MainWindow/Icons/Icons/eraser_cursor.png");
 //    QCursor cursorErase = QCursor(QPixmap(":/MainWindow/Icons/Icons/eraser_cursor.png"),0 , 0);
 //    QCursor cursorErase = QCursor(*e ,0 , 0);
+
     if(deletemode == true){
         QPixmap *e = new QPixmap(":/MainWindow/Icons/Icons/eraser_cursor.png");
         QCursor cursorErase = QCursor(*e, 10, 6);
         ui->eraser->setStyleSheet("background-color: rgb(64, 72, 91);");
         ui->view->setCursor(cursorErase);
     } else {
-        ui->eraser->setStyleSheet("background-color: rgb(42, 48, 58);");
-        ui->view->setCursor(Qt::ArrowCursor);
+        if(linemode){
+            ui->eraser->setStyleSheet("background-color: rgb(42, 48, 58);");
+            QPixmap *e = new QPixmap(":/MainWindow/Icons/Icons/cursor.png");
+            QCursor pencil = QCursor(*e, -10, -10);
+            ui->view->setCursor(pencil);
+        }
+        else{
+            ui->eraser->setStyleSheet("background-color: rgb(42, 48, 58);");
+            ui->view->setCursor(Qt::ArrowCursor);
+        }
     }
 }
 
 //remove the deleted item from allunits list
 void MainWindow::delete_from_list(unit *item)
 {
+    if(item->type == "merge") num_merge--;
+    if(item->type == "dispenser") num_dispenser--;
+    if(item->type == "move") num_move--;
+    if(item->type == "cycling") num_cycling--;
+    if(item->type == "heater") num_heater--;
+    Info();
     allunits.removeOne(item);
     delete item;
 }
@@ -668,6 +673,7 @@ void MainWindow::on_merge_create_clicked()
     blackpen.setWidth(6);
     int number = ui->merge_num->value();
     int position = 5;
+    num_merge += number;
     while(number--){
         unit *merge = new unit();
         merge->type = "merge";
@@ -681,6 +687,7 @@ void MainWindow::on_merge_create_clicked()
         position += ui->merge_length->text().toInt() + 3;
         connect(merge, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
     }
+    ui->num_merge->setText(QString::number(num_merge));
 }
 
 //DISPENSER
@@ -688,6 +695,7 @@ void MainWindow::on_dispenser_create_clicked()
 {
     int number = ui->dispenser_num->value();
     int position = 5;
+    num_dispenser += number;
     while(number--){
         unit *dispenser = new unit();
         dispenser->type = "dispenser";
@@ -704,6 +712,7 @@ void MainWindow::on_dispenser_create_clicked()
         position += ui->merge_length->text().toInt() + 3;
         connect(dispenser, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
     }
+    ui->num_dispenser->setText(QString::number(num_dispenser));
 }
 
 //MOVE
@@ -711,6 +720,7 @@ void MainWindow::on_move_create_clicked()
 {
     int number = ui->move_num->value();
     int position = 5;
+    num_move += number;
     while(number--){
         unit *move = new unit();
         move->type = "move";
@@ -733,6 +743,7 @@ void MainWindow::on_move_create_clicked()
         position += 5;
         connect(move, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
     }
+    ui->num_move->setText(QString::number(num_move));
 }
 
 //CYCLING
@@ -740,6 +751,7 @@ void MainWindow::on_cycling_create_clicked()
 {
     int number = ui->cycling_num->value();
     int position = 5;
+    num_cycling += number;
     while(number--){
         unit *cycle = new unit();
         cycle->type = "cycle";
@@ -762,6 +774,7 @@ void MainWindow::on_cycling_create_clicked()
         position += ui->merge_length->text().toInt() + 3;
         connect(cycle, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
     }
+    ui->num_cycling->setText(QString::number(num_cycling));
 }
 
 //HEATER
@@ -769,6 +782,7 @@ void MainWindow::on_heater_create_clicked()
 {
     int number = ui->heater_num->text().toInt();
     int position = 5;
+    num_heater += number;
     while(number--){
         unit *heat = new unit();
         heat->type = "heat";
@@ -782,12 +796,7 @@ void MainWindow::on_heater_create_clicked()
         position += 3;
         connect(heat, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
     }
-}
-
-
-void MainWindow::debugging()
-{
-    qDebug() << "connected";
+    ui->num_heater->setText(QString::number(num_heater));
 }
 
 /////////////////////////////////////  SETTING  /////////////////////////////////////

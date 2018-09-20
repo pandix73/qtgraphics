@@ -105,7 +105,6 @@ void graphicsscene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
             roundy1 = mouseEvent->scenePos().y() - tempy1*pix_per_brick;
             if((600 - chip_width_px)/2 % pix_per_brick != 0)
                 roundx1 -= pix_per_brick/2;
-            float offset = (pix_per_brick - line_width_um * 0.001 * cm_to_px)/2;
 
             if(turnline->segments % 2 == 0){
                 MouseToSeg(segline, mouseEvent);
@@ -128,7 +127,7 @@ void graphicsscene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent){
         qDebug() << "SEGMENTS " << turnline->segments;
         this->addItem(turnline);
         connect(turnline, SIGNAL(delete_this_line(line *)), this, SLOT(delete_from_list(line *)));
-        alllines.prepend(turnline);
+        alllines.append(turnline);
         for(line *thisline: alllines){
             qDebug() << "Alllines SEGMENTS" << thisline->segments;
         }

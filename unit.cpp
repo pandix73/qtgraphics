@@ -24,14 +24,6 @@ unit::unit()
 
 }
 
-void unit::Disable(){
-    setEnabled(false);
-}
-
-void unit::Enable(){
-    setEnabled(true);
-}
-
 QRectF unit::boundingRect() const
 {
     // outer most edges

@@ -29,13 +29,16 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    void GetScreenSize(int width, int length);
-    QList<unit*> allunits;                          // save all present units in list
     explicit MainWindow(QWidget *parent = 0);
-    //MainWindow(QWidget *parent = 0, int width, int length);
+    ~MainWindow();
+
     QGraphicsScene* mainscene;
     graphicsscene* linescene;
-    ~MainWindow();
+
+
+    void GetScreenSize(int width, int length);
+    QList<unit*> allunits;                          // save all present units in list
+    QList<QGraphicsItem *> DestroyRect;             // when add null unit in linescene, keep a record here, so we can destroy the old ones the next time we toggle to linescene
 
 public slots:
     void delete_from_list(unit *a);                 // remove the unit from list when it's deleted
@@ -43,8 +46,6 @@ public slots:
     graphicsscene* CreateLineScene();
 
 private slots:
-    // LINESCENE
-    void RefreshLineScene();
     // TOOLBAR
     void on_eraser_clicked();                       // "eraser" clicked
 
@@ -69,7 +70,6 @@ private slots:
     void export_clicked();
     void close_clicked();
     void pdf_clicked();
-    void debugging();
 
     void close_window(save_yn_dialog *);
     void reset_setting(chip_setting *);

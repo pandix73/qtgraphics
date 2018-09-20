@@ -336,7 +336,7 @@ QPushButton{
 </string>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>false</bool>
@@ -845,7 +845,7 @@ QLineEdit{
             </spacer>
            </item>
            <item row="3" column="3">
-            <widget class="QLabel" name="num_moving">
+            <widget class="QLabel" name="num_move">
              <property name="text">
               <string/>
              </property>

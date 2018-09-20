@@ -24,9 +24,6 @@ public:
     // overriding paint()
     void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget);
 
-    void Disable();
-    void Enable();
-
     // item state
     bool Pressed;
     float xi;
