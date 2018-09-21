@@ -26,8 +26,8 @@ bool deletemode = false;
 bool linemode = false;
 
 //Chip setting
-int chip_length_cm = 3;
-int chip_width_cm = 2;
+int chip_length_cm = 6;
+int chip_width_cm = 4;
 int chip_border_mm = 3;
 
 int cp_length_mm = 2;
@@ -69,6 +69,9 @@ int chip_width_px;
 int chip_height_px;
 int brick_x_start;
 int brick_y_start;
+
+//unit map
+int unitmap[200][200];
 
 /////////////////////////////////////  MAINWINDOW  /////////////////////////////////////
 MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent), ui(new Ui::MainWindow)
@@ -209,8 +212,6 @@ graphicsscene* MainWindow::CreateLineScene(){
     pix_per_brick = int(fmin(600/((10*chip_length_cm*1000/de_spacing_um)),                  //calculate the size of each brick that fits the screeen the most
                          400/((10*chip_width_cm*1000/de_spacing_um))));
 
-    pix_per_brick = fmin(600/((10*chip_length_cm*1000/de_spacing_um)),                  //calculate the size of each brick that fits the screeen the most
-                         400/((10*chip_width_cm*1000/de_spacing_um)));
     qDebug() << "Create Line Scene" << pix_per_brick;
     cm_to_px = 10000/de_spacing_um*pix_per_brick;
         //1. outer border(nothing to do with real chip size, just the canvas size)
@@ -264,8 +265,8 @@ graphicsscene* MainWindow::CreateLineScene(){
 
 void MainWindow::RefreshLineScene(){
     linescene->clear();
-    pix_per_brick = fmin(600/((10*chip_length_cm*1000/de_spacing_um)),                  //calculate the size of each brick that fits the screeen the most
-                         400/((10*chip_width_cm*1000/de_spacing_um)));
+    pix_per_brick = int(fmin(600/((10*chip_length_cm*1000/de_spacing_um)),                  //calculate the size of each brick that fits the screeen the most
+                         400/((10*chip_width_cm*1000/de_spacing_um))));
     cm_to_px = 10000/de_spacing_um*pix_per_brick;
         //1. outer border(nothing to do with real chip size, just the canvas size)
         linescene->addLine(0, 0, linescene->width(), 0, graypen);
@@ -329,27 +330,20 @@ void MainWindow::mode_label(bool bChecked){
         for(unit *item : allunits){
             if(item->type == "move"){
                 for(int i = 0; i < item->de_xnum; i++){
-                    if(item->de_type == 1){
-                        linescene->addRect((item->xi+i*(de1_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
-                                           item->yi*pix_per_brick,
-                                           pix_per_brick*de1_length_mm*1000/de_spacing_um,
-                                           pix_per_brick*de1_width_mm*1000/de_spacing_um,
-                                           redpen, nullitem);
-                    } else {
-                        linescene->addRect((item->xi+i*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
-                                           item->yi*pix_per_brick,
-                                           pix_per_brick*de2_length_mm*1000/de_spacing_um,
-                                           pix_per_brick*de2_length_mm*1000/de_spacing_um,
-                                           redpen, nullitem);
-                    }
+                    int de_length_mm = (item->de_type == 1) ? de1_length_mm : de2_length_mm;
+                    int de_width_mm = (item->de_type == 1) ? de1_width_mm : de2_width_mm;
+                    linescene->addRect(qreal(item->xi+i*(de_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
+                                       qreal(item->yi)*pix_per_brick,
+                                       pix_per_brick*de_length_mm*1000/de_spacing_um,
+                                       pix_per_brick*de_width_mm*1000/de_spacing_um,
+                                       redpen, nullitem);
                 }
-            }
-            else if(item->type == "cycle"){
+            } else if(item->type == "cycle"){
                 for(int i = 0; i < item->de_xnum; i++){
                     for(int j = 0; j < item->de_ynum; j++){
                         if(i!=0 && i!=item->de_xnum-1 && j!=0 && j!=item->de_ynum-1) continue;
-                        linescene->addRect((item->xi+i*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
-                                          (item->yi+j*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
+                        linescene->addRect(qreal(item->xi+i*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
+                                          qreal(item->yi+j*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
                                           pix_per_brick*de2_length_mm*1000/de_spacing_um,
                                           pix_per_brick*de2_length_mm*1000/de_spacing_um,
                                           redpen, nullitem);
@@ -359,10 +353,6 @@ void MainWindow::mode_label(bool bChecked){
             else
                 linescene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
         }
-//        for (QList<line*>::const_iterator iter = linescene->alllines.begin(),
-//                                end = linescene->alllines.end(); iter != end; ++iter){
-//            qDebug() << (**iter).segments;
-//        }
         if(linescene->alllines.empty()==false){
             line *addline = linescene->alllines.first();
             floatqDebug() << "BUGGGGGG" << linescene->alllines.first()->x[0];
@@ -687,18 +677,210 @@ void MainWindow::delete_from_list(unit *item)
 }
 
 //AUTO CONNECT
-/*void MainWindow::on_connect_btn_clicked()
+void MainWindow::on_connect_btn_clicked()
 {
+
+    int xsize = (chip_length_cm*10 - 2*chip_border_mm)*1000 / de_spacing_um;
+    int ysize = (chip_width_cm*10 - 2*chip_border_mm)*1000 / de_spacing_um;
+    float shift = chip_border_mm / de_spacing_um;
+
+    struct edge{
+        int flow, cap, cost;
+        unsigned to, rev;
+        edge(unsigned to, int cap, int cost, unsigned rev){
+            this->to = to;
+            this->cap = cap;
+            this->cost = cost;
+            this->rev = rev;
+            this->flow = 0;
+        }
+    };
+
+    std::vector<std::vector<edge>> graph(2*unsigned(xsize*ysize));
+    auto addEdge = [&graph](unsigned s, unsigned t, int cost, int cap){
+        graph[s].push_back(edge(t, cap, cost, graph[t].size()));
+        graph[t].push_back(edge(s, 0, -cost, graph[s].size()-1));
+    };
+
+    // unitmap setup
+    memset(unitmap, 0, sizeof(unitmap));
+    int total_de = 0;
+    for(unit *item : allunits){
+        if(item->type == "move"){
+            int de_length_mm = (item->de_type == 1) ? de1_length_mm : de2_length_mm;
+            int de_width_mm = (item->de_type == 1) ? de1_width_mm : de2_width_mm;
+            int unit_length = de_length_mm*1000/de_spacing_um;
+            int unit_width = de_width_mm*1000/de_spacing_um;
+            total_de += item->de_xnum;
+            for(int i = 0; i < item->de_xnum; i++)
+                for(int j = 0; j < unit_length; j++)
+                    for(int k = 0; k < unit_width; k++)
+                        unitmap[int(item->xi - shift)+i*(unit_length+1) + j][int(item->yi - shift) + k] = 1;
+
+        } else if(item->type == "cycle"){
+            int unit_length = de2_length_mm*1000/de_spacing_um;
+            for(int i = 0; i < item->de_xnum; i++){
+                for(int j = 0; j < item->de_ynum; j++){
+                    if(i!=0 && i!=item->de_xnum-1 && j!=0 && j!=item->de_ynum-1)
+                        continue;
+                    total_de++;
+                    for(int k = 0; k < unit_length; k++)
+                        for (int l = 0; l < unit_length; l++)
+                            unitmap[int(item->xi - shift)+i*(unit_length+1) + k][int(item->yi - shift)+j*(unit_length+1) + l] = 1;
+                }
+            }
+        } else {
+            total_de++;
+            for(int i = 0; i < item->length; i++)
+                for(int j = 0; j < item->width; j++)
+                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = 1;
+                    total_de++;
+        }
+    }
+
+    qDebug() << "total de is " << total_de;
+
+    for(int i = 0; i < total_de; i++){
+        if(i*6 < xsize){
+            //unitmap[0][i*6] = -1;
+            unitmap[i*6][0] = -1;
+        } else {
+            unitmap[i*6-xsize][ysize-1] = -1;
+        }
+    }
+
+
+
+    // set source and target
+    unsigned s = unsigned((xsize-1)*(ysize-1) + 1);
+    unsigned t = unsigned((xsize-1)*(ysize-1) + 2);
+
+    // flow node connection
+    for(int i = 0; i < xsize; i++){
+        for(int j = 0; j < ysize; j++){
+            unsigned from = unsigned(i*ysize+j);
+            unsigned to_d = unsigned((i+1)*ysize+j); //down (actually right on chip
+            unsigned to_r = unsigned(i*ysize+j+1); //right (actually down on chip
+            // self connection for node capacity
+            addEdge(from+unsigned(xsize*ysize), from, 0, 1);
+
+            // neighbors connection
+            if (i != xsize-1) {
+                if(unitmap[i][j] == unitmap[i+1][j]){
+                    addEdge(from, to_d+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
+                    addEdge(to_d, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
+                } else if(unitmap[i][j] > unitmap[i+1][j]){
+                    addEdge(from, to_d+unsigned(xsize*ysize), 1, 1);
+                } else {
+                    addEdge(to_d, from+unsigned(xsize*ysize), 1, 1);
+                }
+            }
+            if (j != ysize-1) {
+                if(unitmap[i][j] == unitmap[i][j+1]){
+                    addEdge(from, to_r+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
+                    addEdge(to_r, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
+                } else if(unitmap[i][j] > unitmap[i][j+1]){
+                    addEdge(from, to_r+unsigned(xsize*ysize), 1, 1);
+                } else {
+                    addEdge(to_r, from+unsigned(xsize*ysize), 1, 1);
+                }
+            }
+
+            // s/t connection
+            if(unitmap[i][j] == 1){
+                if(!(i < xsize-1 && unitmap[i+1][j] == 1) && !(j < ysize-1 && unitmap[i][j+1] == 1))
+                    addEdge(s, from+unsigned(xsize*ysize), 1, 1);
+            } else if(unitmap[i][j] == -1){
+                if(!(i < xsize-1 && unitmap[i+1][j] == -1) && !(j < ysize-1 && unitmap[i][j+1] == -1))
+                    addEdge(from, t, 1, 1);
+            }
+        }
+    }
+
     int count = 0;
     for(unit* unit : allunits){
         count += unit->de_xnum*unit->de_ynum;
+        qDebug() << unit->xi << unit->yi;
     }
+
+    unsigned n = graph.size();
+    std::vector<int> distance(n);
+    std::vector<int> currflow(n);
+    std::vector<int> prevedge(n);
+    std::vector<int> prevnode(n);
+
+
+    // find path by bellmanFord
+    auto bellmanFord = [n, s, &graph, &distance, &currflow, &prevedge,&prevnode](){
+        std::fill(distance.begin(), distance.end(), INT_MAX);
+        distance[s] = 0;
+        currflow[s] = INT_MAX;
+        std::vector<bool> inqueue(n);
+        std::vector<int> q(n);
+        int qt = 0;
+        q[unsigned(qt++)] = int(s);
+        for (int qh = 0; unsigned(abs(qh - qt)) % n != 0; qh++) {
+            unsigned u = unsigned(q[unsigned(qh) % n]);
+            inqueue[u] = false;
+            for (unsigned i = 0; i < graph[u].size(); i++) {
+                edge e = graph[u][i];
+                if (e.flow >= e.cap)
+                    continue;
+                unsigned v = e.to;
+                int ndist = distance[u] + e.cost;
+                if (distance[v] > ndist) {
+                    distance[v] = ndist;
+                    prevnode[v] = int(u);
+                    prevedge[v] = int(i);
+                    currflow[v] = std::min(currflow[u], e.cap - e.flow);
+                    if (!inqueue[v]) {
+                        inqueue[v] = true;
+                        q[unsigned(qt++) % n] = int(v);
+                    }
+                }
+            }
+        }
+    };
+
+    // min cost flow
+    int flow = 0;
+    int flowCost = 0;
+    int maxflow = total_de;
+
+    while (flow < maxflow) {
+        bellmanFord();
+        if (distance[unsigned(t)] == INT_MAX)
+            break;
+        int df = std::min(currflow[t], maxflow - flow);
+        flow += df;
+        for (unsigned v = t; v != s; v = unsigned(prevnode[v])) {
+            edge* e;
+            e = &graph[unsigned(prevnode[v])][unsigned(prevedge[v])];
+            e->flow += df;
+            graph[v][e->rev].flow -= df;
+            flowCost += df * e->cost;
+            delete(e);
+        }
+    }
+
+    qDebug() << flow << flowCost;
+
     int top = count / 2;
     int bot = count / 2 + count % 2;
     int start = chip_length_cm*10 - top*cp_length_mm;
     QBrush blackgr(Qt::black);
 
+    for(int i = 0; i < xsize; i++){
+        for(int j = 0; j < ysize; j++){
+            for(edge e : graph[unsigned(i*ysize+j)]){
+                if(e.flow > 0)
+                    ui->view->scene()->addRect((i+shift)*pix_per_brick, (j+shift)*pix_per_brick, pix_per_brick, pix_per_brick, graypen, blackgr);
+            }
+        }
+    }
 
+
+    /*
     for(int i = 0, x = start*pix_per_brick; i < top; i++){
         ui->view->scene()->addRect(x, 0.3*pix_per_brick, pix_per_brick*cp_length_mm*1000/de_spacing_um,
                                    pix_per_brick*cp_width_mm*1000/de_spacing_um, graypen, blackgr);
@@ -709,9 +891,10 @@ void MainWindow::delete_from_list(unit *item)
                                    pix_per_brick*cp_width_mm*1000/de_spacing_um, graypen, blackgr);
         x += pix_per_brick*(cp_length_mm*1000 + cp_spacing_um)/de_spacing_um;
     }
+    */
 
     ui->view->scene()->update();
-}*/
+}
 
 //CREATE CONTROL PAD
 void MainWindow::on_controlpad_btn_clicked()
@@ -849,156 +1032,6 @@ void MainWindow::on_heater_create_clicked()
         position += 3;
         connect(heat, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
     }
-}
-
-#include <vector>
-
-
-void MainWindow::on_connect_btn_clicked()
-{
-
-    int xsize = 70;
-    int ysize = 170;
-
-    struct edge{
-        int flow, cap, cost;
-        unsigned to, rev;
-        edge(unsigned to, int cap, int cost, unsigned rev){
-            this->to = to;
-            this->cap = cap;
-            this->cost = cost;
-            this->rev = rev;
-            this->flow = 0;
-        }
-    };
-
-    std::vector<std::vector<edge>> graph(unsigned(xsize*ysize));
-    auto addEdge = [&graph](unsigned s, unsigned t, int cost, int cap){
-        graph[s].push_back(edge(t, cap, cost, graph[t].size()));
-        graph[t].push_back(edge(s, 0, -cost, graph[s].size()-1));
-    };
-
-    qDebug() << "here";
-    // flow node connection
-    for(int i = 0; i < xsize; i++){
-        for(int j = 0; j < ysize; j++){
-            if (i != xsize-1) {
-                unsigned from = unsigned(i*ysize+j);
-                unsigned to = unsigned((i+1)*ysize+j);
-                addEdge(from, to, 1, 1);
-                addEdge(to, from, 1, 1);
-            }
-            if (j != ysize-1) {
-                unsigned from = unsigned(i*ysize+j);
-                unsigned to = unsigned(i*ysize+j+1);
-                addEdge(from, to, 1, 1);
-                addEdge(to, from, 1, 1);
-            }
-        }
-    }
-
-    // set source and target
-    unsigned s = unsigned((xsize-1)*(ysize-1) + 1);
-    unsigned t = unsigned((xsize-1)*(ysize-1) + 2);
-
-    int count = 0;
-    int de_num = 0;
-    for(unit* unit : allunits){
-        count += unit->de_xnum*unit->de_ynum;
-        qDebug() << unit->xi << unit->yi;
-        addEdge(s, unsigned(unit->xi*ysize+unit->yi), 1, 1);
-        addEdge(unsigned(de_num++), t, 1, 1);
-    }
-
-    unsigned n = graph.size();
-    std::vector<int> distance(n);
-    std::vector<int> currflow(n);
-    std::vector<int> prevedge(n);
-    std::vector<int> prevnode(n);
-
-
-    // find path by bellmanFord
-    auto bellmanFord = [n, s, &graph, &distance, &currflow, &prevedge,&prevnode](){
-        std::fill(distance.begin(), distance.end(), INT_MAX);
-        distance[s] = 0;
-        currflow[s] = INT_MAX;
-        std::vector<bool> inqueue(n);
-        std::vector<int> q(n);
-        int qt = 0;
-        q[unsigned(qt++)] = int(s);
-        for (int qh = 0; unsigned(abs(qh - qt)) % n != 0; qh++) {
-            unsigned u = unsigned(q[unsigned(qh) % n]);
-            inqueue[u] = false;
-            for (unsigned i = 0; i < graph[u].size(); i++) {
-                edge e = graph[u][i];
-                if (e.flow >= e.cap)
-                    continue;
-                unsigned v = e.to;
-                int ndist = distance[u] + e.cost;
-                if (distance[v] > ndist) {
-                    distance[v] = ndist;
-                    prevnode[v] = int(u);
-                    prevedge[v] = int(i);
-                    currflow[v] = std::min(currflow[u], e.cap - e.flow);
-                    if (!inqueue[v]) {
-                        inqueue[v] = true;
-                        q[unsigned(qt++) % n] = int(v);
-                    }
-                }
-            }
-        }
-    };
-
-    // min cost flow
-    int flow = 0;
-    int flowCost = 0;
-    int maxflow = 10;
-
-    while (flow < maxflow) {
-        bellmanFord();
-        if (distance[unsigned(t)] == INT_MAX)
-            break;
-        int df = std::min(currflow[t], maxflow - flow);
-        flow += df;
-        for (unsigned v = t; v != s; v = unsigned(prevnode[v])) {
-            edge* e;
-            e = &graph[unsigned(prevnode[v])][unsigned(prevedge[v])];
-            e->flow += df;
-            graph[v][e->rev].flow -= df;
-            flowCost += df * e->cost;
-            delete(e);
-        }
-    }
-
-    qDebug() << flow << flowCost;
-
-    int top = count / 2;
-    int bot = count / 2 + count % 2;
-    int start = chip_length_cm*10 - top*cp_length_mm;
-    QBrush blackgr(Qt::black);
-
-    for(int i = 0; i < xsize; i++){
-        for(int j = 0; j < ysize; j++){
-            for(edge e : graph[unsigned(i*ysize+j)]){
-                if(e.flow > 0)
-                    ui->view->scene()->addRect(i*pix_per_brick, j*pix_per_brick, pix_per_brick, pix_per_brick, graypen, blackgr);
-            }
-        }
-    }
-
-
-    for(int i = 0, x = start*pix_per_brick; i < top; i++){
-        ui->view->scene()->addRect(x, 0.3*pix_per_brick, pix_per_brick*cp_length_mm*1000/de_spacing_um,
-                                   pix_per_brick*cp_width_mm*1000/de_spacing_um, graypen, blackgr);
-        x += pix_per_brick*(cp_length_mm*1000 + cp_spacing_um)/de_spacing_um;
-    }
-    for(int i = 0, x = start*pix_per_brick; i < bot; i++){
-        ui->view->scene()->addRect(x, (chip_width_cm*10-cp_width_mm)*1000/de_spacing_um*pix_per_brick, pix_per_brick*cp_length_mm*1000/de_spacing_um,
-                                   pix_per_brick*cp_width_mm*1000/de_spacing_um, graypen, blackgr);
-        x += pix_per_brick*(cp_length_mm*1000 + cp_spacing_um)/de_spacing_um;
-    }
-
-    ui->view->scene()->update();
 }
 
 void MainWindow::debugging()
