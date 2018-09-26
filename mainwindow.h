@@ -39,6 +39,7 @@ public:
     void GetScreenSize(int width, int length);
     QList<unit*> allunits;                          // save all present units in list
     QList<QGraphicsItem *> DestroyRect;             // when add null unit in linescene, keep a record here, so we can destroy the old ones the next time we toggle to linescene
+    QList<QGraphicsLineItem *> DestroyLine;
 
 public slots:
     void delete_from_list(unit *a);                 // remove the unit from list when it's deleted
@@ -83,6 +84,8 @@ private slots:
     void ChipScale(QGraphicsScene *);
 
     void Info();
+    void on_preview_clicked(bool checked);
+
 private:
     Ui::MainWindow *ui;
     QString path;

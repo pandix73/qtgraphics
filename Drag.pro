@@ -3,13 +3,14 @@
 # Project created by QtCreator 2018-01-15T14:56:06
 #
 #-------------------------------------------------
-
+QMAKE_MAC_SDK = macosx10.14
 QT       += core gui widgets svg xml printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = Drag
 TEMPLATE = app
+
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings

@@ -28,7 +28,28 @@ QToolButton{
 	border-color : rgb(186, 210, 211);
 	border-radius : 5px;
 	border-width : 1px;
-}</string>
+}
+
+QCheckBox {
+    spacing: 5px;
+}
+ 
+QCheckBox::indicator {
+    border-style : solid;
+	border-color : rgb(186, 210, 211);
+	border-radius : 5px;
+	border-width : 1px;
+	border-color : rgb(186, 210, 211);
+}
+
+QCheckBox::indicator:unchecked {
+   background-style: none;
+}
+QCheckBox::indicator:checked {  
+	background-style: solid;	
+	background-color: rgb(245, 125, 133);
+}
+</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <property name="sizePolicy">
@@ -694,7 +715,7 @@ QLineEdit{
 </string>
              </property>
              <property name="text">
-              <string>mm</string>
+              <string>um</string>
              </property>
             </widget>
            </item>
@@ -1819,7 +1840,7 @@ QSpinBox{
      <rect>
       <x>430</x>
       <y>630</y>
-      <width>121</width>
+      <width>41</width>
       <height>31</height>
      </rect>
     </property>
@@ -1828,7 +1849,25 @@ QSpinBox{
  color: rgb(187, 210, 211);</string>
     </property>
     <property name="text">
-     <string>SIMPLE</string>
+     <string>UNIT</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="preview">
+    <property name="geometry">
+     <rect>
+      <x>480</x>
+      <y>630</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">	font: 15pt &quot;American Typewriter&quot;;
+    color: rgb(187, 210, 211);
+</string>
+    </property>
+    <property name="text">
+     <string>PREVIEW</string>
     </property>
    </widget>
   </widget>
