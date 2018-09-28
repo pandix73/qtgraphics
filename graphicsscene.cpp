@@ -21,7 +21,7 @@ graphicsscene::graphicsscene(QObject *parent) :QGraphicsScene(parent)
 line* graphicsscene::PassSegToTurn(line *seg){
     to_destroy.push_back(seg);
     this->addItem(seg);
-    connect(seg, SIGNAL(delete_this_line(line *)), this, SLOT(delete_from_list(line *)));
+    //connect(seg, SIGNAL(delete_this_line(line *)), this, SLOT(delete_from_list(line *)));
     qDebug() << "Add a segment" << turnline->segments << "||" << seg->x[0] << seg->y[0] << seg->x[1] << seg->y[1];
     //update data to turnline
     turnline->x[turnline->segments] = seg->x[0];
@@ -128,16 +128,16 @@ void graphicsscene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent){
         this->addItem(turnline);
         connect(turnline, SIGNAL(delete_this_line(line *)), this, SLOT(delete_from_list(line *)));
         alllines.append(turnline);
-        for(line *thisline: alllines){
-            qDebug() << "Alllines SEGMENTS" << thisline->segments;
-        }
         pressed = false;
         qDebug() << "End a line";
     }
 }
 
-int graphicsscene::ReturnSegments(){
-    return this->alllines.first()->segments;
+void graphicsscene::AddTurnline(line *turnline){
+    this->addItem(turnline);
+    connect(turnline, SIGNAL(delete_this_line(line *)), this, SLOT(delete_from_list(line *)));
+    alllines.append(turnline);
+    return ;
 }
 
 void graphicsscene::delete_from_list(line *delete_line)

@@ -4,10 +4,8 @@
 #include "chip_setting.h"
 #include "save_yn_dialog.h"
 #include "switch.h"
-#include "svgreader.h"
 #include "graphicsscene.h"
 #include "line.h"
-
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QGraphicsItem>

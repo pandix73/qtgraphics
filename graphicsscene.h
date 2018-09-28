@@ -20,7 +20,7 @@ public slots:
     line *PassSegToTurn(line *segline);
     void MouseToSeg(line *segline, QGraphicsSceneMouseEvent *mouseEvent);
 
-    int ReturnSegments();
+    void AddTurnline(line *turnline);
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent);

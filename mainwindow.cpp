@@ -336,25 +336,9 @@ void MainWindow::new_chip_clicked()
     ui->view->setScene(newscene);
 }
 
-//SAVE SVG
+//SAVE CHIP
 void MainWindow::save_svg()
 {
-
-    //Take file path and name that will create
-//    QString newPath = QFileDialog::getSaveFileName(this, "Save Chip .SVG", path, tr("SVG files (*.svg)"));
-//    if(newPath.isEmpty()) return;
-//    path = newPath;
-
-//    QSvgGenerator generator;                                                            //Create a file generator object
-//    generator.setFileName(path);                                                        //We set the path to the file where to save vector graphics
-//    generator.setSize(QSize(mainscene->width(), mainscene->height()));                  //Set the dimensions of the working area of the document in millimeters
-//    generator.setViewBox(QRect(0, 0, mainscene->width(), mainscene->height()));         //Set the work area in the coordinates
-//    generator.setTitle("Drag");                                                         //The title document
-
-//    QPainter painter;
-//    painter.begin(&generator);
-//    mainscene->render(&painter);
-//    painter.end();
      QString newPath = QFileDialog::getSaveFileName(this, "Save Chip .txt", path, tr("TXT files (*.txt)"));
      if(newPath.isEmpty()) return;
 
@@ -376,7 +360,7 @@ void MainWindow::save_svg()
       for(unit *item: allunits){
         out << item->type << "\n";
         out << item->xi << "\n" << item->yi  << "\n";
-        if(item->type == "move" || item->type == "dispenser"){
+        if(item->type == "move" || item->type == "cycle"){
             out << item->de_type << "\n" << item->de_xnum << "\n" << item->de_ynum << "\n";
         }
         out << item->length << "\n" << item->width << "\n";
@@ -394,11 +378,7 @@ void MainWindow::save_svg()
 
 void MainWindow::load_svg_clicked()
 {
-    allunits.clear();
     DestroyRect.clear();
-    mainscene->clear();
-    linescene->clear();
-    mainscene->setSceneRect(QRectF(0, 0, 600, 400));
 
     QString newPath = QFileDialog::getOpenFileName(this, "Open Chip", path, tr("TXT files (*.txt)"));
     if(newPath.isEmpty())return;
@@ -427,20 +407,8 @@ void MainWindow::load_svg_clicked()
     //line_width_pix = in.readLine().toInt();
 
     //Set Chip to mainscene
-    ChipParameters();
-    OuterBorder(mainscene);
-    OuterBorder(linescene);
-    BackgroundGrid(mainscene);
-    BackgroundGrid(linescene);
-    ChipScaleDots(mainscene);
-    ChipScaleDots(linescene);
-    DataForSaveLoad(mainscene);
-    DataForSaveLoad(linescene);
-    ChipBorder(mainscene);
-    ChipBorder(linescene);
-    ChipScale(mainscene);
-    ChipScale(linescene);
-    Info();
+    mainscene = CreateNewScene();
+    linescene = CreateLineScene();
 
     //Import Units
     int num_of_units = in.readLine().toInt();
@@ -449,7 +417,7 @@ void MainWindow::load_svg_clicked()
         item->type = in.readLine();
         item->xi = in.readLine().toInt();
         item->yi = in.readLine().toInt();
-        if(item->type == "move" || item->type == "dispenser"){
+        if(item->type == "move" || item->type == "cycle"){
             item->de_type = in.readLine().toInt();
             item->de_xnum = in.readLine().toInt();
             item->de_ynum = in.readLine().toInt();
@@ -469,153 +437,28 @@ void MainWindow::load_svg_clicked()
     }
 
     //Import Lines
-//    int num_of_lines = in.readLine().toInt();
-//    int x, y, segments;
-//    while(num_of_lines){
-//        segments = in.readLine().toInt();
-//        line *turnline = new line();
-//        while(segments){
+    int num_of_lines = in.readLine().toInt();
 
-//           x = in.readLine().toInt();
-//           y = in.readLine().toInt();
-//        }
+    while(num_of_lines){
+        line *turnline = new line();
+        turnline->segments = in.readLine().toInt();
+        qDebug() << "SEGMENTS" << turnline->segments;
+        for(int i=0; i<=turnline->segments; i++){
+            turnline->x[i] = in.readLine().toInt();
+            turnline->y[i] = in.readLine().toInt();
+        }
+        linescene->AddTurnline(turnline);
+        num_of_lines--;
+    }
 
-
-
-//        num_of_lines--;
-//    }
-
-    //
-//    foreach (unit *item, SvgReader::getElements(path)) {
-//        unit *rect = item;
-//        if(flag==4){
-//            //1. outer border
-//            OuterBorder(mainscene);
-//            flag--;
-//        }else if(flag==3){
-//            pix_per_brick = rect->length;
-//            //2. pix_per_brick
-//            mainscene->addRect(0, 10, pix_per_brick, 10, whitepen);
-//            flag--;
-//        }else if(flag==2){
-//            border_px = rect->length;
-//            //3. border_px
-//            mainscene->addRect(0, 20, border_px, 10, whitepen);
-//            flag--;
-//        }else if(flag==1){
-//            brick_xnum = (rect->length - 2*border_px) / pix_per_brick;
-//            brick_ynum = (rect->width - 2*border_px) / pix_per_brick;
-//            chip_width_px = rect->length;
-//            chip_height_px = rect->width;
-
-//            brick_x_start = (600 - chip_width_px)/2 + border_px;
-//            brick_y_start = (400 - chip_height_px)/2 + border_px;
-
-//            //background grid
-//            BackgroundGrid(mainscene);
-
-//            //chip scale
-//            cm_to_px = 10000/de_spacing_um*pix_per_brick;
-//            ChipScaleDots(mainscene);
-
-//            //4. border
-//            ChipBorder(mainscene);
-//            flag--;
-//        }else{
-//            //reload all units that were created
-//            rect->xi /= pix_per_brick;
-//            rect->yi /= pix_per_brick;
-//            rect->length /= pix_per_brick;
-//            rect->width /= pix_per_brick;
-//            mainscene->addItem(rect);
-//            allunits.prepend(rect);
-//            //Where did it get rect->type????
-//            if(rect->type == "move"){
-//                rect->de_type = 1;
-//                rect->de_xnum = (rect->length + 1) / (de1_length_mm*1000/de_spacing_um +1);
-//                rect->de_ynum = rect->width / de1_width_mm / 1000 * de_spacing_um;
-//                qDebug() << rect->de_xnum << rect->de_ynum;
-//            }
-//            connect(rect, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
-//        }
-
-//    }
-//    //5. scale item
-//    ChipScale(mainscene);
+    linepen.setWidth(line_width_pix);
+    for(line *turnline : linescene->alllines){
+        for(int i=0; i<turnline->segments; i++){
+            DestroyLine << mainscene->addLine(turnline->x[i], turnline->y[i], turnline->x[i+1], turnline->y[i+1], linepen);
+        }
+    }
+    ui->view->setScene(mainscene);
 }
-
-//LOAD SVG
-//void MainWindow::load_svg_clicked()
-//{
-//    QString newPath = QFileDialog::getOpenFileName(this, "Open Chip", path, tr("TXT files (*.txt)"));
-//    if(newPath.isEmpty())return;
-//    path = newPath;
-
-//    allunits.clear();
-//    DestroyRect.clear();
-//    mainscene->clear();
-//    linescene->clear();
-//    mainscene->setSceneRect(SvgReader::getSizes(path));
-
-//    int flag = 4;
-
-//    foreach (unit *item, SvgReader::getElements(path)) {
-//        unit *rect = item;
-//        if(flag==4){
-//            //1. outer border
-//            OuterBorder(mainscene);
-//            flag--;
-//        }else if(flag==3){
-//            pix_per_brick = rect->length;
-//            //2. pix_per_brick
-//            mainscene->addRect(0, 10, pix_per_brick, 10, whitepen);
-//            flag--;
-//        }else if(flag==2){
-//            border_px = rect->length;
-//            //3. border_px
-//            mainscene->addRect(0, 20, border_px, 10, whitepen);
-//            flag--;
-//        }else if(flag==1){
-//            brick_xnum = (rect->length - 2*border_px) / pix_per_brick;
-//            brick_ynum = (rect->width - 2*border_px) / pix_per_brick;
-//            chip_width_px = rect->length;
-//            chip_height_px = rect->width;
-
-//            brick_x_start = (600 - chip_width_px)/2 + border_px;
-//            brick_y_start = (400 - chip_height_px)/2 + border_px;
-
-//            //background grid
-//            BackgroundGrid(mainscene);
-
-//            //chip scale
-//            cm_to_px = 10000/de_spacing_um*pix_per_brick;
-//            ChipScaleDots(mainscene);
-
-//            //4. border
-//            ChipBorder(mainscene);
-//            flag--;
-//        }else{
-//            //reload all units that were created
-//            rect->xi /= pix_per_brick;
-//            rect->yi /= pix_per_brick;
-//            rect->length /= pix_per_brick;
-//            rect->width /= pix_per_brick;
-//            mainscene->addItem(rect);
-//            allunits.prepend(rect);
-//            //Where did it get rect->type????
-//            if(rect->type == "move"){
-//                rect->de_type = 1;
-//                rect->de_xnum = (rect->length + 1) / (de1_length_mm*1000/de_spacing_um +1);
-//                rect->de_ynum = rect->width / de1_width_mm / 1000 * de_spacing_um;
-//                qDebug() << rect->de_xnum << rect->de_ynum;
-//            }
-//            connect(rect, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
-//        }
-
-//    }
-//    //5. scale item
-//    ChipScale(mainscene);
-//}
 
 //EXPORT AI
 void MainWindow::export_clicked()
@@ -815,19 +658,13 @@ void MainWindow::on_eraser_clicked()
     qDebug() << "number of lines : "<< linescene->alllines.count();
     qDebug() << "DELETE MODE : " <<deletemode;
 
-
-    //show different cursor while deleting
-//    QPixmap *e = new QPixmap(":/MainWindow/Icons/Icons/eraser_cursor.png");
-//    QPixmap e(":/MainWindow/Icons/Icons/eraser_cursor.png");
-//    QCursor cursorErase = QCursor(QPixmap(":/MainWindow/Icons/Icons/eraser_cursor.png"),0 , 0);
-//    QCursor cursorErase = QCursor(*e ,0 , 0);
-
     if(deletemode == true){
         QPixmap *e = new QPixmap(":/MainWindow/Icons/Icons/eraser_cursor.png");
         QCursor cursorErase = QCursor(*e, 10, 6);
         ui->eraser->setStyleSheet("background-color: rgb(64, 72, 91);");
         ui->view->setCursor(cursorErase);
-    } else {
+    }
+    else {
         if(linemode){
             ui->eraser->setStyleSheet("background-color: rgb(42, 48, 58);");
             QPixmap *e = new QPixmap(":/MainWindow/Icons/Icons/cursor.png");

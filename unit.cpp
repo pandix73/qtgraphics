@@ -21,7 +21,6 @@ unit::unit()
 {
     Pressed = false;
     setFlag(ItemIsMovable);
-
 }
 
 QRectF unit::boundingRect() const
@@ -92,23 +91,26 @@ void unit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 
 void unit::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    Pressed = true;
-    qDebug() << "unit deletemode : "<< deletemode;
-    update();
-    QGraphicsItem::mousePressEvent(event);
+    if(!deletemode){
+        Pressed = true;
+        qDebug() << "unit deletemode : "<< deletemode;
+        update();
+        QGraphicsItem::mousePressEvent(event);
+    }
 }
 
 void unit::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-
-    Pressed = false;
-    int xindex = qRound(this->x()/pix_per_brick);
-    int yindex = qRound(this->y()/pix_per_brick);
-    //this->setPos(xindex*pix_per_brick, yindex*pix_per_brick);
-    this->xi += xindex;
-    this->yi += yindex;
-    this->setPos(0, 0);
-    update();
+    if(!deletemode){
+        Pressed = false;
+        int xindex = qRound(this->x()/pix_per_brick);
+        int yindex = qRound(this->y()/pix_per_brick);
+        //this->setPos(xindex*pix_per_brick, yindex*pix_per_brick);
+        this->xi += xindex;
+        this->yi += yindex;
+        this->setPos(0, 0);
+        update();
+    }
     QGraphicsItem::mouseReleaseEvent(event);
     if(deletemode){
         emit delete_this_item(this);

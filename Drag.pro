@@ -29,7 +29,6 @@ SOURCES += \
         mainwindow.cpp \
     switch.cpp \
     chip_setting.cpp \
-    svgreader.cpp \
     unit.cpp \
     save_yn_dialog.cpp \
     graphicsscene.cpp \
@@ -39,7 +38,6 @@ HEADERS += \
         mainwindow.h \
     switch.h \
     chip_setting.h \
-    svgreader.h \
     unit.h \
     save_yn_dialog.h \
     graphicsscene.h \
