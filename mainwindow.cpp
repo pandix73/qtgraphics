@@ -880,18 +880,23 @@ void MainWindow::on_connect_btn_clicked()
     }
 
 
-    /*
-    for(int i = 0, x = start*pix_per_brick; i < top; i++){
-        ui->view->scene()->addRect(x, 0.3*pix_per_brick, pix_per_brick*cp_length_mm*1000/de_spacing_um,
-                                   pix_per_brick*cp_width_mm*1000/de_spacing_um, graypen, blackgr);
-        x += pix_per_brick*(cp_length_mm*1000 + cp_spacing_um)/de_spacing_um;
-    }
-    for(int i = 0, x = start*pix_per_brick; i < bot; i++){
-        ui->view->scene()->addRect(x, (chip_width_cm*10-cp_width_mm)*1000/de_spacing_um*pix_per_brick, pix_per_brick*cp_length_mm*1000/de_spacing_um,
-                                   pix_per_brick*cp_width_mm*1000/de_spacing_um, graypen, blackgr);
-        x += pix_per_brick*(cp_length_mm*1000 + cp_spacing_um)/de_spacing_um;
-    }
-    */
+    for(int i = 0; i < xsize; i++){
+            for(int j = 0; j < ysize; j++){
+                for(edge e : graph[unsigned(i*ysize+j)]){
+                    if(e.flow > 0 && e.to != s && e.to != t){
+                        unsigned to_x = (e.to-unsigned(xsize*ysize)) / unsigned(ysize);
+                        unsigned to_y = (e.to-unsigned(xsize*ysize)) % unsigned(ysize);
+                        if(unitmap[i][j] * unitmap[to_x][to_y] == 1)
+                            continue;
+                        qreal startx = (i+shift)*pix_per_brick + pix_per_brick*((to_x < i) ? -0.33 : 0.33);
+                        qreal starty = (j+shift)*pix_per_brick + pix_per_brick*((to_y < j) ? -0.33 : 0.33);
+                        qreal lengthx = pix_per_brick*((to_y == j) ? 1 : 0.33);
+                        qreal lengthy = pix_per_brick*((to_x == i) ? 1 : 0.33);
+                        ui->view->scene()->addRect(startx, starty, lengthx, lengthy, graypen, blackgr);
+                    }
+                }
+            }
+        }
 
     ui->view->scene()->update();
 }
