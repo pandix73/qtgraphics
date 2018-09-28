@@ -43,16 +43,16 @@ line* graphicsscene::PassSegToTurn(line *seg){
 void graphicsscene::MouseToSeg(line *seg, QGraphicsSceneMouseEvent *mouseEvent){
     if(abs((mouseEvent->scenePos().x() - seg->x[0])) < 0.1){
         seg->x[1] = seg->x[0];
-        seg->y[1] = (float)mouseEvent->scenePos().y() - roundy1 + offset;
+        seg->y[1] = (float)mouseEvent->scenePos().y() - roundy1;
     }
     else{
         float slope = (mouseEvent->scenePos().y() - seg->y[0]) / (mouseEvent->scenePos().x() - seg->x[0]);
         if(slope > 1 || slope < -1){
             seg->x[1] = seg->x[0];
-            seg->y[1] = mouseEvent->scenePos().y() - roundy1 + offset;
+            seg->y[1] = mouseEvent->scenePos().y() - roundy1;
         }
         else{
-            seg->x[1] = mouseEvent->scenePos().x() - roundx1 + offset;
+            seg->x[1] = mouseEvent->scenePos().x() - roundx1;
             seg->y[1] = seg->y[0];
         }
     }
@@ -74,8 +74,8 @@ void graphicsscene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
             if((600 - chip_width_px)/2 % pix_per_brick != 0)
                 roundx1 += pix_per_brick/2;
             line *drawline = new line();
-            drawline->x[0] = mouseEvent->scenePos().x() - roundx1 + offset;
-            drawline->y[0] = mouseEvent->scenePos().y() - roundy1 + offset;
+            drawline->x[0] = mouseEvent->scenePos().x() - roundx1;
+            drawline->y[0] = mouseEvent->scenePos().y() - roundy1;
             drawline->x[1] = drawline->x[0];
             drawline->y[1] = drawline->y[0];
             segline = drawline;                                                 // the first segment

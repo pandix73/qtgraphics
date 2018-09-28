@@ -15,8 +15,8 @@ public:
     explicit chip_setting(QWidget *parent = 0);
     ~chip_setting();
 
-    int chip_length_cm = 3;
-    int chip_width_cm = 2;
+    int chip_length_cm = 6;
+    int chip_width_cm = 4;
     int chip_border_mm = 3;
 
     int cp_length_mm = 2;
@@ -29,7 +29,7 @@ public:
 
     int de_spacing_um = 500;
     int cp_spacing_um = 300;
-    int line_width_um = 3;
+    int line_width_um = 200;
 
 signals:
     void reset(chip_setting *);

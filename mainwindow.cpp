@@ -24,8 +24,8 @@ int de2_width_mm = 3;
 
 int de_spacing_um = 500;
 int cp_spacing_um = 300;
-int line_width_um = 100;
-int line_width_pix = 3;
+int line_width_um = 200;
+int line_width_pix = 10;
 //Chip Parameters
 int border_px;
 int brick_xnum;
@@ -339,98 +339,283 @@ void MainWindow::new_chip_clicked()
 //SAVE SVG
 void MainWindow::save_svg()
 {
+
     //Take file path and name that will create
-    QString newPath = QFileDialog::getSaveFileName(this, "Save Chip .SVG", path, tr("SVG files (*.svg)"));
-    if(newPath.isEmpty()) return;
-    path = newPath;
+//    QString newPath = QFileDialog::getSaveFileName(this, "Save Chip .SVG", path, tr("SVG files (*.svg)"));
+//    if(newPath.isEmpty()) return;
+//    path = newPath;
 
-    QSvgGenerator generator;                                                            //Create a file generator object
-    generator.setFileName(path);                                                        //We set the path to the file where to save vector graphics
-    generator.setSize(QSize(mainscene->width(), mainscene->height()));                  //Set the dimensions of the working area of the document in millimeters
-    generator.setViewBox(QRect(0, 0, mainscene->width(), mainscene->height()));         //Set the work area in the coordinates
-    generator.setTitle("Drag");                                                         //The title document
+//    QSvgGenerator generator;                                                            //Create a file generator object
+//    generator.setFileName(path);                                                        //We set the path to the file where to save vector graphics
+//    generator.setSize(QSize(mainscene->width(), mainscene->height()));                  //Set the dimensions of the working area of the document in millimeters
+//    generator.setViewBox(QRect(0, 0, mainscene->width(), mainscene->height()));         //Set the work area in the coordinates
+//    generator.setTitle("Drag");                                                         //The title document
 
-    QPainter painter;
-    painter.begin(&generator);
-    mainscene->render(&painter);
-    painter.end();
+//    QPainter painter;
+//    painter.begin(&generator);
+//    mainscene->render(&painter);
+//    painter.end();
+     QString newPath = QFileDialog::getSaveFileName(this, "Save Chip .txt", path, tr("TXT files (*.txt)"));
+     if(newPath.isEmpty()) return;
 
+      QFile file(newPath);
+      if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+          return;
 
-    //At the end we get a vector drawing file with the contents of the graphic scenes
+      QTextStream out(&file);
+
+      out << chip_length_cm << "\n" << chip_width_cm << "\n" << chip_border_mm << "\n";
+      out << cp_length_mm << "\n" << cp_width_mm << "\n";
+      out << de1_length_mm << "\n" << de1_width_mm << "\n" << de2_length_mm  << "\n"<< de2_width_mm << "\n";
+
+      out << de_spacing_um << "\n";
+      out << cp_spacing_um << "\n";
+      out << line_width_um  << "\n";
+
+      out << allunits.size() << "\n";
+      for(unit *item: allunits){
+        out << item->type << "\n";
+        out << item->xi << "\n" << item->yi  << "\n";
+        if(item->type == "move" || item->type == "dispenser"){
+            out << item->de_type << "\n" << item->de_xnum << "\n" << item->de_ynum << "\n";
+        }
+        out << item->length << "\n" << item->width << "\n";
+        out << item->color.red() << "\n" << item->color.green() << "\n" << item->color.blue() << "\n" << item->color.alpha() << "\n";
+      }
+
+      out << linescene->alllines.size() << "\n";
+      for(line *turnline : linescene->alllines){
+          out << turnline->segments << "\n";
+          for(int i=0; i<=turnline->segments; i++){
+              out << turnline->x[i] << "\n" << turnline->y[i] << "\n";
+          }
+      }
 }
 
-//LOAD SVG
 void MainWindow::load_svg_clicked()
 {
-    QString newPath = QFileDialog::getOpenFileName(this, "Open SVG", path, tr("SVG files (*.svg)"));
-    if(newPath.isEmpty())return;
-    path = newPath;
-
     allunits.clear();
     DestroyRect.clear();
     mainscene->clear();
     linescene->clear();
-    mainscene->setSceneRect(SvgReader::getSizes(path));
+    mainscene->setSceneRect(QRectF(0, 0, 600, 400));
 
-    int flag = 4;
+    QString newPath = QFileDialog::getOpenFileName(this, "Open Chip", path, tr("TXT files (*.txt)"));
+    if(newPath.isEmpty())return;
 
-    foreach (unit *item, SvgReader::getElements(path)) {
-        unit *rect = item;
-        if(flag==4){
-            //1. outer border
-            OuterBorder(mainscene);
-            flag--;
-        }else if(flag==3){
-            pix_per_brick = rect->length;
-            //2. pix_per_brick
-            mainscene->addRect(0, 10, pix_per_brick, 10, whitepen);
-            flag--;
-        }else if(flag==2){
-            border_px = rect->length;
-            //3. border_px
-            mainscene->addRect(0, 20, border_px, 10, whitepen);
-            flag--;
-        }else if(flag==1){
-            brick_xnum = (rect->length - 2*border_px) / pix_per_brick;
-            brick_ynum = (rect->width - 2*border_px) / pix_per_brick;
-            chip_width_px = rect->length;
-            chip_height_px = rect->width;
+    QFile file(newPath);
+       if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+           return;
 
-            brick_x_start = (600 - chip_width_px)/2 + border_px;
-            brick_y_start = (400 - chip_height_px)/2 + border_px;
+    QTextStream in(&file);
 
-            //background grid
-            BackgroundGrid(mainscene);
+    //Import Chip
+    chip_length_cm = in.readLine().toInt();
+    chip_width_cm = in.readLine().toInt();
+    chip_border_mm = in.readLine().toInt();
+    cp_length_mm = in.readLine().toInt();
+    cp_width_mm = in.readLine().toInt();
 
-            //chip scale
-            cm_to_px = 10000/de_spacing_um*pix_per_brick;
-            ChipScaleDots(mainscene);
+    de1_length_mm = in.readLine().toInt();
+    de1_width_mm = in.readLine().toInt();
+    de2_length_mm  = in.readLine().toInt();
+    de2_width_mm = in.readLine().toInt();
 
-            //4. border
-            ChipBorder(mainscene);
-            flag--;
-        }else{
-            //reload all units that were created
-            rect->xi /= pix_per_brick;
-            rect->yi /= pix_per_brick;
-            rect->length /= pix_per_brick;
-            rect->width /= pix_per_brick;
-            mainscene->addItem(rect);
-            allunits.prepend(rect);
-            //Where did it get rect->type????
-            if(rect->type == "move"){
-                rect->de_type = 1;
-                rect->de_xnum = (rect->length + 1) / (de1_length_mm*1000/de_spacing_um +1);
-                rect->de_ynum = rect->width / de1_width_mm / 1000 * de_spacing_um;
-                qDebug() << rect->de_xnum << rect->de_ynum;
-            }
-            connect(rect, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
-        }
+    de_spacing_um = in.readLine().toInt();
+    cp_spacing_um = in.readLine().toInt();
+    line_width_um  = in.readLine().toInt();
+    //line_width_pix = in.readLine().toInt();
 
-    }
-    //5. scale item
+    //Set Chip to mainscene
+    ChipParameters();
+    OuterBorder(mainscene);
+    OuterBorder(linescene);
+    BackgroundGrid(mainscene);
+    BackgroundGrid(linescene);
+    ChipScaleDots(mainscene);
+    ChipScaleDots(linescene);
+    DataForSaveLoad(mainscene);
+    DataForSaveLoad(linescene);
+    ChipBorder(mainscene);
+    ChipBorder(linescene);
     ChipScale(mainscene);
+    ChipScale(linescene);
+    Info();
+
+    //Import Units
+    int num_of_units = in.readLine().toInt();
+    while(num_of_units){
+        unit *item = new unit();
+        item->type = in.readLine();
+        item->xi = in.readLine().toInt();
+        item->yi = in.readLine().toInt();
+        if(item->type == "move" || item->type == "dispenser"){
+            item->de_type = in.readLine().toInt();
+            item->de_xnum = in.readLine().toInt();
+            item->de_ynum = in.readLine().toInt();
+        }
+        item->length = in.readLine().toInt();
+        item->width = in.readLine().toInt();
+        int R, G, B, Alpha;
+        R = in.readLine().toInt();
+        G = in.readLine().toInt();
+        B = in.readLine().toInt();
+        Alpha = in.readLine().toInt();
+        item->color = QColor(R, G, B, Alpha);
+        mainscene->addItem(item);
+        allunits.prepend(item);
+        connect(item, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
+        num_of_units--;
+    }
+
+    //Import Lines
+//    int num_of_lines = in.readLine().toInt();
+//    int x, y, segments;
+//    while(num_of_lines){
+//        segments = in.readLine().toInt();
+//        line *turnline = new line();
+//        while(segments){
+
+//           x = in.readLine().toInt();
+//           y = in.readLine().toInt();
+//        }
+
+
+
+//        num_of_lines--;
+//    }
+
+    //
+//    foreach (unit *item, SvgReader::getElements(path)) {
+//        unit *rect = item;
+//        if(flag==4){
+//            //1. outer border
+//            OuterBorder(mainscene);
+//            flag--;
+//        }else if(flag==3){
+//            pix_per_brick = rect->length;
+//            //2. pix_per_brick
+//            mainscene->addRect(0, 10, pix_per_brick, 10, whitepen);
+//            flag--;
+//        }else if(flag==2){
+//            border_px = rect->length;
+//            //3. border_px
+//            mainscene->addRect(0, 20, border_px, 10, whitepen);
+//            flag--;
+//        }else if(flag==1){
+//            brick_xnum = (rect->length - 2*border_px) / pix_per_brick;
+//            brick_ynum = (rect->width - 2*border_px) / pix_per_brick;
+//            chip_width_px = rect->length;
+//            chip_height_px = rect->width;
+
+//            brick_x_start = (600 - chip_width_px)/2 + border_px;
+//            brick_y_start = (400 - chip_height_px)/2 + border_px;
+
+//            //background grid
+//            BackgroundGrid(mainscene);
+
+//            //chip scale
+//            cm_to_px = 10000/de_spacing_um*pix_per_brick;
+//            ChipScaleDots(mainscene);
+
+//            //4. border
+//            ChipBorder(mainscene);
+//            flag--;
+//        }else{
+//            //reload all units that were created
+//            rect->xi /= pix_per_brick;
+//            rect->yi /= pix_per_brick;
+//            rect->length /= pix_per_brick;
+//            rect->width /= pix_per_brick;
+//            mainscene->addItem(rect);
+//            allunits.prepend(rect);
+//            //Where did it get rect->type????
+//            if(rect->type == "move"){
+//                rect->de_type = 1;
+//                rect->de_xnum = (rect->length + 1) / (de1_length_mm*1000/de_spacing_um +1);
+//                rect->de_ynum = rect->width / de1_width_mm / 1000 * de_spacing_um;
+//                qDebug() << rect->de_xnum << rect->de_ynum;
+//            }
+//            connect(rect, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
+//        }
+
+//    }
+//    //5. scale item
+//    ChipScale(mainscene);
 }
+
+//LOAD SVG
+//void MainWindow::load_svg_clicked()
+//{
+//    QString newPath = QFileDialog::getOpenFileName(this, "Open Chip", path, tr("TXT files (*.txt)"));
+//    if(newPath.isEmpty())return;
+//    path = newPath;
+
+//    allunits.clear();
+//    DestroyRect.clear();
+//    mainscene->clear();
+//    linescene->clear();
+//    mainscene->setSceneRect(SvgReader::getSizes(path));
+
+//    int flag = 4;
+
+//    foreach (unit *item, SvgReader::getElements(path)) {
+//        unit *rect = item;
+//        if(flag==4){
+//            //1. outer border
+//            OuterBorder(mainscene);
+//            flag--;
+//        }else if(flag==3){
+//            pix_per_brick = rect->length;
+//            //2. pix_per_brick
+//            mainscene->addRect(0, 10, pix_per_brick, 10, whitepen);
+//            flag--;
+//        }else if(flag==2){
+//            border_px = rect->length;
+//            //3. border_px
+//            mainscene->addRect(0, 20, border_px, 10, whitepen);
+//            flag--;
+//        }else if(flag==1){
+//            brick_xnum = (rect->length - 2*border_px) / pix_per_brick;
+//            brick_ynum = (rect->width - 2*border_px) / pix_per_brick;
+//            chip_width_px = rect->length;
+//            chip_height_px = rect->width;
+
+//            brick_x_start = (600 - chip_width_px)/2 + border_px;
+//            brick_y_start = (400 - chip_height_px)/2 + border_px;
+
+//            //background grid
+//            BackgroundGrid(mainscene);
+
+//            //chip scale
+//            cm_to_px = 10000/de_spacing_um*pix_per_brick;
+//            ChipScaleDots(mainscene);
+
+//            //4. border
+//            ChipBorder(mainscene);
+//            flag--;
+//        }else{
+//            //reload all units that were created
+//            rect->xi /= pix_per_brick;
+//            rect->yi /= pix_per_brick;
+//            rect->length /= pix_per_brick;
+//            rect->width /= pix_per_brick;
+//            mainscene->addItem(rect);
+//            allunits.prepend(rect);
+//            //Where did it get rect->type????
+//            if(rect->type == "move"){
+//                rect->de_type = 1;
+//                rect->de_xnum = (rect->length + 1) / (de1_length_mm*1000/de_spacing_um +1);
+//                rect->de_ynum = rect->width / de1_width_mm / 1000 * de_spacing_um;
+//                qDebug() << rect->de_xnum << rect->de_ynum;
+//            }
+//            connect(rect, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
+//        }
+
+//    }
+//    //5. scale item
+//    ChipScale(mainscene);
+//}
 
 //EXPORT AI
 void MainWindow::export_clicked()
