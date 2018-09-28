@@ -10,8 +10,8 @@ bool deletemode = false;
 bool linemode = false;
 
 //Chip setting
-int chip_length_cm = 6;
-int chip_width_cm = 4;
+int chip_length_cm = 3;
+int chip_width_cm = 2;
 int chip_border_mm = 3;
 
 int cp_length_mm = 2;
@@ -675,7 +675,7 @@ void MainWindow::on_connect_btn_clicked()
 
     int xsize = (chip_length_cm*10 - 2*chip_border_mm)*1000 / de_spacing_um;
     int ysize = (chip_width_cm*10 - 2*chip_border_mm)*1000 / de_spacing_um;
-    float shift = chip_border_mm / de_spacing_um;
+    float shift = chip_border_mm*1000 / de_spacing_um;
 
     struct edge{
         int flow, cap, cost;
@@ -689,7 +689,7 @@ void MainWindow::on_connect_btn_clicked()
         }
     };
 
-    std::vector<std::vector<edge>> graph(2*unsigned(xsize*ysize));
+    std::vector<std::vector<edge>> graph(2*unsigned(xsize*ysize)+2);
     auto addEdge = [&graph](unsigned s, unsigned t, int cost, int cap){
         graph[s].push_back(edge(t, cap, cost, graph[t].size()));
         graph[t].push_back(edge(s, 0, -cost, graph[s].size()-1));
@@ -705,10 +705,11 @@ void MainWindow::on_connect_btn_clicked()
             int unit_length = de_length_mm*1000/de_spacing_um;
             int unit_width = de_width_mm*1000/de_spacing_um;
             total_de += item->de_xnum;
-            for(int i = 0; i < item->de_xnum; i++)
+            for(int i = 0; i < item->de_xnum; i++){
                 for(int j = 0; j < unit_length; j++)
                     for(int k = 0; k < unit_width; k++)
-                        unitmap[int(item->xi - shift)+i*(unit_length+1) + j][int(item->yi - shift) + k] = 1;
+                        unitmap[int(item->xi - shift)+i*(unit_length+1) + j][int(item->yi - shift) + k] = (j == int(unit_length/2) || k == int(unit_width/2)) ? 2 : 1;
+            }
 
         } else if(item->type == "cycle"){
             int unit_length = de2_length_mm*1000/de_spacing_um;
@@ -720,15 +721,16 @@ void MainWindow::on_connect_btn_clicked()
                     qDebug() << i << j;
                     for(int k = 0; k < unit_length; k++)
                         for (int l = 0; l < unit_length; l++)
-                            unitmap[int(item->xi - shift)+i*(unit_length+1) + k][int(item->yi - shift)+j*(unit_length+1) + l] = 1;
+                            unitmap[int(item->xi - shift)+i*(unit_length+1) + k][int(item->yi - shift)+j*(unit_length+1) + l] = (k == int(unit_length/2) || l == int(unit_length/2)) ? 2 : 1;
+
                 }
             }
         } else {
             total_de++;
             for(int i = 0; i < item->length; i++)
                 for(int j = 0; j < item->width; j++)
-                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = 1;
-                    total_de++;
+                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = (i == int(item->length/2) || j == int(item->width/2)) ? 2 : 1;
+
         }
     }
 
@@ -746,8 +748,8 @@ void MainWindow::on_connect_btn_clicked()
 
 
     // set source and target
-    unsigned s = unsigned((xsize-1)*(ysize-1) + 1);
-    unsigned t = unsigned((xsize-1)*(ysize-1) + 2);
+    unsigned s = unsigned(xsize*ysize*2);
+    unsigned t = unsigned(xsize*ysize*2+1);
 
     // flow node connection
     for(int i = 0; i < xsize; i++){
@@ -760,29 +762,33 @@ void MainWindow::on_connect_btn_clicked()
 
             // neighbors connection
             if (i != xsize-1) {
-                if(unitmap[i][j] == unitmap[i+1][j]){
+                if(unitmap[i][j] == unitmap[i+1][j] || (unitmap[i][j] > 0 && unitmap[i+1][j] > 0)){
                     addEdge(from, to_d+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
                     addEdge(to_d, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
                 } else if(unitmap[i][j] > unitmap[i+1][j]){
-                    addEdge(from, to_d+unsigned(xsize*ysize), 1, 1);
+                    if(unitmap[i][j] != 1)
+                        addEdge(from, to_d+unsigned(xsize*ysize), 1, 1);
                 } else {
-                    addEdge(to_d, from+unsigned(xsize*ysize), 1, 1);
+                    if(unitmap[i+1][j] != 1)
+                        addEdge(to_d, from+unsigned(xsize*ysize), 1, 1);
                 }
             }
             if (j != ysize-1) {
-                if(unitmap[i][j] == unitmap[i][j+1]){
+                if(unitmap[i][j] == unitmap[i][j+1] || (unitmap[i][j] > 0 && unitmap[i][j+1] > 0)){
                     addEdge(from, to_r+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
                     addEdge(to_r, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
                 } else if(unitmap[i][j] > unitmap[i][j+1]){
-                    addEdge(from, to_r+unsigned(xsize*ysize), 1, 1);
+                    if(unitmap[i][j] != 1)
+                        addEdge(from, to_r+unsigned(xsize*ysize), 1, 1);
                 } else {
-                    addEdge(to_r, from+unsigned(xsize*ysize), 1, 1);
+                    if(unitmap[i][j+1] != 1)
+                        addEdge(to_r, from+unsigned(xsize*ysize), 1, 1);
                 }
             }
 
             // s/t connection
-            if(unitmap[i][j] == 1){
-                if(!(i < xsize-1 && unitmap[i+1][j] == 1) && !(j < ysize-1 && unitmap[i][j+1] == 1))
+            if(unitmap[i][j] >= 1){
+                if(!(i < xsize-1 && unitmap[i+1][j] >= 1) && !(j < ysize-1 && unitmap[i][j+1] >= 1))
                     addEdge(s, from+unsigned(xsize*ysize), 1, 1);
             } else if(unitmap[i][j] == -1){
                 if(!(i < xsize-1 && unitmap[i+1][j] == -1) && !(j < ysize-1 && unitmap[i][j+1] == -1))
@@ -792,6 +798,9 @@ void MainWindow::on_connect_btn_clicked()
     }
 
     int count = 0;
+    /*for(int i = 0; i < xsize; i++)
+        for(int j = 0; j < ysize; j++)
+            qDebug() << unitmap[i][j];*/
     for(unit* unit : allunits){
         count += unit->de_xnum*unit->de_ynum;
         qDebug() << unit->xi << unit->yi;
@@ -859,19 +868,23 @@ void MainWindow::on_connect_btn_clicked()
 
     qDebug() << flow << flowCost;
 
-    int top = count / 2;
-    int bot = count / 2 + count % 2;
-    int start = chip_length_cm*10 - top*cp_length_mm;
-    QBrush blackgr(Qt::black);
-
     for(int i = 0; i < xsize; i++){
-        for(int j = 0; j < ysize; j++){
-            for(edge e : graph[unsigned(i*ysize+j)]){
-                if(e.flow > 0)
-                    ui->view->scene()->addRect((i+shift)*pix_per_brick, (j+shift)*pix_per_brick, pix_per_brick, pix_per_brick, graypen, blackgr);
+            for(int j = 0; j < ysize; j++){
+                for(edge e : graph[unsigned(i*ysize+j)]){
+                    if(e.flow > 0 && e.to != s && e.to != t){
+                        unsigned to_x = (e.to-unsigned(xsize*ysize)) / unsigned(ysize);
+                        unsigned to_y = (e.to-unsigned(xsize*ysize)) % unsigned(ysize);
+                        if(unitmap[i][j] * unitmap[to_x][to_y] >= 1)
+                            continue;
+                        qreal startx = (i+shift)*pix_per_brick + pix_per_brick*((to_x < i) ? -0.33 : 0.33);
+                        qreal starty = (j+shift)*pix_per_brick + pix_per_brick*((to_y < j) ? -0.33 : 0.33);
+                        qreal lengthx = pix_per_brick*((to_y == j) ? 1 : 0.33);
+                        qreal lengthy = pix_per_brick*((to_x == i) ? 1 : 0.33);
+                        ui->view->scene()->addRect(startx, starty, lengthx, lengthy, QPen(Qt::black), QBrush(Qt::black));
+                    }
+                }
             }
         }
-    }
 
 
     ui->view->scene()->update();
