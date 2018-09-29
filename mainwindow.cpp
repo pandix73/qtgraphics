@@ -10,8 +10,8 @@ bool deletemode = false;
 bool linemode = false;
 
 //Chip setting
-int chip_length_cm = 3;
-int chip_width_cm = 2;
+int chip_length_cm = 6;
+int chip_width_cm = 4;
 int chip_border_mm = 3;
 
 int cp_length_mm = 2;
@@ -263,19 +263,38 @@ void MainWindow::mode_label(bool bChecked){
         EnableCreateUnit(false);
         for(unit *item : allunits){
             if(item->type == "move"){                   //Show detail components for "move"
-                for(int i = 0; i < item->de_xnum; i++){
-                    if(item->de_type == 1){
-                        DestroyRect << linescene->addRect((item->xi+i*(de1_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
-                                   item->yi*pix_per_brick,
-                                   pix_per_brick*de1_length_mm*1000/de_spacing_um,
-                                   pix_per_brick*de1_width_mm*1000/de_spacing_um,
-                                   redpen, nullitem);
-                    } else {
-                        DestroyRect << linescene->addRect((item->xi+i*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
-                                   item->yi*pix_per_brick,
-                                   pix_per_brick*de2_length_mm*1000/de_spacing_um,
-                                   pix_per_brick*de2_width_mm*1000/de_spacing_um,
-                                   redpen, nullitem);
+                if(item->tilt == 90){
+                    for(int i = 0; i < item->de_ynum; i++){
+                        if(item->de_type == 1){
+                            DestroyRect << linescene->addRect(item->xi*pix_per_brick,
+                                       (item->yi+i*(de1_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
+                                       pix_per_brick*de1_width_mm*1000/de_spacing_um,
+                                       pix_per_brick*de1_length_mm*1000/de_spacing_um,
+                                       redpen, nullitem);
+                        } else {
+                            DestroyRect << linescene->addRect(item->xi*pix_per_brick,
+                                       (item->yi+i*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
+                                       pix_per_brick*de2_width_mm*1000/de_spacing_um,
+                                       pix_per_brick*de2_length_mm*1000/de_spacing_um,
+                                       redpen, nullitem);
+                        }
+                    }
+                }
+                else{
+                    for(int i = 0; i < item->de_xnum; i++){
+                        if(item->de_type == 1){
+                            DestroyRect << linescene->addRect((item->xi+i*(de1_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
+                                       item->yi*pix_per_brick,
+                                       pix_per_brick*de1_length_mm*1000/de_spacing_um,
+                                       pix_per_brick*de1_width_mm*1000/de_spacing_um,
+                                       redpen, nullitem);
+                        } else {
+                            DestroyRect << linescene->addRect((item->xi+i*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
+                                       item->yi*pix_per_brick,
+                                       pix_per_brick*de2_length_mm*1000/de_spacing_um,
+                                       pix_per_brick*de2_width_mm*1000/de_spacing_um,
+                                       redpen, nullitem);
+                        }
                     }
                 }
             }
@@ -988,16 +1007,32 @@ void MainWindow::on_move_create_clicked()
         move->type = "move";
         move->xi = position;
         move->yi = 0;
+        move->tilt = ui->move_tilt->text().toInt();
         move->de_type = ui->move_electrod->value();
-        move->de_xnum = ui->move_size->text().toInt();
-        move->de_ynum = 1;
-        if(move->de_type == 1){
-            move->length = move->de_xnum*de1_length_mm*1000/de_spacing_um + move->de_xnum-1;
-            move->width = move->de_ynum*de1_width_mm*1000/de_spacing_um;
+        if(move->tilt == 90){
+            move->de_xnum = 1;
+            move->de_ynum = ui->move_size->text().toInt();
+            if(move->de_type == 1){
+                move->length = move->de_xnum*de1_width_mm*1000/de_spacing_um;
+                move->width = move->de_ynum*de1_length_mm*1000/de_spacing_um + move->de_ynum-1;
+            }
+            else{
+                move->length = move->de_xnum*de2_width_mm*1000/de_spacing_um;
+                move->width = move->de_ynum*de2_length_mm*1000/de_spacing_um + move->de_ynum-1;
+
+            }
         }
         else{
-            move->length = move->de_xnum*de2_length_mm*1000/de_spacing_um + move->de_xnum-1;
-            move->width = move->de_ynum*de2_width_mm*1000/de_spacing_um;
+            move->de_xnum = ui->move_size->text().toInt();
+            move->de_ynum = 1;
+            if(move->de_type == 1){
+                move->length = move->de_xnum*de1_length_mm*1000/de_spacing_um + move->de_xnum-1;
+                move->width = move->de_ynum*de1_width_mm*1000/de_spacing_um;
+            }
+            else{
+                move->length = move->de_xnum*de2_length_mm*1000/de_spacing_um + move->de_xnum-1;
+                move->width = move->de_ynum*de2_width_mm*1000/de_spacing_um;
+            }
         }
         move->color = moving_color;
         ui->view->scene()->addItem(move);

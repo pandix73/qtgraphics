@@ -33,6 +33,7 @@ public:
     int de_type = 0;
     int de_xnum = 0;
     int de_ynum = 0;
+    int tilt = 0;
     QString type;
     QColor color = Qt::white;
 

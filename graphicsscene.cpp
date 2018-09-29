@@ -66,11 +66,11 @@ void graphicsscene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
     }
     if(!deletemode){
         if(!pressed){                                             // start a new turnning line
-            offset = (pix_per_brick - line_width_um * 0.0001 * cm_to_px)/2;
+            offset = line_width_um * 0.0001 * cm_to_px/2;
             tempx1 = mouseEvent->scenePos().x() / pix_per_brick;
             tempy1 = mouseEvent->scenePos().y() / pix_per_brick;
-            roundx1 = mouseEvent->scenePos().x() - tempx1*pix_per_brick;
-            roundy1 = mouseEvent->scenePos().y() - tempy1*pix_per_brick;
+            roundx1 = mouseEvent->scenePos().x() - tempx1*pix_per_brick + offset;
+            roundy1 = mouseEvent->scenePos().y() - tempy1*pix_per_brick + offset;
             if((600 - chip_width_px)/2 % pix_per_brick != 0)
                 roundx1 += pix_per_brick/2;
             line *drawline = new line();
@@ -101,11 +101,10 @@ void graphicsscene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
         if(pressed){
             tempx1 = mouseEvent->scenePos().x() / pix_per_brick;
             tempy1 = mouseEvent->scenePos().y() / pix_per_brick;
-            roundx1 = mouseEvent->scenePos().x() - tempx1*pix_per_brick;
-            roundy1 = mouseEvent->scenePos().y() - tempy1*pix_per_brick;
+            roundx1 = mouseEvent->scenePos().x() - tempx1*pix_per_brick + offset;
+            roundy1 = mouseEvent->scenePos().y() - tempy1*pix_per_brick + offset;
             if((600 - chip_width_px)/2 % pix_per_brick != 0)
                 roundx1 -= pix_per_brick/2;
-
             if(turnline->segments % 2 == 0){
                 MouseToSeg(segline, mouseEvent);
             }
