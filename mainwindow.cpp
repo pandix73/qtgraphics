@@ -62,6 +62,7 @@ int num_dispenser = 0;
 int num_move = 0;
 int num_cycling = 0;
 int num_heater = 0;
+int num_de = 0;
 
 //unit map
 int unitmap[200][200];
@@ -695,8 +696,8 @@ void MainWindow::delete_from_list(unit *item)
 void MainWindow::on_connect_btn_clicked()
 {
 
-    int xsize = (chip_length_cm*10 - 2*chip_border_mm)*1000 / de_spacing_um;
-    int ysize = (chip_width_cm*10 - 2*chip_border_mm)*1000 / de_spacing_um;
+    int xsize = brick_xnum;//(chip_length_cm*10 - 2*chip_border_mm)*1000 / de_spacing_um;
+    int ysize = brick_ynum;//(chip_width_cm*10 - 2*chip_border_mm)*1000 / de_spacing_um;
     float shift = chip_border_mm*1000 / de_spacing_um;
 
     struct edge{
@@ -719,14 +720,12 @@ void MainWindow::on_connect_btn_clicked()
 
     // unitmap setup
     memset(unitmap, 0, sizeof(unitmap));
-    int total_de = 0;
     for(unit *item : allunits){
         if(item->type == "move"){
             int de_length_mm = (item->de_type == 1) ? de1_length_mm : de2_length_mm;
             int de_width_mm = (item->de_type == 1) ? de1_width_mm : de2_width_mm;
             int unit_length = de_length_mm*1000/de_spacing_um;
             int unit_width = de_width_mm*1000/de_spacing_um;
-            total_de += item->de_xnum;
             for(int i = 0; i < item->de_xnum; i++){
                 for(int j = 0; j < unit_length; j++)
                     for(int k = 0; k < unit_width; k++)
@@ -739,7 +738,6 @@ void MainWindow::on_connect_btn_clicked()
                 for(int j = 0; j < item->de_ynum; j++){
                     if(i!=0 && i!=item->de_xnum-1 && j!=0 && j!=item->de_ynum-1)
                         continue;
-                    total_de++;
                     qDebug() << i << j;
                     for(int k = 0; k < unit_length; k++)
                         for (int l = 0; l < unit_length; l++)
@@ -747,25 +745,28 @@ void MainWindow::on_connect_btn_clicked()
 
                 }
             }
-        } else {
-            total_de++;
+        } else if(item->type == "dispenser"){
             for(int i = 0; i < item->length; i++)
                 for(int j = 0; j < item->width; j++)
                     unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = (i == int(item->length/2) || j == int(item->width/2)) ? 2 : 1;
 
+        } else if(item->type == "controlpad"){
+            for(int i = 0; i < item->length; i++)
+                for(int j = 0; j < item->width; j++)
+                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = (i == int(item->length/2) || j == int(item->width/2)) ? -2 : -1;
         }
     }
 
-    qDebug() << "total de is " << total_de;
+    qDebug() << "total de is " << num_de;
 
-    for(int i = 0; i < total_de; i++){
+    /*for(int i = 0; i < total_de; i++){
         if(i*6 < xsize){
             //unitmap[0][i*6] = -1;
             unitmap[i*6][0] = -1;
         } else {
             unitmap[i*6-xsize][ysize-1] = -1;
         }
-    }
+    }*/
 
 
 
@@ -784,26 +785,26 @@ void MainWindow::on_connect_btn_clicked()
 
             // neighbors connection
             if (i != xsize-1) {
-                if(unitmap[i][j] == unitmap[i+1][j] || (unitmap[i][j] > 0 && unitmap[i+1][j] > 0)){
+                if(unitmap[i][j] == unitmap[i+1][j] || (unitmap[i][j] * unitmap[i+1][j] > 0)){
                     addEdge(from, to_d+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
                     addEdge(to_d, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
                 } else if(unitmap[i][j] > unitmap[i+1][j]){
-                    if(unitmap[i][j] != 1)
+                    if(unitmap[i][j] != 1 && unitmap[i+1][j] != -1)
                         addEdge(from, to_d+unsigned(xsize*ysize), 1, 1);
                 } else {
-                    if(unitmap[i+1][j] != 1)
+                    if(unitmap[i+1][j] != 1 && unitmap[i][j] != -1)
                         addEdge(to_d, from+unsigned(xsize*ysize), 1, 1);
                 }
             }
             if (j != ysize-1) {
-                if(unitmap[i][j] == unitmap[i][j+1] || (unitmap[i][j] > 0 && unitmap[i][j+1] > 0)){
+                if(unitmap[i][j] == unitmap[i][j+1] || (unitmap[i][j] * unitmap[i][j+1] > 0)){
                     addEdge(from, to_r+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
                     addEdge(to_r, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
                 } else if(unitmap[i][j] > unitmap[i][j+1]){
-                    if(unitmap[i][j] != 1)
+                    if(unitmap[i][j] != 1 && unitmap[i][j+1] != -1)
                         addEdge(from, to_r+unsigned(xsize*ysize), 1, 1);
                 } else {
-                    if(unitmap[i][j+1] != 1)
+                    if(unitmap[i][j+1] != 1 && unitmap[i][j] != -1)
                         addEdge(to_r, from+unsigned(xsize*ysize), 1, 1);
                 }
             }
@@ -812,8 +813,8 @@ void MainWindow::on_connect_btn_clicked()
             if(unitmap[i][j] >= 1){
                 if(!(i < xsize-1 && unitmap[i+1][j] >= 1) && !(j < ysize-1 && unitmap[i][j+1] >= 1))
                     addEdge(s, from+unsigned(xsize*ysize), 1, 1);
-            } else if(unitmap[i][j] == -1){
-                if(!(i < xsize-1 && unitmap[i+1][j] == -1) && !(j < ysize-1 && unitmap[i][j+1] == -1))
+            } else if(unitmap[i][j] <= -1){
+                if(!(i < xsize-1 && unitmap[i+1][j] <= -1) && !(j < ysize-1 && unitmap[i][j+1] <= -1))
                     addEdge(from, t, 1, 1);
             }
         }
@@ -870,7 +871,7 @@ void MainWindow::on_connect_btn_clicked()
     // min cost flow
     int flow = 0;
     int flowCost = 0;
-    int maxflow = total_de;
+    int maxflow = num_de;
 
     while (flow < maxflow) {
         bellmanFord();
@@ -896,18 +897,19 @@ void MainWindow::on_connect_btn_clicked()
                     if(e.flow > 0 && e.to != s && e.to != t){
                         unsigned to_x = (e.to-unsigned(xsize*ysize)) / unsigned(ysize);
                         unsigned to_y = (e.to-unsigned(xsize*ysize)) % unsigned(ysize);
-                        if(unitmap[i][j] * unitmap[to_x][to_y] >= 1)
+                        if(unitmap[i][j] * unitmap[to_x][to_y] > 0)
                             continue;
                         qreal startx = (i+shift)*pix_per_brick + pix_per_brick*((to_x < i) ? -0.33 : 0.33);
                         qreal starty = (j+shift)*pix_per_brick + pix_per_brick*((to_y < j) ? -0.33 : 0.33);
                         qreal lengthx = pix_per_brick*((to_y == j) ? 1 : 0.33);
                         qreal lengthy = pix_per_brick*((to_x == i) ? 1 : 0.33);
-                        //ui->view->scene()->addRect(startx, starty, lengthx, lengthy, QPen(Qt::black), QBrush(Qt::black));
+                        ui->view->scene()->addRect(startx, starty, lengthx, lengthy, QPen(Qt::black), QBrush(Qt::black));
                         line *newline = new line();
                         newline->x[0] = startx;
                         newline->y[0] = starty;
                         newline->x[1] = startx+lengthx;
                         newline->y[1] = starty+lengthy;
+                        newline->segments = 1;
                         linescene->AddTurnline(newline);
                     }
                 }
@@ -921,13 +923,26 @@ void MainWindow::on_connect_btn_clicked()
 //TODO:
 void MainWindow::on_controlpad_btn_clicked()
 {
-    int size = allunits.size();
-    int mm_to_px = 1000/de_spacing_um*pix_per_brick;
-    int cp_start = brick_x_start;
+    //int size = allunits.size();
+    //int mm_to_px = 1000/de_spacing_um*pix_per_brick;
+    int cp_xi_start = chip_border_mm*1000 / de_spacing_um;
+    int cp_yi_start = chip_border_mm*1000 / de_spacing_um;
 
-    for(int i=0; i<size; i++){
-        mainscene->addRect(cp_start, 0, cp_length_mm*mm_to_px, cp_width_mm*mm_to_px, graypen, QColor(94, 93, 93, 54));
-        cp_start += cp_length_mm*mm_to_px + cp_spacing_um * mm_to_px / 1000;
+    for(int i=0; i<num_de; i++){
+        //mainscene->addRect(cp_x_start, cp_y_start, cp_length_mm*mm_to_px, cp_width_mm*mm_to_px, graypen, QColor(94, 93, 93, 54));
+        //cp_x_start += cp_length_mm*mm_to_px + cp_spacing_um * mm_to_px / 1000;
+        unit *cp = new unit();
+        cp->type = "controlpad";
+        cp->xi = cp_xi_start;
+        cp->yi = cp_yi_start;
+        cp->length = cp_length_mm*1000/de_spacing_um;
+        cp->width = cp_width_mm*1000/de_spacing_um;
+        cp->color = Qt::black;
+        ui->view->scene()->addItem(cp);
+        allunits.prepend(cp);
+        cp_xi_start += cp->length+1;
+        cp_yi_start = (i == brick_xnum) ? int(brick_ynum - cp->width): cp_yi_start;
+        connect(cp, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
     }
 }
 
@@ -953,6 +968,7 @@ void MainWindow::on_merge_create_clicked()
         allunits.prepend(merge);
         position += ui->merge_length->text().toInt() + 3;
         connect(merge, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
+        num_de += 1;
     }
     ui->num_merge->setText(QString::number(num_merge));
 }
@@ -978,6 +994,7 @@ void MainWindow::on_dispenser_create_clicked()
         allunits.prepend(dispenser);
         position += ui->merge_length->text().toInt() + 3;
         connect(dispenser, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
+        num_de += 1;
     }
     ui->num_dispenser->setText(QString::number(num_dispenser));
 }
@@ -1009,6 +1026,7 @@ void MainWindow::on_move_create_clicked()
         allunits.prepend(move);
         position += 5;
         connect(move, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
+        num_de += move->de_xnum;
     }
     ui->num_move->setText(QString::number(num_move));
 }
@@ -1040,6 +1058,7 @@ void MainWindow::on_cycling_create_clicked()
         allunits.prepend(cycle);
         position += ui->merge_length->text().toInt() + 3;
         connect(cycle, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
+        num_de += (cycle->de_xnum + cycle->de_ynum - 2) * 2;
     }
     ui->num_cycling->setText(QString::number(num_cycling));
 }
@@ -1061,7 +1080,8 @@ void MainWindow::on_heater_create_clicked()
         ui->view->scene()->addItem(heat);
         allunits.prepend(heat);
         position += 3;
-        connect(heat, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
+        connect(heat, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));        
+        num_de += 2;
     }
     ui->num_heater->setText(QString::number(num_heater));
 }
@@ -1105,16 +1125,18 @@ void MainWindow::reset_setting(chip_setting *new_chip)
 /////////////////////////////////////  PREVIEW  /////////////////////////////////////
 void MainWindow::on_preview_clicked(bool checked)
 {
-    if(checked){
-        QGraphicsScene * previewscene = new QGraphicsScene(0, 0, 600, 400, ui->view);
-        previewscene->setBackgroundBrush(Qt::white);
-        graypen = QPen(Qt::black);
-        redpen = QPen(Qt::black);
-        linepen = QPen(Qt::black);
-        nullitem = QBrush(Qt::black);
+    QGraphicsScene * previewscene = new QGraphicsScene(0, 0, 600, 400, ui->view);
+    previewscene->setBackgroundBrush(Qt::white);
+    graypen = QPen(Qt::black);
+    redpen = QPen(Qt::black);
+    linepen = QPen(Qt::black);
+    nullitem = QBrush(Qt::black);
 
-        OuterBorder(previewscene);
-        ChipBorder(previewscene);
+    OuterBorder(previewscene);
+    ChipBorder(previewscene);
+
+    if(checked){
+
 
         for(unit *item : allunits){
             if(item->type == "move"){                   //Show detail components for "move"
