@@ -10,8 +10,8 @@ bool deletemode = false;
 bool linemode = false;
 
 //Chip setting
-int chip_length_cm = 3;
-int chip_width_cm = 2;
+int chip_length_cm = 6;
+int chip_width_cm = 4;
 int chip_border_mm = 3;
 
 int cp_length_mm = 2;
@@ -903,7 +903,7 @@ void MainWindow::on_connect_btn_clicked()
                         qreal starty = (j+shift)*pix_per_brick + pix_per_brick*((to_y < j) ? -0.33 : 0.33);
                         qreal lengthx = pix_per_brick*((to_y == j) ? 1 : 0.33);
                         qreal lengthy = pix_per_brick*((to_x == i) ? 1 : 0.33);
-                        ui->view->scene()->addRect(startx, starty, lengthx, lengthy, QPen(Qt::black), QBrush(Qt::black));
+                        //ui->view->scene()->addRect(startx, starty, lengthx, lengthy, QPen(Qt::black), QBrush(Qt::black));
                         line *newline = new line();
                         newline->x[0] = startx;
                         newline->y[0] = starty;
@@ -1173,7 +1173,8 @@ void MainWindow::on_preview_clicked(bool checked)
         }
         for(line *turnline : linescene->alllines){
             for(int i=0; i<turnline->segments; i++){
-                previewscene->addLine(turnline->x[i], turnline->y[i], turnline->x[i+1], turnline->y[i+1], linepen);
+                //previewscene->addLine(turnline->x[i], turnline->y[i], turnline->x[i+1], turnline->y[i+1], linepen);
+                previewscene->addRect(turnline->x[i], turnline->y[i], turnline->x[i+1]-turnline->x[i], turnline->y[i+1]-turnline->y[i], QPen(Qt::black), QBrush(Qt::black));
             }
         }
         ui->view->setScene(previewscene);
