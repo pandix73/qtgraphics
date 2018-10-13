@@ -107,6 +107,44 @@ QCheckBox::indicator:checked {
       </widget>
      </item>
      <item>
+      <widget class="QToolButton" name="controlpad_btn">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>1</horstretch>
+         <verstretch>1</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>delete</string>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="text">
+        <string notr="true">delete</string>
+       </property>
+       <property name="icon">
+        <iconset resource="resource.qrc">
+         <normaloff>:/MainWindow/Icons/Icons/controlpad.png</normaloff>:/MainWindow/Icons/Icons/controlpad.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>30</width>
+         <height>23</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoRaise">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QToolButton" name="connect_btn">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -126,64 +164,6 @@ QCheckBox::indicator:checked {
        <property name="icon">
         <iconset resource="resource.qrc">
          <normaloff>:/MainWindow/Icons/Icons/connect.png</normaloff>:/MainWindow/Icons/Icons/connect.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>25</width>
-         <height>25</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="temp_line">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>1</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="toolTip">
-        <string>undo</string>
-       </property>
-       <property name="styleSheet">
-        <string notr="true"/>
-       </property>
-       <property name="text">
-        <string>undo</string>
-       </property>
-       <property name="icon">
-        <iconset resource="resource.qrc">
-         <normaloff>:/MainWindow/Icons/Icons/undo.png</normaloff>:/MainWindow/Icons/Icons/undo.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>25</width>
-         <height>25</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="toolButton_4">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>1</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="toolTip">
-        <string>redo</string>
-       </property>
-       <property name="styleSheet">
-        <string notr="true"/>
-       </property>
-       <property name="text">
-        <string>redo</string>
-       </property>
-       <property name="icon">
-        <iconset resource="resource.qrc">
-         <normaloff>:/MainWindow/Icons/Icons/redo.png</normaloff>:/MainWindow/Icons/Icons/redo.png</iconset>
        </property>
        <property name="iconSize">
         <size>
@@ -219,44 +199,6 @@ QCheckBox::indicator:checked {
          <width>25</width>
          <height>25</height>
         </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="controlpad_btn">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>1</horstretch>
-         <verstretch>1</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="toolTip">
-        <string>delete</string>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="styleSheet">
-        <string notr="true"/>
-       </property>
-       <property name="text">
-        <string notr="true">delete</string>
-       </property>
-       <property name="icon">
-        <iconset resource="resource.qrc">
-         <normaloff>:/MainWindow/Icons/Icons/controlpad.png</normaloff>:/MainWindow/Icons/Icons/controlpad.png</iconset>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>30</width>
-         <height>23</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
-       </property>
-       <property name="autoRaise">
-        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -960,7 +902,7 @@ QSpinBox{
        <property name="geometry">
         <rect>
          <x>5</x>
-         <y>90</y>
+         <y>94</y>
          <width>430</width>
          <height>81</height>
         </rect>
@@ -1153,7 +1095,7 @@ QSpinBox{
        <property name="geometry">
         <rect>
          <x>5</x>
-         <y>0</y>
+         <y>2</y>
          <width>430</width>
          <height>80</height>
         </rect>
@@ -1340,7 +1282,7 @@ QSpinBox{
        <property name="geometry">
         <rect>
          <x>5</x>
-         <y>440</y>
+         <y>450</y>
          <width>430</width>
          <height>81</height>
         </rect>
@@ -1392,7 +1334,7 @@ QSpinBox{
        <property name="geometry">
         <rect>
          <x>5</x>
-         <y>180</y>
+         <y>186</y>
          <width>430</width>
          <height>121</height>
         </rect>
@@ -1608,7 +1550,7 @@ QSpinBox{
        <property name="geometry">
         <rect>
          <x>5</x>
-         <y>310</y>
+         <y>318</y>
          <width>430</width>
          <height>121</height>
         </rect>
@@ -1855,7 +1797,7 @@ QSpinBox{
    <widget class="QCheckBox" name="preview">
     <property name="geometry">
      <rect>
-      <x>480</x>
+      <x>520</x>
       <y>630</y>
       <width>101</width>
       <height>31</height>
@@ -1982,11 +1924,6 @@ QSpinBox{
   <tabstop>heater_create</tabstop>
   <tabstop>tabWidget</tabstop>
   <tabstop>eraser</tabstop>
-  <tabstop>connect_btn</tabstop>
-  <tabstop>temp_line</tabstop>
-  <tabstop>toolButton_4</tabstop>
-  <tabstop>setting_btn</tabstop>
-  <tabstop>controlpad_btn</tabstop>
   <tabstop>view</tabstop>
  </tabstops>
  <resources>

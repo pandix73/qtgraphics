@@ -4,13 +4,13 @@
         <file>Icons/connect.png</file>
         <file>Icons/redo.png</file>
         <file>Icons/undo.png</file>
-        <file>Icons/eraser_cursor.png</file>
         <file>Icons/settings.png</file>
         <file>Icons/minus-symbol.png</file>
         <file>Icons/plus-symbol.png</file>
         <file>Icons/controlpad.png</file>
         <file>Icons/pencil_cursor.png</file>
         <file>Icons/cursor.png</file>
+        <file>Icons/eraser_cursor.png</file>
     </qresource>
     <qresource prefix="/actions">
         <file>Icons/save_ai.png</file>

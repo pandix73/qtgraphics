@@ -84,6 +84,8 @@ private slots:
     void Info();
     void on_preview_clicked(bool checked);
 
+    void clear_number_of_units();
+
 private:
     Ui::MainWindow *ui;
     QString path;

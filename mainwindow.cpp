@@ -332,6 +332,7 @@ void MainWindow::mode_label(bool bChecked){
         DestroyRect.clear();        
         DestroyLine.clear();
         EnableCreateUnit(true);
+        linepen.setColor(Qt::gray);
         linepen.setWidth(line_width_pix);
         for(line *turnline : linescene->alllines){
             for(int i=0; i<turnline->segments; i++){                
@@ -376,6 +377,7 @@ void MainWindow::save_svg()
       out << cp_spacing_um << "\n";
       out << line_width_um  << "\n";
 
+      out << num_merge << "\n" << num_dispenser << "\n" << num_move << "\n" << num_cycling << "\n" <<num_heater << "\n" << num_de << "\n";
       out << allunits.size() << "\n";
       for(unit *item: allunits){
         out << item->type << "\n";
@@ -426,6 +428,13 @@ void MainWindow::load_svg_clicked()
     line_width_um  = in.readLine().toInt();
     //line_width_pix = in.readLine().toInt();
 
+    num_merge = in.readLine().toInt();
+    num_dispenser = in.readLine().toInt();
+    num_move = in.readLine().toInt();
+    num_cycling = in.readLine().toInt();
+    num_heater = in.readLine().toInt();
+    num_de = in.readLine().toInt();
+
     //Set Chip to mainscene
     mainscene = CreateNewScene();
     linescene = CreateLineScene();
@@ -464,13 +473,13 @@ void MainWindow::load_svg_clicked()
         turnline->segments = in.readLine().toInt();
         qDebug() << "SEGMENTS" << turnline->segments;
         for(int i=0; i<=turnline->segments; i++){
-            turnline->x[i] = in.readLine().toInt();
-            turnline->y[i] = in.readLine().toInt();
+            turnline->x[i] = in.readLine().toFloat();
+            turnline->y[i] = in.readLine().toFloat();
         }
         linescene->AddTurnline(turnline);
         num_of_lines--;
     }
-
+    linepen.setColor(Qt::gray);
     linepen.setWidth(line_width_pix);
     for(line *turnline : linescene->alllines){
         for(int i=0; i<turnline->segments; i++){
@@ -483,6 +492,7 @@ void MainWindow::load_svg_clicked()
 //EXPORT AI
 void MainWindow::export_clicked()
 {
+
     QString newPath = QFileDialog::getSaveFileName(this, "Save Ai", path, tr("AI files (*.ai)"));
     if (newPath.isEmpty()) return;
     path = newPath;
@@ -552,9 +562,11 @@ void MainWindow::export_clicked()
 
 
        }
+       linepen.setColor(Qt::black);
+       linepen.setWidth(line_width_um * px_to_cm  / 10000);
        for(line *turnline : linescene->alllines){
-           for(int i=0; i<turnline->segments; i++){
-               export_scene->addLine(turnline->x[i]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, turnline->y[i]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, turnline->x[i+1]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, turnline->y[i+1]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, blackpen);
+           for(int i=0; i<turnline->segments; i++){               
+               export_scene->addLine(turnline->x[i]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, turnline->y[i]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, turnline->x[i+1]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, turnline->y[i+1]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, linepen);
            }
        }
        export_scene->render(&p);
@@ -629,18 +641,12 @@ void MainWindow::pdf_clicked()
             else{
                 export_scene->addItem(export_item);
             }
-
-//            qDebug() << "brick_x_start" << brick_x_start;
-//            qDebug() << "border_px" << border_px;
-//            qDebug() << "pix_per_brick" << pix_per_brick;
-//            qDebug() << "xi" << export_item->xi*pix_per_brick;
-//            qDebug() << "yi" << export_item->yi*pix_per_brick;
-//            qDebug() << "length" << export_item->length * pix_per_brick;
-//            qDebug() << "width" << export_item->width * pix_per_brick;
        }
+       linepen.setColor(Qt::black);
+       linepen.setWidth(line_width_um * px_to_cm  / 10000);
        for(line *turnline : linescene->alllines){
            for(int i=0; i<turnline->segments; i++){
-               export_scene->addLine(turnline->x[i]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, turnline->y[i]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, turnline->x[i+1]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, turnline->y[i+1]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, blackpen);
+               export_scene->addLine(turnline->x[i]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, turnline->y[i]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, turnline->x[i+1]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, turnline->y[i+1]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, linepen);
            }
        }
        export_scene->render(&p);
@@ -680,7 +686,7 @@ void MainWindow::on_eraser_clicked()
 
     if(deletemode == true){
         QPixmap *e = new QPixmap(":/MainWindow/Icons/Icons/eraser_cursor.png");
-        QCursor cursorErase = QCursor(*e, 10, 6);
+        QCursor cursorErase = QCursor(*e, -10, -4);
         ui->eraser->setStyleSheet("background-color: rgb(64, 72, 91);");
         ui->view->setCursor(cursorErase);
     }
@@ -1130,8 +1136,18 @@ void MainWindow::on_setting_btn_clicked()
     chip->show();
 }
 
+void MainWindow::clear_number_of_units(){
+    //Number of units
+    num_merge = 0;
+    num_dispenser = 0;
+    num_move = 0;
+    num_cycling = 0;
+    num_heater = 0;
+    num_de = 0;
+}
 void MainWindow::reset_setting(chip_setting *new_chip)
 {
+    clear_number_of_units();
     chip_length_cm = new_chip->chip_length_cm;
     chip_width_cm = new_chip->chip_width_cm;
     chip_border_mm = new_chip->chip_border_mm;
@@ -1209,7 +1225,9 @@ void MainWindow::on_preview_clicked(bool checked)
         for(line *turnline : linescene->alllines){
             for(int i=0; i<turnline->segments; i++){
                 //previewscene->addLine(turnline->x[i], turnline->y[i], turnline->x[i+1], turnline->y[i+1], linepen);
-                previewscene->addRect(turnline->x[i], turnline->y[i], turnline->x[i+1]-turnline->x[i], turnline->y[i+1]-turnline->y[i], QPen(Qt::black), QBrush(Qt::black));
+                linepen.setWidth(line_width_pix);
+                previewscene->addLine(turnline->x[i], turnline->y[i], turnline->x[i+1], turnline->y[i+1], linepen);
+                //previewscene->addRect(turnline->x[i], turnline->y[i], turnline->x[i+1]-turnline->x[i], turnline->y[i+1]-turnline->y[i], QPen(Qt::black), QBrush(Qt::black));
             }
         }
         ui->view->setScene(previewscene);
