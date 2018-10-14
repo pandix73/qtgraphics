@@ -76,17 +76,15 @@ void line::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 
 void line::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    qDebug() << "line deletemode : " << deletemode;
     QGraphicsItem::mousePressEvent(event);
+    if(deletemode){
+        emit delete_this_line(this);
+    }
 }
 
 void line::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
     QGraphicsItem::mouseReleaseEvent(event);
-    if(deletemode){
-        qDebug() << "delete a line!!!";
-        emit delete_this_line(this);
-    }
 }
 
 

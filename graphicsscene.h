@@ -8,19 +8,22 @@
 class QGraphicsLineItem;
 class QGraphicsSceneMouseEvent;
 
+
 class graphicsscene : public QGraphicsScene
 {
     Q_OBJECT
 public:
+
     graphicsscene(QObject *parent);
     QList<line*> alllines;
-    QList<line*> to_destroy;
+
+
 public slots:
     void delete_from_list(line *delete_line);
     line *PassSegToTurn(line *segline);
     void MouseToSeg(line *segline, QGraphicsSceneMouseEvent *mouseEvent);
 
-    void AddTurnline(line *turnline);
+    void AddTurnline(line *head);
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent);
     void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent);

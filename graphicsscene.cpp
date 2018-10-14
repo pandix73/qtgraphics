@@ -13,29 +13,42 @@ int tempx1;
 int tempy1;
 int roundx1;
 int roundy1;
+
+bool create_head = true;
+line *head;
+line *current_seg;
+
 graphicsscene::graphicsscene(QObject *parent) :QGraphicsScene(parent)
 {
 
 }
 
 line* graphicsscene::PassSegToTurn(line *seg){
-    to_destroy.push_back(seg);
+    if(create_head){
+        head = new line();
+        head = seg;
+        head->previous = NULL;
+        head->next = NULL;
+        current_seg = head;
+    }
+    else{
+        current_seg->next = seg;
+        seg->previous = current_seg;
+        current_seg = seg;
+        current_seg->next = NULL;
+    }
+
     this->addItem(seg);
-    //connect(seg, SIGNAL(delete_this_line(line *)), this, SLOT(delete_from_list(line *)));
-    qDebug() << "Add a segment" << turnline->segments << "||" << seg->x[0] << seg->y[0] << seg->x[1] << seg->y[1];
-    //update data to turnline
-    turnline->x[turnline->segments] = seg->x[0];
-    turnline->y[turnline->segments] = seg->y[0];
-    turnline->x[turnline->segments+1] = seg->x[1];
-    turnline->y[turnline->segments+1] = seg->y[1];
+    connect(seg, SIGNAL(delete_this_line(line *)), this, SLOT(delete_from_list(line *)));
+
     turnline->segments++;
 
     //create next segment
     line *drawline = new line();
-    drawline->x[0] = turnline->x[turnline->segments];
-    drawline->y[0] = turnline->y[turnline->segments];
-    drawline->x[1] = turnline->x[turnline->segments];
-    drawline->y[1] = turnline->y[turnline->segments];
+    drawline->x[0] = current_seg->x[1];
+    drawline->y[0] = current_seg->y[1];
+    drawline->x[1] = current_seg->x[1];
+    drawline->y[1] = current_seg->y[1];
 
     return drawline;
 }
@@ -82,13 +95,16 @@ void graphicsscene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
             turnline = new line();
             pressed = true;
             qDebug() << "Start a new line";
+            create_head = true;
         }
         else if(pressed){
             if(turnline->segments % 2 == 0){
                 segline2 = PassSegToTurn(segline);
+                create_head = false;
             }
             else{
                 segline = PassSegToTurn(segline2);
+                create_head = false;
             }
         }
     }
@@ -118,29 +134,60 @@ void graphicsscene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
 
 void graphicsscene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent){
     if(!deletemode){
-        int size_to_destroy = to_destroy.count();
-        for(int i=0; i<size_to_destroy; i++){
-            delete to_destroy.last();
-            to_destroy.pop_back();
-        }
         qDebug() << "SEGMENTS " << turnline->segments;
-        this->addItem(turnline);
-        connect(turnline, SIGNAL(delete_this_line(line *)), this, SLOT(delete_from_list(line *)));
-        alllines.append(turnline);
+        alllines.append(head);
         pressed = false;
-        qDebug() << "End a line";
+        create_head = true;
     }
 }
 
-void graphicsscene::AddTurnline(line *turnline){
-    this->addItem(turnline);
-    connect(turnline, SIGNAL(delete_this_line(line *)), this, SLOT(delete_from_list(line *)));
-    alllines.append(turnline);
-    return ;
+//TODO:
+void graphicsscene::AddTurnline(line *head){
+    line *current_seg = head;
+    while(current_seg->next != NULL){
+        this->addItem(current_seg);
+        current_seg = current_seg->next;
+        connect(current_seg, SIGNAL(delete_this_line(line*)), this, SLOT(delete_from_list(line*)));
+    }
+    this->addItem(current_seg);
+    connect(current_seg, SIGNAL(delete_this_line(line*)), this, SLOT(delete_from_list(line*)));
+    alllines.append(head);
+//    this->addItem(turnline);
+//    connect(turnline, SIGNAL((line *)), this, SLOT(delete_from_list(line *)));
+//    alllines.append(turnline);
+    return;
 }
 
 void graphicsscene::delete_from_list(line *delete_line)
 {
-    alllines.removeOne(delete_line);
-    delete delete_line;
+    line *next_delete;
+    //delete right hand side
+    if(delete_line->next != NULL){
+        current_seg = delete_line->next;
+        while(current_seg->next != NULL){
+            next_delete = current_seg->next;
+            delete current_seg;
+            current_seg = next_delete;
+        }
+        delete current_seg;
+    }
+
+    //delete left hand side
+    if(delete_line->previous != NULL){
+        current_seg = delete_line->previous;
+        while(current_seg->previous != NULL){
+            next_delete = current_seg->previous;
+            delete current_seg;
+            current_seg = next_delete;
+        }
+    }
+    else{
+        current_seg = delete_line;
+    }
+    if(delete_line != current_seg)
+        delete delete_line;
+
+    alllines.removeOne(current_seg);    //head
+    delete current_seg;
+    qDebug() << "num of heads" << alllines.size();
 }

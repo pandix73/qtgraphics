@@ -21,7 +21,8 @@ public:
     float x[10];
     float y[10];
     int segments = 0;
-
+    line *previous;
+    line *next;
 signals:
     void delete_this_line(line *delete_line);
 

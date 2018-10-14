@@ -67,6 +67,13 @@ QCheckBox::indicator:checked {
       <height>53</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">QToolTip{
+	background-color: rgb(132, 184, 177);
+}
+
+</string>
+    </property>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QToolButton" name="eraser">
@@ -115,7 +122,7 @@ QCheckBox::indicator:checked {
         </sizepolicy>
        </property>
        <property name="toolTip">
-        <string>delete</string>
+        <string>add control pad</string>
        </property>
        <property name="autoFillBackground">
         <bool>false</bool>
@@ -124,7 +131,7 @@ QCheckBox::indicator:checked {
         <string notr="true"/>
        </property>
        <property name="text">
-        <string notr="true">delete</string>
+        <string notr="true">add control pad</string>
        </property>
        <property name="icon">
         <iconset resource="resource.qrc">
@@ -153,13 +160,13 @@ QCheckBox::indicator:checked {
         </sizepolicy>
        </property>
        <property name="toolTip">
-        <string>connect</string>
+        <string>auto connect</string>
        </property>
        <property name="styleSheet">
         <string notr="true"/>
        </property>
        <property name="text">
-        <string>connect</string>
+        <string>auto connect</string>
        </property>
        <property name="icon">
         <iconset resource="resource.qrc">
@@ -1782,7 +1789,7 @@ QSpinBox{
      <rect>
       <x>430</x>
       <y>630</y>
-      <width>41</width>
+      <width>101</width>
       <height>31</height>
      </rect>
     </property>
@@ -1791,13 +1798,13 @@ QSpinBox{
  color: rgb(187, 210, 211);</string>
     </property>
     <property name="text">
-     <string>UNIT</string>
+     <string> UNIT MODE</string>
     </property>
    </widget>
    <widget class="QCheckBox" name="preview">
     <property name="geometry">
      <rect>
-      <x>520</x>
+      <x>540</x>
       <y>630</y>
       <width>101</width>
       <height>31</height>
