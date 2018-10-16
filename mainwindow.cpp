@@ -846,6 +846,10 @@ void MainWindow::on_connect_btn_clicked()
 
     // unitmap setup
     memset(unitmap, 0, sizeof(unitmap));
+    int unit_id = 2;
+    int cpad_id = -2;
+    bool source[200][200] = {false};
+
     for(unit *item : allunits){
         if(item->type == "move"){
             int de_length_mm = (item->de_type == 1) ? de1_length_mm : de2_length_mm;
@@ -853,9 +857,11 @@ void MainWindow::on_connect_btn_clicked()
             int unit_length = de_length_mm*1000/de_spacing_um;
             int unit_width = de_width_mm*1000/de_spacing_um;
             for(int i = 0; i < item->de_xnum; i++){
-                for(int j = 0; j < unit_length; j++)
-                    for(int k = 0; k < unit_width; k++)
-                        unitmap[int(item->xi - shift)+i*(unit_length+1) + j][int(item->yi - shift) + k] = (j == int(unit_length/2) || k == int(unit_width/2)) ? 2 : 1;
+                for(int j = 0; j <= unit_length; j++)
+                    for(int k = 0; k <= unit_width; k++)
+                        unitmap[int(item->xi - shift)+i*(unit_length+1) + j][int(item->yi - shift) + k] = (j == int(unit_length/2) || k == int(unit_width/2)) ? 1 : unit_id;
+                source[int(item->xi - shift)+i*(unit_length+1) + unit_length/2][int(item->yi - shift) + unit_width/2] = true;
+                unit_id ++;
             }
 
         } else if(item->type == "cycle"){
@@ -865,21 +871,26 @@ void MainWindow::on_connect_btn_clicked()
                     if(i!=0 && i!=item->de_xnum-1 && j!=0 && j!=item->de_ynum-1)
                         continue;
                     qDebug() << i << j;
-                    for(int k = 0; k < unit_length; k++)
-                        for (int l = 0; l < unit_length; l++)
-                            unitmap[int(item->xi - shift)+i*(unit_length+1) + k][int(item->yi - shift)+j*(unit_length+1) + l] = (k == int(unit_length/2) || l == int(unit_length/2)) ? 2 : 1;
-
+                    for(int k = 0; k <= unit_length; k++)
+                        for (int l = 0; l <= unit_length; l++)
+                            unitmap[int(item->xi - shift)+i*(unit_length+1) + k][int(item->yi - shift)+j*(unit_length+1) + l] = (k == int(unit_length/2) || l == int(unit_length/2)) ? 1 : unit_id;
+                    source[int(item->xi - shift)+i*(unit_length+1) + unit_length/2][int(item->yi - shift) + unit_length/2] = true;
+                    unit_id ++;
                 }
             }
+
         } else if(item->type == "dispenser"){
-            for(int i = 0; i < item->length; i++)
-                for(int j = 0; j < item->width; j++)
-                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = (i == int(item->length/2) || j == int(item->width/2)) ? 2 : 1;
+            for(int i = 0; i <= item->length; i++)
+                for(int j = 0; j <= item->width; j++)
+                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = (i == int(item->length/2) || j == int(item->width/2)) ? 1 : unit_id;
+            source[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width/2)] = true;
+            unit_id ++;
 
         } else if(item->type == "controlpad"){
-            for(int i = 0; i < item->length; i++)
-                for(int j = 0; j < item->width; j++)
-                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = (i == int(item->length/2) || j == int(item->width/2)) ? -2 : -1;
+            for(int i = 0; i <= item->length; i++)
+                for(int j = 0; j <= item->width; j++)
+                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = (i == int(item->length/2) || j == int(item->width/2)) ? -1 : cpad_id;
+            cpad_id --;
         }
     }
 
@@ -893,7 +904,12 @@ void MainWindow::on_connect_btn_clicked()
             unitmap[i*6-xsize][ysize-1] = -1;
         }
     }*/
-
+    for(int i = 0; i < xsize; i++){
+        for(int j = 0; j < ysize; j++){
+            qDebug() << unitmap[i][j];
+        }
+        qDebug() << endl;
+    }
 
 
     // set source and target
@@ -912,35 +928,40 @@ void MainWindow::on_connect_btn_clicked()
             // neighbors connection
             if (i != xsize-1) {
                 if(unitmap[i][j] == unitmap[i+1][j] || (unitmap[i][j] * unitmap[i+1][j] > 0)){
+                    if(unitmap[i][j] == 1 && unitmap[i+1][j] == 1) continue;
                     addEdge(from, to_d+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
                     addEdge(to_d, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
                 } else if(unitmap[i][j] > unitmap[i+1][j]){
-                    if(unitmap[i][j] != 1 && unitmap[i+1][j] != -1)
+                    if(unitmap[i][j] == 1 || unitmap[i+1][j] == -1 || unitmap[i+1][j] == 1)
                         addEdge(from, to_d+unsigned(xsize*ysize), 1, 1);
                 } else {
-                    if(unitmap[i+1][j] != 1 && unitmap[i][j] != -1)
+                    if(unitmap[i+1][j] == 1 || unitmap[i][j] == -1 || unitmap[i+1][j] == 1)
                         addEdge(to_d, from+unsigned(xsize*ysize), 1, 1);
                 }
             }
             if (j != ysize-1) {
                 if(unitmap[i][j] == unitmap[i][j+1] || (unitmap[i][j] * unitmap[i][j+1] > 0)){
+                    if(unitmap[i][j] == 1 && unitmap[i][j+1] == 1) continue;
                     addEdge(from, to_r+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
                     addEdge(to_r, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
                 } else if(unitmap[i][j] > unitmap[i][j+1]){
-                    if(unitmap[i][j] != 1 && unitmap[i][j+1] != -1)
+                    if(unitmap[i][j] == 1 || unitmap[i][j+1] == -1 || unitmap[i][j+1] == 1)
                         addEdge(from, to_r+unsigned(xsize*ysize), 1, 1);
                 } else {
-                    if(unitmap[i][j+1] != 1 && unitmap[i][j] != -1)
+                    if(unitmap[i][j+1] == 1 || unitmap[i][j] == -1 || unitmap[i][j+1] == 1)
                         addEdge(to_r, from+unsigned(xsize*ysize), 1, 1);
                 }
             }
 
             // s/t connection
             if(unitmap[i][j] >= 1){
-                if(!(i < xsize-1 && unitmap[i+1][j] >= 1) && !(j < ysize-1 && unitmap[i][j+1] >= 1))
+                if(!(i < xsize-1 && (unitmap[i+1][j] == 1 || unitmap[i+1][j] == unitmap[i][j])) &&
+                   !(j < ysize-1 && (unitmap[i][j+1] == 1 || unitmap[i][j+1] == unitmap[i][j])))
+                //if(source[i][j] == true)
                     addEdge(s, from+unsigned(xsize*ysize), 1, 1);
             } else if(unitmap[i][j] <= -1){
-                if(!(i < xsize-1 && unitmap[i+1][j] <= -1) && !(j < ysize-1 && unitmap[i][j+1] <= -1))
+                if(!(i < xsize-1 && (unitmap[i+1][j] == -1 || unitmap[i+1][j] == unitmap[i][j])) &&
+                   !(j < ysize-1 && (unitmap[i][j+1] == -1 || unitmap[i][j+1] == unitmap[i][j])))
                     addEdge(from, t, 1, 1);
             }
         }
@@ -1025,18 +1046,18 @@ void MainWindow::on_connect_btn_clicked()
                         unsigned to_y = (e.to-unsigned(xsize*ysize)) % unsigned(ysize);
                         if(unitmap[i][j] * unitmap[to_x][to_y] > 0)
                             continue;
-                        qreal startx = (i+shift)*pix_per_brick + pix_per_brick*((to_x < i) ? -0.33 : 0.33);
-                        qreal starty = (j+shift)*pix_per_brick + pix_per_brick*((to_y < j) ? -0.33 : 0.33);
-                        qreal lengthx = pix_per_brick*((to_y == j) ? 1 : 0.33);
-                        qreal lengthy = pix_per_brick*((to_x == i) ? 1 : 0.33);
-                        //ui->view->scene()->addRect(startx, starty, lengthx, lengthy, QPen(Qt::black), QBrush(Qt::black));
-                        line *newline = new line();
+                        qreal startx = (i+shift)*pix_per_brick + pix_per_brick*((to_x < i) ? -1 : 0);
+                        qreal starty = (j+shift)*pix_per_brick + pix_per_brick*((to_y < j) ? -1 : 0);
+                        qreal lengthx = pix_per_brick*((to_y == j) ? 1 : 0.2);
+                        qreal lengthy = pix_per_brick*((to_x == i) ? 1 : 0.2);
+                        ui->view->scene()->addRect(startx, starty, lengthx, lengthy, QPen(Qt::black), QBrush(Qt::black));
+                        /*line *newline = new line();
                         newline->x[0] = startx;
                         newline->y[0] = starty;
                         newline->x[1] = startx+lengthx;
                         newline->y[1] = starty+lengthy;
                         newline->segments = 1;
-                        linescene->AddTurnline(newline);
+                        linescene->AddTurnline(newline);*/
                     }
                 }
             }
