@@ -844,24 +844,38 @@ void MainWindow::on_connect_btn_clicked()
         graph[t].push_back(edge(s, 0, -cost, graph[s].size()-1));
     };
 
+    auto addEdgeByIndex = [addEdge, xsize, ysize](unsigned x1, unsigned y1, unsigned x2, unsigned y2, int cost, int cap){
+        addEdge(unsigned(x1*ysize+y1), (unsigned(x2*ysize+y2+xsize*ysize)), cost, cap);
+    };
+
     // unitmap setup
     memset(unitmap, 0, sizeof(unitmap));
     int unit_id = 2;
     int cpad_id = -2;
-    bool source[200][200] = {false};
+    bool source[200][200] = {{false}};
 
     for(unit *item : allunits){
         if(item->type == "move"){
             int de_length_mm = (item->de_type == 1) ? de1_length_mm : de2_length_mm;
             int de_width_mm = (item->de_type == 1) ? de1_width_mm : de2_width_mm;
-            int unit_length = de_length_mm*1000/de_spacing_um;
-            int unit_width = de_width_mm*1000/de_spacing_um;
-            for(int i = 0; i < item->de_xnum; i++){
-                for(int j = 0; j <= unit_length; j++)
-                    for(int k = 0; k <= unit_width; k++)
-                        unitmap[int(item->xi - shift)+i*(unit_length+1) + j][int(item->yi - shift) + k] = (j == int(unit_length/2) || k == int(unit_width/2)) ? 1 : unit_id;
-                source[int(item->xi - shift)+i*(unit_length+1) + unit_length/2][int(item->yi - shift) + unit_width/2] = true;
+            int unit_length = ((item->tilt == 0) ? de_length_mm : de_width_mm)*1000/de_spacing_um;
+            int unit_width = ((item->tilt == 0) ? de_width_mm : de_length_mm)*1000/de_spacing_um;
+            int i = 0, j = 0;
+            for( ; i < item->de_xnum && j < item->de_ynum; ){
+                for(int k = 0; k <= unit_length; k++)
+                    for(int l = 0; l <= unit_width; l++)
+                        unitmap[int(item->xi - shift)+i*(unit_length+1) + k][int(item->yi - shift)+j*(unit_width+1) + l] = unit_id;//(j == int(unit_length/2) || k == int(unit_width/2)) ? 1 : unit_id;
+                source[int(item->xi - shift)+i*(unit_length+1) + unit_length/2][int(item->yi - shift)+j*(unit_width+1) + unit_width/2] = true;
+                unitmap[int(item->xi - shift)+i*(unit_length+1) + unit_length/2][int(item->yi - shift)+j*(unit_width+1) + unit_width*1] = 1;
+                unitmap[int(item->xi - shift)+i*(unit_length+1) + unit_length/2][int(item->yi - shift)+j*(unit_width+1) + unit_width*0] = 1;
+                unitmap[int(item->xi - shift)+i*(unit_length+1) + unit_length*1][int(item->yi - shift)+j*(unit_width+1) + unit_width/2] = 1;
+                unitmap[int(item->xi - shift)+i*(unit_length+1) + unit_length*0][int(item->yi - shift)+j*(unit_width+1) + unit_width/2] = 1;
                 unit_id ++;
+                if(item->tilt == 0){
+                    i++;
+                } else {
+                    j++;
+                };
             }
 
         } else if(item->type == "cycle"){
@@ -873,8 +887,12 @@ void MainWindow::on_connect_btn_clicked()
                     qDebug() << i << j;
                     for(int k = 0; k <= unit_length; k++)
                         for (int l = 0; l <= unit_length; l++)
-                            unitmap[int(item->xi - shift)+i*(unit_length+1) + k][int(item->yi - shift)+j*(unit_length+1) + l] = (k == int(unit_length/2) || l == int(unit_length/2)) ? 1 : unit_id;
-                    source[int(item->xi - shift)+i*(unit_length+1) + unit_length/2][int(item->yi - shift) + unit_length/2] = true;
+                            unitmap[int(item->xi - shift)+i*(unit_length+1) + k][int(item->yi - shift)+j*(unit_length+1) + l] = unit_id;//(k == int(unit_length/2) || l == int(unit_length/2)) ? 1 : unit_id;
+                    source[int(item->xi - shift)+i*(unit_length+1) + unit_length/2][int(item->yi - shift) +j*(unit_length+1)+ unit_length/2] = true;
+                    unitmap[int(item->xi - shift)+i*(unit_length+1) + unit_length/2][int(item->yi - shift) +j*(unit_length+1)+ unit_length] = 1;
+                    unitmap[int(item->xi - shift)+i*(unit_length+1) + unit_length/2][int(item->yi - shift) +j*(unit_length+1)+ 0] = 1;
+                    unitmap[int(item->xi - shift)+i*(unit_length+1) + unit_length][int(item->yi - shift) +j*(unit_length+1)+ unit_length/2] = 1;
+                    unitmap[int(item->xi - shift)+i*(unit_length+1) + 0][int(item->yi - shift) +j*(unit_length+1)+ unit_length/2] = 1;
                     unit_id ++;
                 }
             }
@@ -882,33 +900,30 @@ void MainWindow::on_connect_btn_clicked()
         } else if(item->type == "dispenser"){
             for(int i = 0; i <= item->length; i++)
                 for(int j = 0; j <= item->width; j++)
-                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = (i == int(item->length/2) || j == int(item->width/2)) ? 1 : unit_id;
+                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = unit_id;//(i == int(item->length/2) || j == int(item->width/2)) ? 1 : unit_id;
             source[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width/2)] = true;
+            unitmap[int(item->xi - shift) + int(item->length*1)][int(item->yi - shift) + int(item->width/2)] = 1;
+            unitmap[int(item->xi - shift) + int(item->length*0)][int(item->yi - shift) + int(item->width/2)] = 1;
+            unitmap[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width*1)] = 1;
+            unitmap[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width*0)] = 1;
             unit_id ++;
 
         } else if(item->type == "controlpad"){
             for(int i = 0; i <= item->length; i++)
                 for(int j = 0; j <= item->width; j++)
-                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = (i == int(item->length/2) || j == int(item->width/2)) ? -1 : cpad_id;
+                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = (i == int(item->length/2) /*|| j == int(item->width/2)*/) ? -1 : cpad_id;
             cpad_id --;
         }
     }
 
     qDebug() << "total de is " << num_de;
 
-    /*for(int i = 0; i < total_de; i++){
-        if(i*6 < xsize){
-            //unitmap[0][i*6] = -1;
-            unitmap[i*6][0] = -1;
-        } else {
-            unitmap[i*6-xsize][ysize-1] = -1;
-        }
-    }*/
     for(int i = 0; i < xsize; i++){
+        QString debug;
         for(int j = 0; j < ysize; j++){
-            qDebug() << unitmap[i][j];
+            debug += QString::number(unitmap[i][j]);
         }
-        qDebug() << endl;
+        qDebug() << debug;
     }
 
 
@@ -927,37 +942,44 @@ void MainWindow::on_connect_btn_clicked()
 
             // neighbors connection
             if (i != xsize-1) {
-                if(unitmap[i][j] == unitmap[i+1][j] || (unitmap[i][j] * unitmap[i+1][j] > 0)){
+                if(unitmap[i][j] == unitmap[i+1][j] /*|| (unitmap[i][j] * unitmap[i+1][j] > 0)*/){
                     if(unitmap[i][j] == 1 && unitmap[i+1][j] == 1) continue;
                     addEdge(from, to_d+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
                     addEdge(to_d, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
                 } else if(unitmap[i][j] > unitmap[i+1][j]){
                     if(unitmap[i][j] == 1 || unitmap[i+1][j] == -1 || unitmap[i+1][j] == 1)
                         addEdge(from, to_d+unsigned(xsize*ysize), 1, 1);
+                    else
+                        ;
                 } else {
-                    if(unitmap[i+1][j] == 1 || unitmap[i][j] == -1 || unitmap[i+1][j] == 1)
+                    if(unitmap[i+1][j] == 1 || unitmap[i][j] == -1 || unitmap[i][j] == 1)
                         addEdge(to_d, from+unsigned(xsize*ysize), 1, 1);
+                    else;
                 }
             }
             if (j != ysize-1) {
-                if(unitmap[i][j] == unitmap[i][j+1] || (unitmap[i][j] * unitmap[i][j+1] > 0)){
+                if(unitmap[i][j] == unitmap[i][j+1] /*|| (unitmap[i][j] * unitmap[i][j+1] > 0)*/){
                     if(unitmap[i][j] == 1 && unitmap[i][j+1] == 1) continue;
                     addEdge(from, to_r+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
                     addEdge(to_r, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
                 } else if(unitmap[i][j] > unitmap[i][j+1]){
                     if(unitmap[i][j] == 1 || unitmap[i][j+1] == -1 || unitmap[i][j+1] == 1)
                         addEdge(from, to_r+unsigned(xsize*ysize), 1, 1);
+                    else
+                        ;
                 } else {
-                    if(unitmap[i][j+1] == 1 || unitmap[i][j] == -1 || unitmap[i][j+1] == 1)
+                    if(unitmap[i][j+1] == 1 || unitmap[i][j] == -1 || unitmap[i][j] == 1)
                         addEdge(to_r, from+unsigned(xsize*ysize), 1, 1);
+                    else
+                        ;
                 }
             }
 
             // s/t connection
-            if(unitmap[i][j] >= 1){
-                if(!(i < xsize-1 && (unitmap[i+1][j] == 1 || unitmap[i+1][j] == unitmap[i][j])) &&
-                   !(j < ysize-1 && (unitmap[i][j+1] == 1 || unitmap[i][j+1] == unitmap[i][j])))
-                //if(source[i][j] == true)
+            if(unitmap[i][j] > 1){
+                //if(!(i < xsize-1 && (unitmap[i+1][j] == 1 || unitmap[i+1][j] == unitmap[i][j])) &&
+                  // !(j < ysize-1 && (unitmap[i][j+1] == 1 || unitmap[i][j+1] == unitmap[i][j])))
+                if(source[i][j] == true)
                     addEdge(s, from+unsigned(xsize*ysize), 1, 1);
             } else if(unitmap[i][j] <= -1){
                 if(!(i < xsize-1 && (unitmap[i+1][j] == -1 || unitmap[i+1][j] == unitmap[i][j])) &&
@@ -1041,11 +1063,11 @@ void MainWindow::on_connect_btn_clicked()
     for(int i = 0; i < xsize; i++){
             for(int j = 0; j < ysize; j++){
                 for(edge e : graph[unsigned(i*ysize+j)]){
-                    if(e.flow > 0 && e.to != s && e.to != t){
+                    if(/*e.cap > 0){*/e.flow > 0 && e.to != s && e.to != t){
                         unsigned to_x = (e.to-unsigned(xsize*ysize)) / unsigned(ysize);
                         unsigned to_y = (e.to-unsigned(xsize*ysize)) % unsigned(ysize);
-                        if(unitmap[i][j] * unitmap[to_x][to_y] > 0)
-                            continue;
+                        if(/*unitmap[i][j] == 0)*/unitmap[i][j] * unitmap[to_x][to_y] > 0)
+                            ;
                         qreal startx = (i+shift)*pix_per_brick + pix_per_brick*((to_x < i) ? -1 : 0);
                         qreal starty = (j+shift)*pix_per_brick + pix_per_brick*((to_y < j) ? -1 : 0);
                         qreal lengthx = pix_per_brick*((to_y == j) ? 1 : 0.2);
@@ -1187,7 +1209,7 @@ void MainWindow::on_move_create_clicked()
         allunits.prepend(move);
         position += 5;
         connect(move, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
-        num_de += move->de_xnum;
+        num_de += move->de_xnum * move->de_ynum;
     }
     ui->num_move->setText(QString::number(num_move));
 }
