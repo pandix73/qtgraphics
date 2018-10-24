@@ -808,11 +808,11 @@ void MainWindow::on_eraser_clicked()
 //remove the deleted item from allunits list
 void MainWindow::delete_from_list(unit *item)
 {
-    if(item->type == "merge") num_merge--;
-    if(item->type == "dispenser") num_dispenser--;
-    if(item->type == "move") num_move--;
-    if(item->type == "cycling") num_cycling--;
-    if(item->type == "heater") num_heater--;
+    if(item->type == "merge"){ num_merge--; num_de -= 1;}
+    if(item->type == "dispenser"){ num_dispenser--; num_de -= 1;}
+    if(item->type == "move"){ num_move--; num_de -= item->de_xnum*item->de_ynum;}
+    if(item->type == "cycle"){ num_cycling--; num_de -= (item->de_xnum + item->de_ynum - 2) * 2;}
+    if(item->type == "heater"){ num_heater--; num_de -= 2;}
     Info();
     allunits.removeOne(item);
     delete item;
@@ -1078,7 +1078,7 @@ void MainWindow::on_connect_btn_clicked()
                         newline->y[0] = starty;
                         newline->x[1] = startx+lengthx;
                         newline->y[1] = starty+lengthy;
-                        newline->segments = 1;
+                        //newline->segments = 1;
                         linescene->AddTurnline(newline);*/
                     }
                 }
@@ -1108,8 +1108,16 @@ void MainWindow::on_controlpad_btn_clicked()
         cp->color = Qt::black;
         ui->view->scene()->addItem(cp);
         allunits.prepend(cp);
-        cp_xi_start += cp->length+1;
-        cp_yi_start = (i == brick_xnum) ? int(brick_ynum - cp->width): cp_yi_start;
+
+        if(cp_xi_start+cp->length+1 >= brick_xnum){
+            cp_xi_start = chip_border_mm*1000 / de_spacing_um;
+            cp_yi_start += int(brick_ynum - cp->width);
+        } else {
+            cp_xi_start += cp->length+1;
+        }
+        //cp_xi_start = (cp_xi_start+cp->length+1 >= brick_xnum) ? chip_border_mm*1000 / de_spacing_um : cp_xi_start + cp->length+1;
+        //cp_yi_start = ((i+1)*(cp->length+1) >= brick_xnum) ? int(brick_ynum - cp->width): cp_yi_start;
+        qDebug() << brick_xnum;
         connect(cp, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
     }
 }
