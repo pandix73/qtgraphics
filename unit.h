@@ -10,7 +10,7 @@
 #include <QWidget>
 #include <QMenu>
 #include <QAction>
-
+#include "text_edit.h"
 
 class unit : public QObject, public QGraphicsItem
 {
@@ -41,8 +41,8 @@ public:
     QColor unit_de1_color = QColor(255, 0, 0, 127);
     QColor unit_de2_color = QColor(0, 0, 255, 127);
 
-
-
+public slots:
+    void update_label(QString text);
 signals:
     void delete_this_item(unit *item);
 
@@ -51,6 +51,7 @@ protected:
     // overriding mouse events
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
 };
 
 #endif // UNIT_H

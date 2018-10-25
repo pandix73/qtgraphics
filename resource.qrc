@@ -11,6 +11,8 @@
         <file>Icons/pencil_cursor.png</file>
         <file>Icons/cursor.png</file>
         <file>Icons/eraser_cursor.png</file>
+        <file>Icons/zoom_in.png</file>
+        <file>Icons/zoom_out.png</file>
     </qresource>
     <qresource prefix="/actions">
         <file>Icons/save_ai.png</file>

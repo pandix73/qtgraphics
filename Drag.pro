@@ -32,7 +32,8 @@ SOURCES += \
     unit.cpp \
     save_yn_dialog.cpp \
     graphicsscene.cpp \
-    line.cpp
+    line.cpp \
+    text_edit.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -41,12 +42,14 @@ HEADERS += \
     unit.h \
     save_yn_dialog.h \
     graphicsscene.h \
-    line.h
+    line.h \
+    text_edit.h
 
 FORMS += \
         mainwindow.ui \
     chip_setting.ui \
-    save_yn_dialog.ui
+    save_yn_dialog.ui \
+    text_edit.ui
 
 RESOURCES += \
     resource.qrc

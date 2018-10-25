@@ -85,6 +85,7 @@ void unit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
         painter->drawRect(rect);
     }
     painter->drawText(rect, type, Qt::AlignVCenter | Qt::AlignHCenter);
+
     Q_UNUSED(option);
     Q_UNUSED(widget);
 }
@@ -116,3 +117,18 @@ void unit::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         emit delete_this_item(this);
     }
 }
+
+void unit::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event){
+    text_edit *textedit = new text_edit(0);
+    textedit->setWindowTitle("Text Edit");
+    connect(textedit, SIGNAL(update_this_label(QString)), this, SLOT(update_label(QString)));
+    textedit->show();
+}
+
+void unit::update_label(QString text){
+    qDebug() << text;
+    //this->paint(0, 0, 0, text);
+//    this->p
+    this->setToolTip(text);
+}
+

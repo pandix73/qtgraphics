@@ -818,6 +818,18 @@ void MainWindow::delete_from_list(unit *item)
     delete item;
 }
 
+void MainWindow::on_zoomin_clicked()
+{
+    zoom_factor *= 1.1;
+    ui->view->setTransform(QTransform().scale(zoom_factor, zoom_factor));
+}
+
+void MainWindow::on_zoomout_clicked()
+{
+    zoom_factor /= 1.1;
+    ui->view->setTransform(QTransform().scale(zoom_factor, zoom_factor));
+}
+
 //AUTO CONNECT
 void MainWindow::on_connect_btn_clicked()
 {
@@ -1393,3 +1405,5 @@ void MainWindow::on_preview_clicked(bool checked)
         }
     }
 }
+
+
