@@ -17,6 +17,7 @@ public:
     line();
     QRectF boundingRect() const;
     void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget);
+    void merge();
 
     float x[10];
     float y[10];

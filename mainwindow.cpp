@@ -1085,13 +1085,15 @@ void MainWindow::on_connect_btn_clicked()
                         qreal lengthx = pix_per_brick*((to_y == j) ? 1 : 0.2);
                         qreal lengthy = pix_per_brick*((to_x == i) ? 1 : 0.2);
                         ui->view->scene()->addRect(startx, starty, lengthx, lengthy, QPen(Qt::black), QBrush(Qt::black));
-                        /*line *newline = new line();
+                        line *newline = new line();
                         newline->x[0] = startx;
                         newline->y[0] = starty;
                         newline->x[1] = startx+lengthx;
                         newline->y[1] = starty+lengthy;
                         //newline->segments = 1;
-                        linescene->AddTurnline(newline);*/
+                        linescene->addItem(newline);
+                        connect(newline, SIGNAL(delete_this_line(line *)), this, SLOT(delete_from_list(line *)));
+                        //linescene->AddTurnline(newline);
                     }
                 }
             }

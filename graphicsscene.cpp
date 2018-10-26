@@ -135,7 +135,8 @@ void graphicsscene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
 void graphicsscene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent){
     if(!deletemode){
         qDebug() << "SEGMENTS " << turnline->segments;
-        alllines.append(head);
+        head->merge();
+        alllines.append(head);    
         pressed = false;
         create_head = true;
     }
