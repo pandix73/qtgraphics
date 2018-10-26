@@ -20,6 +20,7 @@ extern int pix_per_brick;
 unit::unit()
 {
     Pressed = false;
+    text = "";
     setFlag(ItemIsMovable);
 }
 
@@ -84,7 +85,10 @@ void unit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
         painter->setPen(pen);
         painter->drawRect(rect);
     }
-    painter->drawText(rect, type, Qt::AlignVCenter | Qt::AlignHCenter);
+    if(text == "")
+        painter->drawText(rect, type, Qt::AlignVCenter | Qt::AlignHCenter);
+    else
+        painter->drawText(rect, text, Qt::AlignVCenter | Qt::AlignHCenter);
 
     Q_UNUSED(option);
     Q_UNUSED(widget);
@@ -127,8 +131,7 @@ void unit::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event){
 
 void unit::update_label(QString text){
     qDebug() << text;
-    //this->paint(0, 0, 0, text);
-//    this->p
+    this->text = text;
     this->setToolTip(text);
 }
 

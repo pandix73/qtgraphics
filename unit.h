@@ -35,6 +35,7 @@ public:
     int de_ynum = 0;
     int tilt = 0;
     QString type;
+    QString text;
     QColor color = Qt::white;
 
     //units color
