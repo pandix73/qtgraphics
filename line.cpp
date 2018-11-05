@@ -88,20 +88,8 @@ void line::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 }
 
 void line::merge(){
-    /*if(this->previous != NULL){
-        if(this->previous->x[0] == this->x[1] || this->previous->y[0] == this->y[1]){
-            this->x[0] = this->previous->x[0];
-            this->y[0] = this->previous->y[0];
-            line* temp = this->previous;
-            this->previous = this->previous->previous;
-            delete(temp);
-            this->merge();
-        } else {
-            //this->previous->merge();
-        }
-    }*/
-    if(this->next != NULL){
-        if(this->next->x[1] == this->x[0] || this->next->y[1] == this->y[0]){
+    if(this->next != nullptr){
+        if(int(this->next->x[1]) == int(this->x[0]) || int(this->next->y[1]) == int(this->y[0])){
             this->x[1] = this->next->x[1];
             this->y[1] = this->next->y[1];
             line* temp = this->next;

@@ -1023,11 +1023,11 @@ void MainWindow::on_connect_btn_clicked()
         distance[s] = 0;
         currflow[s] = INT_MAX;
         std::vector<bool> inqueue(n);
-        std::vector<int> q(n);
-        int qt = 0;
-        q[unsigned(qt++)] = int(s);
-        for (int qh = 0; unsigned(abs(qh - qt)) % n != 0; qh++) {
-            unsigned u = unsigned(q[unsigned(qh) % n]);
+        std::queue<unsigned> q;
+        q.push(s);
+        while(!q.empty()){
+            unsigned u = q.front();
+            q.pop();
             inqueue[u] = false;
             for (unsigned i = 0; i < graph[u].size(); i++) {
                 edge e = graph[u][i];
@@ -1042,7 +1042,7 @@ void MainWindow::on_connect_btn_clicked()
                     currflow[v] = std::min(currflow[u], e.cap - e.flow);
                     if (!inqueue[v]) {
                         inqueue[v] = true;
-                        q[unsigned(qt++) % n] = int(v);
+                        q.push(v);
                     }
                 }
             }
@@ -1072,6 +1072,56 @@ void MainWindow::on_connect_btn_clicked()
 
     qDebug() << flow << flowCost;
 
+
+    bool checked[200][200] = {{false}};
+
+    line *voidline = new line();
+    voidline->x[0] = -1;
+    voidline->x[1] = -1;
+    voidline->y[0] = -1;
+    voidline->y[1] = -1;
+
+    /*auto checkflow = [&graph, &checked, voidline, xsize, ysize, s, t, shift, this](unsigned i, unsigned j) -> line*{
+        if(checked[i][j]){
+            return voidline;
+        } else {
+            for(edge e : graph[unsigned(i*ysize+j)]){
+                if(e.flow > 0 && e.to != s && e.to != t){
+                    unsigned to_x = (e.to-unsigned(xsize*ysize)) / unsigned(ysize);
+                    unsigned to_y = (e.to-unsigned(xsize*ysize)) % unsigned(ysize);
+                    if(unitmap[i][j] * unitmap[to_x][to_y] > 0)
+                        ;
+                    qreal startx = (i+shift)*pix_per_brick + pix_per_brick*((to_x < i) ? -1 : 0);
+                    qreal starty = (j+shift)*pix_per_brick + pix_per_brick*((to_y < j) ? -1 : 0);
+                    qreal lengthx = pix_per_brick*((to_y == j) ? 1 : 0.2);
+                    qreal lengthy = pix_per_brick*((to_x == i) ? 1 : 0.2);
+                    ui->view->scene()->addRect(startx, starty, lengthx, lengthy, QPen(Qt::black), QBrush(Qt::black));
+
+                    //construct line
+                    line *newline = new line();
+                    newline->x[0] = startx;
+                    newline->y[0] = starty;
+                    newline->x[1] = startx+lengthx;
+                    newline->y[1] = starty+lengthy;
+                    linescene->addItem(newline);
+                    connect(newline, SIGNAL(delete_this_line(line *)), this, SLOT(delete_from_list(line *)));
+
+                    //line *nextline = new line();
+                    line* nextline = &checkflow(i+1, j);
+                    if(checkflow(i+1, j))
+                    return newline;
+                }
+            }
+        }
+    };
+
+
+    for(unsigned i = 0; i < xsize; i++){
+        for(unsigned j = 0; j < ysize; j++){
+            checkflow(i, j);
+        }
+    }
+*/
     for(int i = 0; i < xsize; i++){
             for(int j = 0; j < ysize; j++){
                 for(edge e : graph[unsigned(i*ysize+j)]){

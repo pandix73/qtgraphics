@@ -6,6 +6,7 @@
 #include "switch.h"
 #include "graphicsscene.h"
 #include "line.h"
+#include <queue>
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include <QGraphicsItem>
