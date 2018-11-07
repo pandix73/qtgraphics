@@ -27,15 +27,15 @@ line* graphicsscene::PassSegToTurn(line *seg){
     if(create_head){
         head = new line();
         head = seg;
-        head->previous = NULL;
-        head->next = NULL;
+        head->previous = nullptr;
+        head->next = nullptr;
         current_seg = head;
     }
     else{
         current_seg->next = seg;
         seg->previous = current_seg;
         current_seg = seg;
-        current_seg->next = NULL;
+        current_seg->next = nullptr;
     }
 
     this->addItem(seg);
@@ -136,7 +136,7 @@ void graphicsscene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent){
     if(!deletemode){
         qDebug() << "SEGMENTS " << turnline->segments;
         head->merge();
-        alllines.append(head);    
+        alllines.append(head);
         pressed = false;
         create_head = true;
     }
@@ -144,8 +144,9 @@ void graphicsscene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent){
 
 //TODO:
 void graphicsscene::AddTurnline(line *head){
+    head->merge();
     line *current_seg = head;
-    while(current_seg->next != NULL){
+    while(current_seg->next != nullptr){
         this->addItem(current_seg);
         current_seg = current_seg->next;
         connect(current_seg, SIGNAL(delete_this_line(line*)), this, SLOT(delete_from_list(line*)));
@@ -153,9 +154,6 @@ void graphicsscene::AddTurnline(line *head){
     this->addItem(current_seg);
     connect(current_seg, SIGNAL(delete_this_line(line*)), this, SLOT(delete_from_list(line*)));
     alllines.append(head);
-//    this->addItem(turnline);
-//    connect(turnline, SIGNAL((line *)), this, SLOT(delete_from_list(line *)));
-//    alllines.append(turnline);
     return;
 }
 
@@ -163,9 +161,9 @@ void graphicsscene::delete_from_list(line *delete_line)
 {
     line *next_delete;
     //delete right hand side
-    if(delete_line->next != NULL){
+    if(delete_line->next != nullptr){
         current_seg = delete_line->next;
-        while(current_seg->next != NULL){
+        while(current_seg->next != nullptr){
             next_delete = current_seg->next;
             delete current_seg;
             current_seg = next_delete;
@@ -174,9 +172,9 @@ void graphicsscene::delete_from_list(line *delete_line)
     }
 
     //delete left hand side
-    if(delete_line->previous != NULL){
+    if(delete_line->previous != nullptr){
         current_seg = delete_line->previous;
-        while(current_seg->previous != NULL){
+        while(current_seg->previous != nullptr){
             next_delete = current_seg->previous;
             delete current_seg;
             current_seg = next_delete;

@@ -408,7 +408,7 @@ void MainWindow::save_svg()
       line *current_seg;
       for(line *head : linescene->alllines){
           current_seg = head;
-          while(current_seg->next != NULL){
+          while(current_seg->next != nullptr){
               out << current_seg->x[0] << "\n" << current_seg->y[0] << "\n";
               current_seg = current_seg->next;
           }
@@ -856,10 +856,6 @@ void MainWindow::on_connect_btn_clicked()
         graph[t].push_back(edge(s, 0, -cost, graph[s].size()-1));
     };
 
-    auto addEdgeByIndex = [addEdge, xsize, ysize](unsigned x1, unsigned y1, unsigned x2, unsigned y2, int cost, int cap){
-        addEdge(unsigned(x1*ysize+y1), (unsigned(x2*ysize+y2+xsize*ysize)), cost, cap);
-    };
-
     // unitmap setup
     memset(unitmap, 0, sizeof(unitmap));
     int unit_id = 2;
@@ -1072,83 +1068,67 @@ void MainWindow::on_connect_btn_clicked()
 
     qDebug() << flow << flowCost;
 
+    std::vector<line*>newlines;
 
-    bool checked[200][200] = {{false}};
-
-    line *voidline = new line();
-    voidline->x[0] = -1;
-    voidline->x[1] = -1;
-    voidline->y[0] = -1;
-    voidline->y[1] = -1;
-
-    /*auto checkflow = [&graph, &checked, voidline, xsize, ysize, s, t, shift, this](unsigned i, unsigned j) -> line*{
-        if(checked[i][j]){
-            return voidline;
-        } else {
+    for(int i = 0; i < xsize; i++){
+        for(int j = 0; j < ysize; j++){
             for(edge e : graph[unsigned(i*ysize+j)]){
                 if(e.flow > 0 && e.to != s && e.to != t){
                     unsigned to_x = (e.to-unsigned(xsize*ysize)) / unsigned(ysize);
                     unsigned to_y = (e.to-unsigned(xsize*ysize)) % unsigned(ysize);
+                    qDebug()<<i<<j<<to_x<<to_y;
                     if(unitmap[i][j] * unitmap[to_x][to_y] > 0)
-                        ;
-                    qreal startx = (i+shift)*pix_per_brick + pix_per_brick*((to_x < i) ? -1 : 0);
-                    qreal starty = (j+shift)*pix_per_brick + pix_per_brick*((to_y < j) ? -1 : 0);
-                    qreal lengthx = pix_per_brick*((to_y == j) ? 1 : 0.2);
-                    qreal lengthy = pix_per_brick*((to_x == i) ? 1 : 0.2);
-                    ui->view->scene()->addRect(startx, starty, lengthx, lengthy, QPen(Qt::black), QBrush(Qt::black));
-
-                    //construct line
+                        continue;
+                    qreal startx = (i+shift)*pix_per_brick;
+                    qreal starty = (j+shift)*pix_per_brick;
+                    qreal endx = pix_per_brick*(shift+((to_x < i) ? i-1 : (to_x > i) ? i+1 : i));
+                    qreal endy = pix_per_brick*(shift+((to_y < j) ? j-1 : (to_y > j) ? j+1 : j));
+                    //ui->view->scene()->addRect(startx, starty, lengthx, lengthy, QPen(Qt::black), QBrush(Qt::black));
+                    qDebug()<<startx<<starty<<endx<<endy;
                     line *newline = new line();
+                    newline->next = nullptr;
+                    newline->previous = nullptr;
                     newline->x[0] = startx;
                     newline->y[0] = starty;
-                    newline->x[1] = startx+lengthx;
-                    newline->y[1] = starty+lengthy;
-                    linescene->addItem(newline);
-                    connect(newline, SIGNAL(delete_this_line(line *)), this, SLOT(delete_from_list(line *)));
-
-                    //line *nextline = new line();
-                    line* nextline = &checkflow(i+1, j);
-                    if(checkflow(i+1, j))
-                    return newline;
+                    newline->x[1] = endx;
+                    newline->y[1] = endy;
+                    newlines.push_back(newline);
                 }
             }
-        }
-    };
-
-
-    for(unsigned i = 0; i < xsize; i++){
-        for(unsigned j = 0; j < ysize; j++){
-            checkflow(i, j);
         }
     }
-*/
-    for(int i = 0; i < xsize; i++){
-            for(int j = 0; j < ysize; j++){
-                for(edge e : graph[unsigned(i*ysize+j)]){
-                    if(/*e.cap > 0){*/e.flow > 0 && e.to != s && e.to != t){
-                        unsigned to_x = (e.to-unsigned(xsize*ysize)) / unsigned(ysize);
-                        unsigned to_y = (e.to-unsigned(xsize*ysize)) % unsigned(ysize);
-                        if(/*unitmap[i][j] == 0)*/unitmap[i][j] * unitmap[to_x][to_y] > 0)
-                            ;
-                        qreal startx = (i+shift)*pix_per_brick + pix_per_brick*((to_x < i) ? -1 : 0);
-                        qreal starty = (j+shift)*pix_per_brick + pix_per_brick*((to_y < j) ? -1 : 0);
-                        qreal lengthx = pix_per_brick*((to_y == j) ? 1 : 0.2);
-                        qreal lengthy = pix_per_brick*((to_x == i) ? 1 : 0.2);
-                        ui->view->scene()->addRect(startx, starty, lengthx, lengthy, QPen(Qt::black), QBrush(Qt::black));
-                        line *newline = new line();
-                        newline->x[0] = startx;
-                        newline->y[0] = starty;
-                        newline->x[1] = startx+lengthx;
-                        newline->y[1] = starty+lengthy;
-                        //newline->segments = 1;
-                        linescene->addItem(newline);
-                        connect(newline, SIGNAL(delete_this_line(line *)), this, SLOT(delete_from_list(line *)));
-                        //linescene->AddTurnline(newline);
-                    }
-                }
+    qDebug()<<"end build line"<<newlines.size();
+    for(auto newline : newlines){
+        for(auto checkline : newlines){
+            //qDebug() << newline->x[0] << checkline->x[1];
+            //qDebug() << newline->x[1] << checkline->x[0];
+            if(newline == checkline){
+                continue;
+            } else if(abs(newline->x[0] - checkline->x[1]) <= 0.3*pix_per_brick && abs(newline->y[0] - checkline->y[1]) <= 0.3*pix_per_brick){
+                newline->previous = checkline;
+                checkline->next = newline;
+            } else if(abs(newline->x[1] - checkline->x[0]) <= 0.3*pix_per_brick && abs(newline->y[1] - checkline->y[0]) <= 0.3*pix_per_brick){
+                newline->next = checkline;
+                checkline->previous = newline;
             }
         }
+    }
+    qDebug()<<"end line connection";
+    std::vector<line*>mergeline;
+    for(auto line : newlines){
+        if(line->previous == nullptr)
+            mergeline.push_back(line);
+    }
+    qDebug()<<mergeline.size();
+    for(auto line: linescene->alllines){
+        linescene->delete_from_list(line);
+    }
 
+    for(auto line: mergeline){
+        linescene->AddTurnline(line);
+    }
+    qDebug() << linescene->alllines.size();
+    //linescene->update();
     ui->view->scene()->update();
 }
 
@@ -1436,11 +1416,11 @@ void MainWindow::on_preview_clicked(bool checked)
         }
 
         linepen.setWidth(line_width_pix);
-//        for(line *turnline : linescene->alllines){
-//            for(int i=0; i<turnline->segments; i++){
-//                previewscene->addLine(turnline->x[i], turnline->y[i], turnline->x[i+1], turnline->y[i+1], linepen);
-//            }
-//        }
+        for(line *turnline : linescene->alllines){
+            for(int i=0; i<turnline->segments; i++){
+                previewscene->addLine(turnline->x[i], turnline->y[i], turnline->x[i+1], turnline->y[i+1], linepen);
+            }
+        }
         ui->view->setScene(previewscene);
     }
     else{

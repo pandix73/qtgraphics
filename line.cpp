@@ -11,7 +11,7 @@ line::line()
 QRectF line::boundingRect() const
 {
     // outer most edges
-    int slope = (y[1] - y[0]) / (x[1] - x[0]);
+    float slope = (y[1] - y[0]) / (x[1] - x[0]);
     if(slope > 1 || slope < -1){
         if(y[0] < y[1])
             return  QRectF(x[0], y[0], line_width_pix, y[1] - y[0]);
@@ -46,7 +46,7 @@ void line::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
     }
 
     path.addRect(rect);
-    for(int i=1; i<this->segments; i++){
+    /*for(int i=1; i<this->segments; i++){
         QRectF rect1;
         int slope = (y[i+1] - y[i]) / (x[i+1] - x[i]);
         if(slope > 1 || slope < -1){
@@ -62,7 +62,7 @@ void line::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
                 rect1 =  QRectF(x[i+1], y[i], x[i] - x[i+1], line_width_pix);
         }
         path.addRect(rect1);
-    }
+    }*/
     QBrush brush(Qt::gray);
     painter->setBrush(brush);
     QPen pen(Qt::black, 1);
@@ -89,6 +89,8 @@ void line::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void line::merge(){
     if(this->next != nullptr){
+        qDebug()<<this->next->x[1]<<this->x[0];
+        qDebug()<<this->next->y[1]<<this->y[0];
         if(int(this->next->x[1]) == int(this->x[0]) || int(this->next->y[1]) == int(this->y[0])){
             this->x[1] = this->next->x[1];
             this->y[1] = this->next->y[1];
