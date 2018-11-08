@@ -159,14 +159,17 @@ void graphicsscene::AddTurnline(line *head){
 
 void graphicsscene::delete_from_list(line *delete_line)
 {
-    line *next_delete;
     //delete right hand side
     if(delete_line->next != nullptr){
         current_seg = delete_line->next;
         while(current_seg->next != nullptr){
+            current_seg = current_seg->next;
+            delete current_seg->previous;
+            /*
             next_delete = current_seg->next;
             delete current_seg;
             current_seg = next_delete;
+            */
         }
         delete current_seg;
     }
@@ -175,18 +178,18 @@ void graphicsscene::delete_from_list(line *delete_line)
     if(delete_line->previous != nullptr){
         current_seg = delete_line->previous;
         while(current_seg->previous != nullptr){
-            next_delete = current_seg->previous;
+            current_seg = current_seg->previous;
+            delete current_seg->next;
+            /*next_delete = current_seg->previous;
             delete current_seg;
-            current_seg = next_delete;
+            current_seg = next_delete;*/
         }
-    }
-    else{
-        current_seg = delete_line;
-    }
-    if(delete_line != current_seg)
+        alllines.removeOne(current_seg);    //head
+        delete current_seg;
         delete delete_line;
-
-    alllines.removeOne(current_seg);    //head
-    delete current_seg;
+    } else {
+        alllines.removeOne(delete_line);
+        delete delete_line;
+    }
     qDebug() << "num of heads" << alllines.size();
 }

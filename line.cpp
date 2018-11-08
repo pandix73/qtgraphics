@@ -46,23 +46,6 @@ void line::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
     }
 
     path.addRect(rect);
-    /*for(int i=1; i<this->segments; i++){
-        QRectF rect1;
-        int slope = (y[i+1] - y[i]) / (x[i+1] - x[i]);
-        if(slope > 1 || slope < -1){
-            if(y[i] < y[i+1])
-                rect1 =  QRectF(x[i], y[i], line_width_pix, y[i+1] - y[i]);
-            else
-                rect1 =  QRectF(x[i], y[i+1], line_width_pix, y[i] - y[i+1]);
-        }
-        else{
-            if(x[i] < x[i+1])
-                rect1 =  QRectF(x[i], y[i], x[i+1] - x[i], line_width_pix);
-            else
-                rect1 =  QRectF(x[i+1], y[i], x[i] - x[i+1], line_width_pix);
-        }
-        path.addRect(rect1);
-    }*/
     QBrush brush(Qt::gray);
     painter->setBrush(brush);
     QPen pen(Qt::black, 1);
