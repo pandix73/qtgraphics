@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1129</width>
-    <height>869</height>
+    <width>1088</width>
+    <height>700</height>
    </rect>
   </property>
   <property name="font">
@@ -428,7 +428,7 @@ QPushButton{
 </string>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>false</bool>
@@ -1033,7 +1033,7 @@ QSpinBox{
          <x>5</x>
          <y>94</y>
          <width>430</width>
-         <height>81</height>
+         <height>80</height>
         </rect>
        </property>
        <property name="font">
@@ -1936,10 +1936,10 @@ QSpinBox{
       <widget class="QGroupBox" name="mergeBox_4">
        <property name="geometry">
         <rect>
-         <x>0</x>
-         <y>10</y>
+         <x>5</x>
+         <y>278</y>
          <width>430</width>
-         <height>421</height>
+         <height>141</height>
         </rect>
        </property>
        <property name="font">
@@ -1956,24 +1956,153 @@ QSpinBox{
         <string notr="true"/>
        </property>
        <property name="title">
-        <string>Edit your own chip information</string>
+        <string>Other</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_11">
-        <item row="2" column="0">
-         <widget class="QPushButton" name="enter">
+        <item row="0" column="0">
+         <widget class="QTextEdit" name="text_input"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QPushButton" name="text_enter">
+       <property name="geometry">
+        <rect>
+         <x>190</x>
+         <y>450</y>
+         <width>53</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Enter</string>
+       </property>
+      </widget>
+      <widget class="QGroupBox" name="mergeBox_5">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>2</y>
+         <width>430</width>
+         <height>80</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>American Typewriter</family>
+         <pointsize>15</pointsize>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+         <underline>true</underline>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="title">
+        <string>Chip Name</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_12">
+        <item row="0" column="0">
+         <widget class="QLineEdit" name="chip_name">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="text">
-           <string>Enter</string>
+          <property name="minimumSize">
+           <size>
+            <width>65</width>
+            <height>0</height>
+           </size>
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QTextEdit" name="text_input"/>
+       </layout>
+      </widget>
+      <widget class="QGroupBox" name="mergeBox_6">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>94</y>
+         <width>430</width>
+         <height>80</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>American Typewriter</family>
+         <pointsize>15</pointsize>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+         <underline>true</underline>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="title">
+        <string>Creator</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_14">
+        <item row="0" column="0">
+         <widget class="QLineEdit" name="creator_name">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>65</width>
+            <height>0</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QGroupBox" name="mergeBox_7">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>186</y>
+         <width>430</width>
+         <height>80</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>American Typewriter</family>
+         <pointsize>15</pointsize>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+         <underline>true</underline>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="title">
+        <string>Date/Time</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_15">
+        <item row="0" column="0">
+         <widget class="QDateTimeEdit" name="date_time">
+          <property name="calendarPopup">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -2015,13 +2144,31 @@ QSpinBox{
      <string>PREVIEW</string>
     </property>
    </widget>
+   <widget class="QLabel" name="message">
+    <property name="geometry">
+     <rect>
+      <x>660</x>
+      <y>630</y>
+      <width>411</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"> font: 15pt &quot;American Typewriter&quot;;
+ color: rgb(187, 210, 211);
+ margin-left : 3px;</string>
+    </property>
+    <property name="text">
+     <string>Welcome to NTHU Chip Map Creator!</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1129</width>
+     <width>1088</width>
      <height>22</height>
     </rect>
    </property>
@@ -2067,7 +2214,7 @@ QSpinBox{
      <normaloff>:/actions/Icons/save.png</normaloff>:/actions/Icons/save.png</iconset>
    </property>
    <property name="text">
-    <string>Save Chip</string>
+    <string>Save As...</string>
    </property>
   </action>
   <action name="actionOpen">
@@ -2076,7 +2223,7 @@ QSpinBox{
      <normaloff>:/actions/Icons/folder.png</normaloff>:/actions/Icons/folder.png</iconset>
    </property>
    <property name="text">
-    <string>Open Chip</string>
+    <string>Open...</string>
    </property>
   </action>
   <action name="actionExport">
@@ -2085,7 +2232,10 @@ QSpinBox{
      <normaloff>:/actions/Icons/save_ai.png</normaloff>:/actions/Icons/save_ai.png</iconset>
    </property>
    <property name="text">
-    <string>Export Chip</string>
+    <string>Export To Ai</string>
+   </property>
+   <property name="toolTip">
+    <string>Export To Ai</string>
    </property>
   </action>
   <action name="actionClose">
@@ -2099,7 +2249,7 @@ QSpinBox{
      <normaloff>:/actions/Icons/save_pdf.png</normaloff>:/actions/Icons/save_pdf.png</iconset>
    </property>
    <property name="text">
-    <string>Export PDF</string>
+    <string>Export To PDF</string>
    </property>
   </action>
  </widget>

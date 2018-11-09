@@ -18,6 +18,7 @@
 #include <QSvgGenerator>
 #include <QFileDialog>
 #include <QPrinter>
+#include <QDateTime>
 
 namespace Ui {
     class MainWindow;
@@ -33,7 +34,7 @@ public:
 
     QGraphicsScene* mainscene;
     graphicsscene* linescene;
-
+    QGraphicsScene* previewscene;
 
     void GetScreenSize(int width, int length);
     QList<unit*> allunits;                          // save all present units in list
@@ -41,6 +42,14 @@ public:
     QList<QGraphicsLineItem *> DestroyLine;
     float zoom_factor = 1.0;
 
+    QString text_edit;
+    QGraphicsTextItem *text_item;
+    bool text_edited = false;
+
+    int **checker_map;
+    QList<unit*> tempunits;
+    QList<unit*> errorunits;
+    QList<unit*> passunits;
 public slots:
     void delete_from_list(unit *a);                 // remove the unit from list when it's deleted
     QGraphicsScene* CreateNewScene();
@@ -79,7 +88,6 @@ private slots:
     void OuterBorder(QGraphicsScene *);
     void BackgroundGrid(QGraphicsScene *);
     void ChipScaleDots(QGraphicsScene *);
-    void DataForSaveLoad(QGraphicsScene *);
     void ChipBorder(QGraphicsScene *);
     void ChipScale(QGraphicsScene *);
 
@@ -90,6 +98,12 @@ private slots:
 
     void on_zoomin_clicked();
     void on_zoomout_clicked();
+
+    void on_text_enter_clicked();
+
+    void EmptyMessage();
+    void WarningMessage(QString message);
+    void on_tabWidget_tabBarClicked(int index);
 
 private:
     Ui::MainWindow *ui;

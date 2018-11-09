@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>252</width>
-    <height>153</height>
+    <height>176</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -52,7 +52,7 @@ QPushButton{
     <rect>
      <x>10</x>
      <y>50</y>
-     <width>231</width>
+     <width>230</width>
      <height>51</height>
     </rect>
    </property>
@@ -93,18 +93,43 @@ QLineEdit{
     </item>
    </layout>
   </widget>
-  <widget class="QPushButton" name="enter">
+  <widget class="QWidget" name="widget" native="true">
    <property name="geometry">
     <rect>
-     <x>70</x>
+     <x>10</x>
      <y>110</y>
-     <width>113</width>
-     <height>32</height>
+     <width>230</width>
+     <height>40</height>
     </rect>
    </property>
-   <property name="text">
-    <string>Enter</string>
+   <property name="styleSheet">
+    <string notr="true">QWidget{	
+	background-color: rgb(46, 52, 66);
+}</string>
    </property>
+   <widget class="QPushButton" name="enter">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>5</y>
+      <width>77</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{
+	border-radius: 5px;
+	border-width: 1px;
+	border-color: rgb(187, 210, 211);
+	padding : 6px;
+	background-color: rgb(31, 35, 44);
+}
+</string>
+    </property>
+    <property name="text">
+     <string>Enter</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>
