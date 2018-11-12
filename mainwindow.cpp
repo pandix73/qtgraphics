@@ -838,21 +838,22 @@ void MainWindow::on_connect_btn_clicked()
     float shift = chip_border_mm*1000 / de_spacing_um;
 
     struct edge{
-        int flow, cap, cost;
+        int flow, cap, cost, dir;
         unsigned to, rev;
-        edge(unsigned to, int cap, int cost, unsigned rev){
+        edge(unsigned to, int cap, int cost, unsigned rev, int dir){
             this->to = to;
             this->cap = cap;
             this->cost = cost;
             this->rev = rev;
             this->flow = 0;
+            this->dir = dir;
         }
     };
 
     std::vector<std::vector<edge>> graph(2*unsigned(xsize*ysize)+2);
-    auto addEdge = [&graph](unsigned s, unsigned t, int cost, int cap){
-        graph[s].push_back(edge(t, cap, cost, graph[t].size()));
-        graph[t].push_back(edge(s, 0, -cost, graph[s].size()-1));
+    auto addEdge = [&graph](unsigned s, unsigned t, int cost, int cap, int dir=0){
+        graph[s].push_back(edge(t, cap, cost, graph[t].size(), dir));
+        graph[t].push_back(edge(s, 0, -cost, graph[s].size()-1, dir));
     };
 
     // unitmap setup
@@ -951,32 +952,32 @@ void MainWindow::on_connect_btn_clicked()
             if (i != xsize-1) {
                 if(unitmap[i][j] == unitmap[i+1][j] /*|| (unitmap[i][j] * unitmap[i+1][j] > 0)*/){
                     if(unitmap[i][j] == 1 && unitmap[i+1][j] == 1) continue;
-                    addEdge(from, to_d+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
-                    addEdge(to_d, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
+                    addEdge(from, to_d+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 1);
+                    addEdge(to_d, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 1);
                 } else if(unitmap[i][j] > unitmap[i+1][j]){
                     if(unitmap[i][j] == 1 || unitmap[i+1][j] == -1 || unitmap[i+1][j] == 1)
-                        addEdge(from, to_d+unsigned(xsize*ysize), 1, 1);
+                        addEdge(from, to_d+unsigned(xsize*ysize), 1, 1, 1);
                     else
                         ;
                 } else {
                     if(unitmap[i+1][j] == 1 || unitmap[i][j] == -1 || unitmap[i][j] == 1)
-                        addEdge(to_d, from+unsigned(xsize*ysize), 1, 1);
+                        addEdge(to_d, from+unsigned(xsize*ysize), 1, 1, 1);
                     else;
                 }
             }
             if (j != ysize-1) {
                 if(unitmap[i][j] == unitmap[i][j+1] /*|| (unitmap[i][j] * unitmap[i][j+1] > 0)*/){
                     if(unitmap[i][j] == 1 && unitmap[i][j+1] == 1) continue;
-                    addEdge(from, to_r+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
-                    addEdge(to_r, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1);
+                    addEdge(from, to_r+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 2);
+                    addEdge(to_r, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 2);
                 } else if(unitmap[i][j] > unitmap[i][j+1]){
                     if(unitmap[i][j] == 1 || unitmap[i][j+1] == -1 || unitmap[i][j+1] == 1)
-                        addEdge(from, to_r+unsigned(xsize*ysize), 1, 1);
+                        addEdge(from, to_r+unsigned(xsize*ysize), 1, 1, 2);
                     else
                         ;
                 } else {
                     if(unitmap[i][j+1] == 1 || unitmap[i][j] == -1 || unitmap[i][j] == 1)
-                        addEdge(to_r, from+unsigned(xsize*ysize), 1, 1);
+                        addEdge(to_r, from+unsigned(xsize*ysize), 1, 1, 2);
                     else
                         ;
                 }
@@ -1054,19 +1055,38 @@ void MainWindow::on_connect_btn_clicked()
         if (distance[unsigned(t)] == INT_MAX)
             break;
         int df = std::min(currflow[t], maxflow - flow);
+        int flow_dir = 0;
         flow += df;
-        for (unsigned v = t; v != s; v = unsigned(prevnode[v])) {
+        for (unsigned v = t; v != s;) {
             edge* e;
             e = &graph[unsigned(prevnode[v])][unsigned(prevedge[v])];
+            unsigned tempnode, tempedge;
+            bool change = false;
+            /*if(e->dir + flow_dir == 3){
+                for(int i = 0; i < graph[v].size(); i++){
+                    tempnode = graph[v][i].to;
+                    tempedge = graph[v][i].rev;
+                    int tempdist = distance[v] + graph[v][i].cost;
+                    if(tempdist == distance[prevnode[v]] && flow_dir == graph[tempnode][tempedge].dir){
+                        e = &graph[tempnode][tempedge];
+                        change = true;
+                        break;
+                    }
+                }
+            }*/
             e->flow += df;
+            if(e->dir != 0)flow_dir = e->dir;
             graph[v][e->rev].flow -= df;
             flowCost += df * e->cost;
+            v = (change) ? tempnode : unsigned(prevnode[v]);
             //delete(e);
         }
     }
 
     qDebug() << flow << flowCost;
 
+    enum path{none=0, startDown=1, startLeft=2, startUp=3, startRight=4, endDown=5, endLeft=10, endUp=15, endRight=20, DownLeft=26, DownRight=27, UpLeft=28, UpRight=29};
+    int pathmap[500][500] = {{none}};
     std::vector<line*>newlines;
 
     for(int i = 0; i < xsize; i++){
@@ -1075,15 +1095,28 @@ void MainWindow::on_connect_btn_clicked()
                 if(e.flow > 0 && e.to != s && e.to != t){
                     unsigned to_x = (e.to-unsigned(xsize*ysize)) / unsigned(ysize);
                     unsigned to_y = (e.to-unsigned(xsize*ysize)) % unsigned(ysize);
-                    qDebug()<<i<<j<<to_x<<to_y;
+                    //qDebug()<<i<<j<<to_x<<to_y;
                     if(unitmap[i][j] * unitmap[to_x][to_y] > 0)
                         continue;
-                    qreal startx = (i+shift)*pix_per_brick;
+                    if(to_x > i){
+                        pathmap[i][j] += startDown;
+                        pathmap[to_x][to_y] += endUp;
+                    } else if(to_x < i){
+                        pathmap[i][j] += startUp;
+                        pathmap[to_x][to_y] += endDown;
+                    } else if(to_y > j){
+                        pathmap[i][j] += startRight;
+                        pathmap[to_x][to_y] += endLeft;
+                    } else if(to_y < j){
+                        pathmap[i][j] += startLeft;
+                        pathmap[to_x][to_y] += endRight;
+                    }
+                    /*qreal startx = (i+shift)*pix_per_brick;
                     qreal starty = (j+shift)*pix_per_brick;
                     qreal endx = pix_per_brick*(shift+((to_x < i) ? i-1 : (to_x > i) ? i+1 : i));
                     qreal endy = pix_per_brick*(shift+((to_y < j) ? j-1 : (to_y > j) ? j+1 : j));
                     //ui->view->scene()->addRect(startx, starty, lengthx, lengthy, QPen(Qt::black), QBrush(Qt::black));
-                    qDebug()<<startx<<starty<<endx<<endy;
+                    //qDebug()<<startx<<starty<<endx<<endy;
                     line *newline = new line();
                     newline->next = nullptr;
                     newline->previous = nullptr;
@@ -1091,11 +1124,98 @@ void MainWindow::on_connect_btn_clicked()
                     newline->y[0] = starty;
                     newline->x[1] = endx;
                     newline->y[1] = endy;
-                    newlines.push_back(newline);
+                    newlines.push_back(newline);*/
                 }
+            }            
+        }
+    }
+
+    // rearrange pathmap
+    for(int i = 0; i < xsize; i++){
+        for(int j = 0; j < ysize; j++){
+            if(pathmap[i][j] == startUp+endLeft || pathmap[i][j] == startLeft+endUp){
+                pathmap[i][j] = UpLeft;
+            } else if (pathmap[i][j] == startUp+endRight || pathmap[i][j] == startRight+endUp) {
+                pathmap[i][j] = UpRight;
+            } else if (pathmap[i][j] == startDown+endLeft || pathmap[i][j] == startLeft+endDown){
+                pathmap[i][j] = DownLeft;
+            } else if (pathmap[i][j] == startDown+endRight || pathmap[i][j] == startRight+endDown){
+                pathmap[i][j] = DownRight;
+            } else if (pathmap[i][j] % 5 == 0 || pathmap[i][j] / 5 == 0){
+                pathmap[i][j] = pathmap[i][j];
+            } else {
+                pathmap[i][j] = none;
             }
         }
     }
+
+    bool turning_checked[500][500] = {{false}};
+    std::function<void (int, int)> checkturning = [&pathmap, &turning_checked, xsize, ysize, &checkturning](int x, int y){
+        qDebug() << x << y;
+        if(turning_checked[x][y]){
+            return ;
+        } else if (pathmap[x][y] % 5 == 0 || pathmap[x][y] / 5 == 0 || pathmap[x][y] == none){
+            turning_checked[x][y] = true;
+            return ;
+        } else {
+            int dirx = (pathmap[x][y] == DownRight || pathmap[x][y] == DownLeft) ? 1 : -1;
+            int diry = (pathmap[x][y] == UpRight || pathmap[x][y] == DownRight) ? 1 : -1;
+            int endx = -1, endy = -1;
+            for(int i = x+dirx; i >= 0 && i < xsize; i += dirx)
+                if(pathmap[i][y] != none && pathmap[i][y]%5 != 0 && pathmap[i][y]/5 != 0)
+                    endx = i;
+            for(int i = y+diry; i >= 0 && i < ysize; i += diry)
+                if(pathmap[x][i] != none && pathmap[x][i]%5 != 0 && pathmap[x][i]/5 != 0)
+                    endy = i;
+
+            if(endx == -1 || endy == -1 || pathmap[endx][y] != pathmap[x][endy]){
+                turning_checked[x][y] = true;
+                return ;
+            }
+
+            for(int i = x+dirx; abs(i-x)<=abs(endx-x); i += dirx)
+                for(int j = y+diry; abs(j-y)<=abs(endy-y); j += diry)
+                    checkturning(i, j);
+
+            for(int i = x+dirx; abs(i-x)<=abs(endx-x); i += dirx)
+                for(int j = y+diry; abs(j-y)<=abs(endy-y); j += diry)
+                    if(pathmap[i][j] != none) return ;
+
+            // eliminate turning point
+            pathmap[endx][endy] = pathmap[endx][y]; // == pathmap[x][endy]
+            pathmap[endx][y] = none;
+            pathmap[x][endy] = none;
+            pathmap[x][y] = none;
+            turning_checked[endx][endy] = false;
+            checkturning(endx, endy);
+            return ;
+        }
+    };
+
+    for(int i = 0; i < xsize; i++){
+        for(int j = 0; j < ysize; j++){
+            checkturning(i, j);
+        }
+    }
+
+    qDebug() << "end check";
+
+    for(int i = 0; i < xsize; i++){
+        QString debug;
+        for(int j = 0; j < ysize; j++){
+            qreal startx = (i+shift)*pix_per_brick;
+            qreal starty = (j+shift)*pix_per_brick;
+            qreal endx = pix_per_brick*(shift+i+0.2);
+            qreal endy = pix_per_brick*(shift+j+0.2);
+            if(pathmap[i][j]%5 != 0 || pathmap[i][j]/5 != 0)
+                ui->view->scene()->addRect(startx, starty, endx-startx, endy-starty, QPen(Qt::black), QBrush(Qt::black));
+
+            debug += QString::number(pathmap[i][j]);
+        }
+        qDebug() << debug;
+    }
+
+    /*
     qDebug()<<"end build line"<<newlines.size();
     for(auto newline : newlines){
         for(auto checkline : newlines){
@@ -1127,6 +1247,7 @@ void MainWindow::on_connect_btn_clicked()
         linescene->AddTurnline(line);
     }
     qDebug() << linescene->alllines.size();
+    */
     //linescene->update();
     ui->view->scene()->update();
 }
@@ -1138,6 +1259,13 @@ void MainWindow::on_controlpad_btn_clicked()
     //int mm_to_px = 1000/de_spacing_um*pix_per_brick;
     int cp_xi_start = chip_border_mm*1000 / de_spacing_um;
     int cp_yi_start = chip_border_mm*1000 / de_spacing_um;
+
+    for(auto unit : allunits){
+        if(unit->type == "controlpad"){
+            allunits.removeOne(unit);
+            unit->deleteLater();
+        }
+    }
 
     for(int i=0; i<num_de; i++){
         //mainscene->addRect(cp_x_start, cp_y_start, cp_length_mm*mm_to_px, cp_width_mm*mm_to_px, graypen, QColor(94, 93, 93, 54));
