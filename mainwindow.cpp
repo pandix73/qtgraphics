@@ -321,7 +321,7 @@ void MainWindow::mode_label(bool bChecked){
         ui->view->setScene(linescene);
         linemode = true;
         ui->mode_label->setText("LINE MODE");
-        QPixmap *e = new QPixmap(":/MainWindow/Icons/Icons/cursor.png");
+        QPixmap *e = new QPixmap(":/MainWindow/Icons/Icons/cursor_reddot.png");
         QCursor pencil = QCursor(*e, -10, -10);
         ui->view->setCursor(pencil);
     }
@@ -1554,17 +1554,20 @@ void MainWindow::reset_setting(chip_setting *new_chip)
 
     QGraphicsScene *newscene = CreateNewScene();
     graphicsscene *newlinescene = CreateLineScene();
-    delete(ui->view->scene());
+
     allunits.clear();
     this->mainscene = newscene;
     this->linescene = newlinescene;
-    ui->view->setScene(newscene);
+    if(linemode)
+        ui->view->setScene(newlinescene);
+    else
+        ui->view->setScene(newscene);
+//    delete(ui->view->scene());
 }
 
 /////////////////////////////////////  PREVIEW  /////////////////////////////////////
 void MainWindow::on_preview_clicked(bool checked)
 {
-
     if(checked){
         tempunits.clear();
         passunits.clear();
