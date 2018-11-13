@@ -146,13 +146,11 @@ void graphicsscene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent){
 void graphicsscene::AddTurnline(line *head){
     head->merge();
     line *current_seg = head;
-    while(current_seg->next != nullptr){
+    while(current_seg != nullptr){
         this->addItem(current_seg);
-        current_seg = current_seg->next;
         connect(current_seg, SIGNAL(delete_this_line(line*)), this, SLOT(delete_from_list(line*)));
+        current_seg = current_seg->next;
     }
-    this->addItem(current_seg);
-    connect(current_seg, SIGNAL(delete_this_line(line*)), this, SLOT(delete_from_list(line*)));
     alllines.append(head);
     return;
 }

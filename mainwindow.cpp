@@ -1205,7 +1205,6 @@ void MainWindow::on_connect_btn_clicked()
                 int dirx = (pathmap[x][y] == startDown) ? 1 : (pathmap[x][y] == startUp) ? -1 : 0;
                 int diry = (pathmap[x][y] == startLeft) ? -1 : (pathmap[x][y] == startRight) ? 1 : 0;
                 line* newline = new line();
-                newline->next = nullptr;
                 newline->previous = nullptr;
                 newlines.push_back(newline);
                 newline->x[0] = (x+shift)*pix_per_brick;
@@ -1215,12 +1214,12 @@ void MainWindow::on_connect_btn_clicked()
                         newline->x[1] = (i+shift)*pix_per_brick;
                         newline->y[1] = (j+shift)*pix_per_brick;
                         if(pathmap[i][j]/5 == 0 || pathmap[i][j]%5 == 0){
+                            newline->next = nullptr;
                             break;
                         } else {
                             newline->next = new line();
                             newline->next->previous = newline;
                             newline = newline->next;
-                            newline->next = nullptr;
                             newline->x[0] = (i+shift)*pix_per_brick;
                             newline->y[0] = (j+shift)*pix_per_brick;
                             if (pathmap[i][j] == UpRight || pathmap[i][j] == DownLeft) {
