@@ -1060,25 +1060,11 @@ void MainWindow::on_connect_btn_clicked()
         for (unsigned v = t; v != s;) {
             edge* e;
             e = &graph[unsigned(prevnode[v])][unsigned(prevedge[v])];
-            unsigned tempnode, tempedge;
-            bool change = false;
-            /*if(e->dir + flow_dir == 3){
-                for(int i = 0; i < graph[v].size(); i++){
-                    tempnode = graph[v][i].to;
-                    tempedge = graph[v][i].rev;
-                    int tempdist = distance[v] + graph[v][i].cost;
-                    if(tempdist == distance[prevnode[v]] && flow_dir == graph[tempnode][tempedge].dir){
-                        e = &graph[tempnode][tempedge];
-                        change = true;
-                        break;
-                    }
-                }
-            }*/
             e->flow += df;
             if(e->dir != 0)flow_dir = e->dir;
             graph[v][e->rev].flow -= df;
             flowCost += df * e->cost;
-            v = (change) ? tempnode : unsigned(prevnode[v]);
+            v = unsigned(prevnode[v]);
             //delete(e);
         }
     }
@@ -1087,7 +1073,6 @@ void MainWindow::on_connect_btn_clicked()
 
     enum path{none=0, startDown=1, startLeft=2, startUp=3, startRight=4, endDown=5, endLeft=10, endUp=15, endRight=20, DownLeft=26, DownRight=27, UpLeft=28, UpRight=29};
     int pathmap[500][500] = {{none}};
-    std::vector<line*>newlines;
 
     for(int i = 0; i < xsize; i++){
         for(int j = 0; j < ysize; j++){
@@ -1111,20 +1096,6 @@ void MainWindow::on_connect_btn_clicked()
                         pathmap[i][j] += startLeft;
                         pathmap[to_x][to_y] += endRight;
                     }
-                    /*qreal startx = (i+shift)*pix_per_brick;
-                    qreal starty = (j+shift)*pix_per_brick;
-                    qreal endx = pix_per_brick*(shift+((to_x < i) ? i-1 : (to_x > i) ? i+1 : i));
-                    qreal endy = pix_per_brick*(shift+((to_y < j) ? j-1 : (to_y > j) ? j+1 : j));
-                    //ui->view->scene()->addRect(startx, starty, lengthx, lengthy, QPen(Qt::black), QBrush(Qt::black));
-                    //qDebug()<<startx<<starty<<endx<<endy;
-                    line *newline = new line();
-                    newline->next = nullptr;
-                    newline->previous = nullptr;
-                    newline->x[0] = startx;
-                    newline->y[0] = starty;
-                    newline->x[1] = endx;
-                    newline->y[1] = endy;
-                    newlines.push_back(newline);*/
                 }
             }            
         }
@@ -1151,45 +1122,57 @@ void MainWindow::on_connect_btn_clicked()
 
     bool turning_checked[500][500] = {{false}};
     std::function<void (int, int)> checkturning = [&pathmap, &turning_checked, xsize, ysize, &checkturning](int x, int y){
-        qDebug() << x << y;
-        if(turning_checked[x][y]){
-            return ;
-        } else if (pathmap[x][y] % 5 == 0 || pathmap[x][y] / 5 == 0 || pathmap[x][y] == none){
+        if(turning_checked[x][y] || pathmap[x][y] == none || pathmap[x][y]/5 == 0 || pathmap[x][y]%5 == 0){
             turning_checked[x][y] = true;
-            return ;
-        } else {
-            int dirx = (pathmap[x][y] == DownRight || pathmap[x][y] == DownLeft) ? 1 : -1;
-            int diry = (pathmap[x][y] == UpRight || pathmap[x][y] == DownRight) ? 1 : -1;
-            int endx = -1, endy = -1;
-            for(int i = x+dirx; i >= 0 && i < xsize; i += dirx)
-                if(pathmap[i][y] != none && pathmap[i][y]%5 != 0 && pathmap[i][y]/5 != 0)
-                    endx = i;
-            for(int i = y+diry; i >= 0 && i < ysize; i += diry)
-                if(pathmap[x][i] != none && pathmap[x][i]%5 != 0 && pathmap[x][i]/5 != 0)
-                    endy = i;
+            return;
+        }
 
-            if(endx == -1 || endy == -1 || pathmap[endx][y] != pathmap[x][endy]){
-                turning_checked[x][y] = true;
-                return ;
+        int dirx = (pathmap[x][y] == DownRight || pathmap[x][y] == DownLeft) ? 1 : -1;
+        int diry = (pathmap[x][y] == UpRight || pathmap[x][y] == DownRight) ? 1 : -1;
+        int endx = -1, endy = -1;
+        for(int i = x+dirx; i >= 0 && i < xsize; i += dirx)
+            if(pathmap[i][y] != none && pathmap[i][y]%5 != 0 && pathmap[i][y]/5 != 0){
+                endx = i;
+                break;
+            }
+        for(int i = y+diry; i >= 0 && i < ysize; i += diry)
+            if(pathmap[x][i] != none && pathmap[x][i]%5 != 0 && pathmap[x][i]/5 != 0){
+                endy = i;
+                break;
             }
 
-            for(int i = x+dirx; abs(i-x)<=abs(endx-x); i += dirx)
-                for(int j = y+diry; abs(j-y)<=abs(endy-y); j += diry)
-                    checkturning(i, j);
-
-            for(int i = x+dirx; abs(i-x)<=abs(endx-x); i += dirx)
-                for(int j = y+diry; abs(j-y)<=abs(endy-y); j += diry)
-                    if(pathmap[i][j] != none) return ;
-
-            // eliminate turning point
-            pathmap[endx][endy] = pathmap[endx][y]; // == pathmap[x][endy]
-            pathmap[endx][y] = none;
-            pathmap[x][endy] = none;
-            pathmap[x][y] = none;
-            turning_checked[endx][endy] = false;
-            checkturning(endx, endy);
+        if(endx == -1 || endy == -1 || pathmap[endx][y] != pathmap[x][endy]){
+            turning_checked[x][y] = true;
             return ;
         }
+
+        for(int i = x+dirx; abs(i-x)<=abs(endx-x); i += dirx){
+            for(int j = y+diry; abs(j-y)<=abs(endy-y); j += diry){
+                if(pathmap[i][j] != none){
+                    if(turning_checked[i][j]){
+                        turning_checked[x][y] = true;
+                        return;
+                    }
+                    checkturning(i, j);
+                }
+            }
+        }
+        for(int i = x+dirx; abs(i-x)<=abs(endx-x); i += dirx)
+            for(int j = y+diry; abs(j-y)<=abs(endy-y); j += diry)
+                if(pathmap[i][j] != none || unitmap[i][j] != 0){
+                    turning_checked[x][y] = true;
+                    return;
+                }
+        // eliminate turning point
+        pathmap[endx][endy] = pathmap[endx][y]; // == pathmap[x][endy]
+        pathmap[endx][y] = none;
+        pathmap[x][endy] = none;
+        pathmap[x][y] = none;
+        turning_checked[endx][endy] = false;
+        qDebug() << x << y << "->" << endx << endy;
+
+        checkturning(endx, endy);
+        return;
     };
 
     for(int i = 0; i < xsize; i++){
@@ -1197,10 +1180,9 @@ void MainWindow::on_connect_btn_clicked()
             checkturning(i, j);
         }
     }
-
     qDebug() << "end check";
 
-    for(int i = 0; i < xsize; i++){
+    /*for(int i = 0; i < xsize; i++){
         QString debug;
         for(int j = 0; j < ysize; j++){
             qreal startx = (i+shift)*pix_per_brick;
@@ -1213,42 +1195,62 @@ void MainWindow::on_connect_btn_clicked()
             debug += QString::number(pathmap[i][j]);
         }
         qDebug() << debug;
-    }
+    }*/
 
-    /*
-    qDebug()<<"end build line"<<newlines.size();
-    for(auto newline : newlines){
-        for(auto checkline : newlines){
-            //qDebug() << newline->x[0] << checkline->x[1];
-            //qDebug() << newline->x[1] << checkline->x[0];
-            if(newline == checkline){
-                continue;
-            } else if(abs(newline->x[0] - checkline->x[1]) <= 0.3*pix_per_brick && abs(newline->y[0] - checkline->y[1]) <= 0.3*pix_per_brick){
-                newline->previous = checkline;
-                checkline->next = newline;
-            } else if(abs(newline->x[1] - checkline->x[0]) <= 0.3*pix_per_brick && abs(newline->y[1] - checkline->y[0]) <= 0.3*pix_per_brick){
-                newline->next = checkline;
-                checkline->previous = newline;
+    std::vector<line*>newlines = {};
+
+    for(int x = 0; x < xsize; x++){
+        for(int y = 0; y < ysize; y++){
+            if(pathmap[x][y] != 0 && pathmap[x][y] <= 4){
+                int dirx = (pathmap[x][y] == startDown) ? 1 : (pathmap[x][y] == startUp) ? -1 : 0;
+                int diry = (pathmap[x][y] == startLeft) ? -1 : (pathmap[x][y] == startRight) ? 1 : 0;
+                line* newline = new line();
+                newline->next = nullptr;
+                newline->previous = nullptr;
+                newlines.push_back(newline);
+                newline->x[0] = (x+shift)*pix_per_brick;
+                newline->y[0] = (y+shift)*pix_per_brick;
+                for(int i = x+dirx, j = y+diry; i >= 0 && i < xsize && j >= 0 && j < ysize ; i += dirx, j += diry){
+                    if(pathmap[i][j] != none){
+                        newline->x[1] = (i+shift)*pix_per_brick;
+                        newline->y[1] = (j+shift)*pix_per_brick;
+                        if(pathmap[i][j]/5 == 0 || pathmap[i][j]%5 == 0){
+                            break;
+                        } else {
+                            newline->next = new line();
+                            newline->next->previous = newline;
+                            newline = newline->next;
+                            newline->next = nullptr;
+                            newline->x[0] = (i+shift)*pix_per_brick;
+                            newline->y[0] = (j+shift)*pix_per_brick;
+                            if (pathmap[i][j] == UpRight || pathmap[i][j] == DownLeft) {
+                                int temp = dirx;
+                                dirx = diry;
+                                diry = temp;
+                            } else if (pathmap[i][j] == UpLeft || pathmap[i][j] == DownRight) {
+                                int temp = dirx;
+                                dirx = -diry;
+                                diry = -temp;
+                            }
+                        }
+                    }
+                }
             }
         }
     }
-    qDebug()<<"end line connection";
-    std::vector<line*>mergeline;
-    for(auto line : newlines){
-        if(line->previous == nullptr)
-            mergeline.push_back(line);
-    }
-    qDebug()<<mergeline.size();
+
+    qDebug()<<"end build line"<<newlines.size();
+
     for(auto line: linescene->alllines){
         linescene->delete_from_list(line);
     }
 
-    for(auto line: mergeline){
-        linescene->AddTurnline(line);
+    for(auto newline: newlines){
+        linescene->AddTurnline(newline);
     }
+
     qDebug() << linescene->alllines.size();
-    */
-    //linescene->update();
+    linescene->update();
     ui->view->scene()->update();
 }
 
