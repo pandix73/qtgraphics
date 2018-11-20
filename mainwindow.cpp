@@ -10,9 +10,9 @@ bool deletemode = false;
 bool linemode = false;
 
 //Chip setting
-int chip_length_cm = 6;
-int chip_width_cm = 4;
-int chip_border_mm = 3;
+float chip_length_cm = 7.6;
+float chip_width_cm = 5.2;
+int chip_border_mm = 8;             //要讓剩下的部分可以被3整除 不然會歪歪的
 
 int cp_length_mm = 2;
 int cp_width_mm = 4;
@@ -22,19 +22,24 @@ int de1_width_mm = 5;
 int de2_length_mm = 3;
 int de2_width_mm = 3;
 
-int de_spacing_um = 500;
+int de_spacing_um = 300;
 int cp_spacing_um = 300;
-int line_width_um = 200;
+int line_spacing_um = 900;
+int line_width_um = 353;
 int line_width_pix = 10;
+
 //Chip Parameters
 int border_px;
 int brick_xnum;
 int brick_ynum;
+int lbrick_xnum;
+int lbrick_ynum;
 int chip_width_px;
 int chip_height_px;
 int brick_x_start;
 int brick_y_start;
 int pix_per_brick = 20;         //How many PIXELs on the screen should we show to represent de_spacing
+int lpix_per_brick = 20;
 int cm_to_px = 10;              //how many PIXELS are in 1 cm
 
 //Unit color
@@ -130,19 +135,35 @@ void MainWindow::GetScreenSize(int width, int length){
 }
 
 void MainWindow::ChipParameters(){
-    pix_per_brick = fmin(600/((10*chip_length_cm*1000/de_spacing_um)),                  //calculate the size of each brick that fits the screeen the most
-                         400/((10*chip_width_cm*1000/de_spacing_um)));
+    int draw_area_length_mm = chip_length_cm*10 - chip_border_mm*2;
+    int draw_area_width_mm = chip_width_cm*10 - chip_border_mm*2;
+    pix_per_brick = fmin(draw_area_length_mms/((10*chip_length_cm*1000/de_spacing_um)),                  //calculate the size of each brick that fits the screeen the most
+                         520/((10*chip_width_cm*1000/de_spacing_um)));
+    //
+    lpix_per_brick = fmin(760/((10*chip_length_cm*1000/line_spacing_um)),                  //calculate the size of each brick that fits the screeen the most
+                          520/((10*chip_width_cm*1000/line_spacing_um)));
+    qDebug() << "pix_per_brick " << pix_per_brick;
+    qDebug() << "lpix_per_brick " << lpix_per_brick;
+
     cm_to_px = 10000/de_spacing_um*pix_per_brick;
 
-    border_px = chip_border_mm*1000/de_spacing_um*pix_per_brick;                        //border width in pixel
+//    border_px = chip_border_mm*1000/de_spacing_um*pix_per_brick;                        //border width in pixel
+    border_px = chip_border_mm*0.1*cm_to_px;
     brick_xnum = (10*chip_length_cm - 2*chip_border_mm)*1000/de_spacing_um;             //how many background dots are needed in x-azis
     brick_ynum = (10*chip_width_cm - 2*chip_border_mm)*1000/de_spacing_um;              //how many background dots are needed in y-axis
+    //
+    lbrick_xnum = (10*chip_length_cm - 2*chip_border_mm)*1000/line_spacing_um;
+    lbrick_ynum = (10*chip_width_cm - 2*chip_border_mm)*1000/line_spacing_um;
+
     chip_height_px = brick_ynum*pix_per_brick+border_px*2;                              //chip_length in pixel
     chip_width_px = brick_xnum*pix_per_brick+border_px*2;                               //chip_width in pixel
-
-    brick_x_start = (600 - chip_width_px)/2 + border_px;                                //where to start drawing dots in y-axis
-    brick_y_start = (400 - chip_height_px)/2 + border_px;
-
+    qDebug() << "brick_xnum "<< brick_xnum;
+    qDebug() << "brick_ynum "<< brick_ynum;
+    qDebug() << "border_px " << border_px;
+    qDebug() << "chip_width_px " << chip_width_px;
+    brick_x_start = (760 - chip_width_px)/2 + border_px;                                //where to start drawing dots in y-axis
+    brick_y_start = (520 - chip_height_px)/2 + border_px;
+    qDebug() << "brick_x_start " << brick_x_start << "brick_y_start " << brick_y_start;
     line_width_pix = pix_per_brick*line_width_um/de_spacing_um;
 }
 
@@ -158,7 +179,16 @@ void MainWindow::BackgroundGrid(QGraphicsScene *scene){
     //background grid (in dotted form)
     for(int i = 0; i <= brick_xnum; i++){
         for(int j = 0; j <= brick_ynum; j++){
-            scene->addEllipse(brick_x_start+i*pix_per_brick, brick_y_start+j*pix_per_brick, 1, 1, graypen);
+            scene->addEllipse(brick_x_start+i*pix_per_brick, brick_y_start+j*pix_per_brick, 0.5, 0.5, graypen);
+        }
+    }
+}
+
+void MainWindow::LineBackgroundGrid(QGraphicsScene *scene){
+    //background grid (in dotted form)
+    for(int i = 0; i <= lbrick_xnum; i++){
+        for(int j = 0; j <= lbrick_ynum; j++){
+            scene->addEllipse(brick_x_start+i*lpix_per_brick, brick_y_start+j*lpix_per_brick, 1, 1, graypen);
         }
     }
 }
@@ -219,7 +249,7 @@ void MainWindow::WarningMessage(QString message){
 
 //Create New Scene
 QGraphicsScene* MainWindow::CreateNewScene(){
-    QGraphicsScene * scene = new QGraphicsScene(0, 0, 600, 400, ui->view);
+    QGraphicsScene * scene = new QGraphicsScene(0, 0, 760, 520, ui->view);
     scene->setBackgroundBrush(Qt::white);
 
     //Draw chip basics
@@ -237,13 +267,13 @@ QGraphicsScene* MainWindow::CreateNewScene(){
 
 graphicsscene* MainWindow::CreateLineScene(){
     graphicsscene* scene = new graphicsscene(ui->view);                                 //create a new scene
-    scene->setSceneRect(QRectF(0, 0, 600, 400));
+    scene->setSceneRect(QRectF(0, 0, 760, 520));
     scene->setBackgroundBrush(Qt::white);
 
     //Draw chip basics
     ChipParameters();
     OuterBorder(scene);
-    BackgroundGrid(scene);
+    LineBackgroundGrid(scene);
     ChipScaleDots(scene);
     ChipBorder(scene);
     ChipScale(scene);
@@ -321,12 +351,13 @@ void MainWindow::mode_label(bool bChecked){
         ui->view->setScene(linescene);
         linemode = true;
         ui->mode_label->setText("LINE MODE");
-        QPixmap *e = new QPixmap(":/MainWindow/Icons/Icons/cursor.png");
+        QPixmap *e = new QPixmap(":/MainWindow/Icons/Icons/cursor_reddot.png");
         QCursor pencil = QCursor(*e, -10, -10);
         ui->view->setCursor(pencil);
     }
     /////// UNIT MODE ///////
     else{
+        float offset = linescene->offset;
         EmptyMessage();
         deletemode = false;
         ui->eraser->setStyleSheet("background-color: rgb(42, 48, 58);");
@@ -345,10 +376,10 @@ void MainWindow::mode_label(bool bChecked){
         for(line *head : linescene->alllines){
             line *current_seg = head;
             while(current_seg->next != NULL){
-                DestroyLine << mainscene->addLine(current_seg->x[0], current_seg->y[0], current_seg->x[1], current_seg->y[1], linepen);
+                DestroyLine << mainscene->addLine(current_seg->x[0]+offset, current_seg->y[0]+offset, current_seg->x[1]+offset, current_seg->y[1]+offset, linepen);
                 current_seg = current_seg->next;
             }
-            DestroyLine << mainscene->addLine(current_seg->x[0], current_seg->y[0], current_seg->x[1], current_seg->y[1], linepen);
+            DestroyLine << mainscene->addLine(current_seg->x[0]+offset, current_seg->y[0]+offset, current_seg->x[1]+offset, current_seg->y[1]+offset, linepen);
         }
         ui->view->setScene(mainscene);
         linemode = false;
@@ -1557,7 +1588,10 @@ void MainWindow::reset_setting(chip_setting *new_chip)
     allunits.clear();
     this->mainscene = newscene;
     this->linescene = newlinescene;
-    ui->view->setScene(newscene);
+    if(!linescene)
+        ui->view->setScene(newscene);
+    else
+        ui->view->setScene(newlinescene);
 }
 
 /////////////////////////////////////  PREVIEW  /////////////////////////////////////
@@ -1673,7 +1707,7 @@ void MainWindow::on_preview_clicked(bool checked)
 
 
         //QGraphicsScene * previewscene = new QGraphicsScene(0, 0, 600, 400, ui->view);
-        previewscene = new QGraphicsScene(0, 0, 600, 400, ui->view);
+        previewscene = new QGraphicsScene(0, 0, 760, 520, ui->view);
         previewscene->setBackgroundBrush(Qt::white);
         graypen = QPen(Qt::black);
         redpen = QPen(Qt::black);

@@ -16,7 +16,7 @@ public:
 
     graphicsscene(QObject *parent);
     QList<line*> alllines;
-
+    float offset;
 
 public slots:
     void delete_from_list(line *delete_line);

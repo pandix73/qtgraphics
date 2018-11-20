@@ -87,6 +87,7 @@ private slots:
     void ChipParameters();
     void OuterBorder(QGraphicsScene *);
     void BackgroundGrid(QGraphicsScene *);
+    void LineBackgroundGrid(QGraphicsScene *);
     void ChipScaleDots(QGraphicsScene *);
     void ChipBorder(QGraphicsScene *);
     void ChipScale(QGraphicsScene *);

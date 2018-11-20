@@ -2,13 +2,13 @@
 #include <QDebug>
 #include <math.h>
 #define myqDebug() qDebug() << fixed << qSetRealNumberPrecision(2)
-extern int pix_per_brick;
+extern int lpix_per_brick;
 extern int line_width_um;
 extern bool deletemode;
 extern int cm_to_px;
 extern int chip_width_px;
 
-float offset;
+
 int tempx1;
 int tempy1;
 int roundx1;
@@ -37,7 +37,7 @@ line* graphicsscene::PassSegToTurn(line *seg){
         current_seg = seg;
         current_seg->next = nullptr;
     }
-
+    qDebug() << seg->x[0] << " " << seg->x[1] << " " << seg->y[0] << " " << seg->y[1];
     this->addItem(seg);
     connect(seg, SIGNAL(delete_this_line(line *)), this, SLOT(delete_from_list(line *)));
 
@@ -79,15 +79,22 @@ void graphicsscene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
     }
     if(!deletemode){
         if(!pressed){                                             // start a new turnning line
-            offset = line_width_um * 0.0001 * cm_to_px/2;
-            tempx1 = mouseEvent->scenePos().x() / pix_per_brick;
-            tempy1 = mouseEvent->scenePos().y() / pix_per_brick;
-            roundx1 = mouseEvent->scenePos().x() - tempx1*pix_per_brick + offset;
-            roundy1 = mouseEvent->scenePos().y() - tempy1*pix_per_brick + offset;
-            if((600 - chip_width_px)/2 % pix_per_brick != 0)
-                roundx1 += pix_per_brick/2;
+//            offset = line_width_um * 0.0001 * cm_to_px/2;
+            offset = (lpix_per_brick - line_width_um * 0.0001 * cm_to_px)/2;
+//            qDebug() << lpix_per_brick << " " << line_width_um << " " << cm_to_px;
+//            offset = 0;
+            qDebug() << "offset " << offset;
+            tempx1 = mouseEvent->scenePos().x() / lpix_per_brick;
+            tempy1 = mouseEvent->scenePos().y() / lpix_per_brick;
+            qDebug() << "mouse " << mouseEvent->scenePos().x();
+            roundx1 = mouseEvent->scenePos().x() - tempx1*lpix_per_brick + offset;
+            roundy1 = mouseEvent->scenePos().y() - tempy1*lpix_per_brick + offset;
+            if((760 - chip_width_px)/2 % lpix_per_brick != 0)
+                roundx1 += lpix_per_brick/2;
             line *drawline = new line();
             drawline->x[0] = mouseEvent->scenePos().x() - roundx1;
+            int a = tempx1*lpix_per_brick ;
+            qDebug() << "mouse2 " << drawline->x[0] << " " << a;
             drawline->y[0] = mouseEvent->scenePos().y() - roundy1;
             drawline->x[1] = drawline->x[0];
             drawline->y[1] = drawline->y[0];
@@ -115,12 +122,13 @@ void graphicsscene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
     if(!deletemode){
         if(pressed){
-            tempx1 = mouseEvent->scenePos().x() / pix_per_brick;
-            tempy1 = mouseEvent->scenePos().y() / pix_per_brick;
-            roundx1 = mouseEvent->scenePos().x() - tempx1*pix_per_brick + offset;
-            roundy1 = mouseEvent->scenePos().y() - tempy1*pix_per_brick + offset;
-            if((600 - chip_width_px)/2 % pix_per_brick != 0)
-                roundx1 -= pix_per_brick/2;
+            tempx1 = mouseEvent->scenePos().x() / lpix_per_brick;
+            tempy1 = mouseEvent->scenePos().y() / lpix_per_brick;
+            roundx1 = mouseEvent->scenePos().x() - tempx1*lpix_per_brick + offset;
+            roundy1 = mouseEvent->scenePos().y() - tempy1*lpix_per_brick + offset;
+            if((760 - chip_width_px)/2 % lpix_per_brick != 0)
+                roundx1 -= lpix_per_brick/2;
+
             if(turnline->segments % 2 == 0){
                 MouseToSeg(segline, mouseEvent);
             }
