@@ -428,7 +428,7 @@ QPushButton{
 </string>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>false</bool>
@@ -618,7 +618,7 @@ QLineEdit{
 </string>
              </property>
              <property name="text">
-              <string>cm</string>
+              <string>mm</string>
              </property>
             </widget>
            </item>
@@ -750,7 +750,7 @@ QLineEdit{
 </string>
              </property>
              <property name="text">
-              <string>um</string>
+              <string>mm</string>
              </property>
             </widget>
            </item>
@@ -768,7 +768,7 @@ QLineEdit{
 </string>
              </property>
              <property name="text">
-              <string>cm</string>
+              <string>mm</string>
              </property>
             </widget>
            </item>

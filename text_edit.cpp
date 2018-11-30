@@ -6,6 +6,7 @@ text_edit::text_edit(QWidget *parent) :
     ui(new Ui::text_edit)
 {
     ui->setupUi(this);
+    ui->unit_type_label->setText(type);
 }
 
 text_edit::~text_edit()

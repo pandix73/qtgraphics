@@ -125,6 +125,7 @@ void unit::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 void unit::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event){
     text_edit *textedit = new text_edit(0);
     textedit->setWindowTitle("Text Edit");
+    textedit->type = this->type;
     connect(textedit, SIGNAL(update_this_label(QString)), this, SLOT(update_label(QString)));
     textedit->show();
 }

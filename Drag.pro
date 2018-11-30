@@ -33,7 +33,8 @@ SOURCES += \
     save_yn_dialog.cpp \
     graphicsscene.cpp \
     line.cpp \
-    text_edit.cpp
+    text_edit.cpp \
+    checker.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -43,7 +44,8 @@ HEADERS += \
     save_yn_dialog.h \
     graphicsscene.h \
     line.h \
-    text_edit.h
+    text_edit.h \
+    checker.h
 
 FORMS += \
         mainwindow.ui \
