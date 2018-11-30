@@ -20,6 +20,7 @@ extern int pix_per_brick;
 unit::unit()
 {
     Pressed = false;
+    error = false;
     text = "";
     setFlag(ItemIsMovable);
 }
@@ -74,6 +75,23 @@ void unit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
                                       pix_per_brick*de2_length_mm*1000/de_spacing_um);
                 }
             }
+        } else if (this->type == "heat"){
+            painter->setBrush(QBrush(Qt::red));
+            int layer = 6;
+            float zigzag_width_um = 216;
+            float zigzag_space_um = (de2_length_mm*1000 - 2*layer*zigzag_width_um)/2/layer;
+            for(int i = 0; i < layer*2; i++){
+                painter->drawRect(rect.x()+pix_per_brick*i*(zigzag_space_um+zigzag_width_um)/de_spacing_um,
+                                  rect.y(),
+                                  pix_per_brick*zigzag_width_um/de_spacing_um,
+                                  pix_per_brick*this->width*1000/de_spacing_um);
+                qDebug() << (rect.x()+pix_per_brick*i*(zigzag_space_um+zigzag_width_um)/de_spacing_um,
+                             rect.y(),
+                             pix_per_brick*zigzag_width_um/de_spacing_um,
+                             pix_per_brick*de2_length_mm*1000/de_spacing_um);
+            }
+
+
         } else {
             painter->drawRect(rect);
         }

@@ -24,7 +24,7 @@ int de2_width_mm = 3;
 
 int de_spacing_um = 500;
 int cp_spacing_um = 300;
-int line_width_um = 200;
+int line_width_um = 353;
 int line_width_pix = 10;
 //Chip Parameters
 int border_px;
@@ -915,7 +915,19 @@ void MainWindow::on_connect_btn_clicked()
             unitmap[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width*1)] = 1;
             unitmap[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width*0)] = 1;
             unit_id ++;
-
+        } else if(item->type == "heat"){
+            for(int i = 0; i <= item->length; i++)
+                for(int j = 0; j <= item->width; j++)
+                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = unit_id;//(i == int(item->length/2) || j == int(item->width/2)) ? 1 : unit_id;
+            int side_point_x = int(item->xi-shift) + (item->length*((item->tilt == 0) ? 1 : (item->tilt == 180) ? 0 : 0.5));
+            int side_point_y = int(item->yi-shift) + (item->width*((item->tilt == 90) ? 1 : (item->tilt == 270) ? 0 : 0.5));
+            int vertex_x = int(item->xi-shift) + item->length*((item->clockwise && (item->tilt == 0 || item->tilt == 270)) || (!item->clockwise && (item->tilt == 0 || item->tilt == 90)));
+            int vertex_y = int(item->yi-shift) + item->width*((item->clockwise && (item->tilt == 0 || item->tilt == 90)) || (!item->clockwise && (item->tilt == 90 || item->tilt == 180)));
+            source[side_point_x][side_point_y] = true;
+            source[vertex_x][vertex_y] = true;
+            unitmap[side_point_x][side_point_y] = 1;
+            unitmap[vertex_x][vertex_y] = 1;
+            unit_id ++;
         } else if(item->type == "controlpad"){
             for(int i = 0; i <= item->length; i++)
                 for(int j = 0; j <= item->width; j++)
@@ -984,7 +996,7 @@ void MainWindow::on_connect_btn_clicked()
             }
 
             // s/t connection
-            if(unitmap[i][j] > 1){
+            if(unitmap[i][j] >= 1){
                 //if(!(i < xsize-1 && (unitmap[i+1][j] == 1 || unitmap[i+1][j] == unitmap[i][j])) &&
                   // !(j < ysize-1 && (unitmap[i][j+1] == 1 || unitmap[i][j+1] == unitmap[i][j])))
                 if(source[i][j] == true)
@@ -1488,13 +1500,13 @@ void MainWindow::on_heater_create_clicked()
     if(linemode){
         WarningMessage("Cannot add components in LINE mode!");
     }
-    else if(ui->heater_num->text().isEmpty())
+    else if(ui->heater_linewidth->text().isEmpty())
     {
         WarningMessage("Missing Number");
     }
     else{
         EmptyMessage();
-        int number = ui->heater_num->text().toInt();
+        int number = 1;//ui->heater_num->text().toInt();
         int position = 5;
         num_heater += number;
         while(number--){
@@ -1502,9 +1514,16 @@ void MainWindow::on_heater_create_clicked()
             heat->type = "heat";
             heat->xi = position;
             heat->yi = 20;
+            heat->tilt = ui->heater_tilt->text().toInt();
+            heat->clockwise = ui->heater_clockwise->text().toInt();
+            heat->zigzag_linewidth = ui->heater_linewidth->text().toInt();
+            heat->zigzag_layer = ui->heater_layer->text().toInt();
+            heat->length = 1+((4*heat->zigzag_layer-1)*heat->zigzag_linewidth-1)/de_spacing_um;
+            heat->width = 1000*ui->heater_width->text().toInt()/de_spacing_um;
+            if(heat->tilt == 90 || heat->tilt == 270)std::swap(heat->length, heat->width);
             heat->de_xnum = 1;
-            heat->de_ynum = 2;
-            heat->color = heat_color;
+            heat->de_ynum = 1;
+            heat->color = heat_color;        
             ui->view->scene()->addItem(heat);
             allunits.prepend(heat);
             position += 3;
@@ -1566,8 +1585,6 @@ void MainWindow::on_preview_clicked(bool checked)
 
     if(checked){
         tempunits.clear();
-        passunits.clear();
-        errorunits.clear();
         //Create Checker_map
         checker_map = new int*[brick_xnum];
         for(int i = 0; i < brick_xnum; ++i){
@@ -1591,7 +1608,7 @@ void MainWindow::on_preview_clicked(bool checked)
                             checker_map[fill_x][fill_y] = 1;
                         }
                         else{
-                            errorunits << item;
+                            item->error = true;
                             jump = true;
                             continue;
                         }
@@ -1615,7 +1632,7 @@ void MainWindow::on_preview_clicked(bool checked)
 
             //Check if it is out of range
             if(start_x < 0 || start_y < 0 || start_x + item->length > brick_xnum || start_y + item->width > brick_ynum){
-                errorunits << item;
+                item->error = true;
                 qDebug() << "out of range";
                 continue;
             }
@@ -1664,10 +1681,10 @@ void MainWindow::on_preview_clicked(bool checked)
             qDebug() << cross;
 
             if(cross >= 5){
-                passunits << item;
+                item->error = false;
             }
             else{
-                errorunits << item;
+                item->error = true;
             }
         }
 
@@ -1684,7 +1701,8 @@ void MainWindow::on_preview_clicked(bool checked)
         ChipBorder(previewscene);
 
         EnableCreateUnit(false);
-        for(unit *item : passunits){
+        for(unit *item : allunits){
+            nullitem = (item->error) ? QBrush(Qt::red) : QBrush(Qt::black);
             if(item->type == "move"){                   //Show detail components for "move"
                 for(int i = 0; i < item->de_xnum; i++){
                     if(item->tilt == 90){
@@ -1735,6 +1753,63 @@ void MainWindow::on_preview_clicked(bool checked)
                                       redpen, nullitem);
                     }
                 }
+            }
+            else if(item->type == "heat"){
+                int layer = item->zigzag_layer;
+                double zigzag_width_um = item->zigzag_linewidth;
+                double spacing_um = int((item->length*de_spacing_um-2*zigzag_width_um*layer)/(2*layer-1));
+                double connect_line_um = 353;
+                //draw parallel lines
+                for(int i = 0; i < 2*layer; i++){
+                    if(item->tilt == 0 || item->tilt == 180){
+                        if (item->tilt == 0 && i == 2*layer-1){
+                            previewscene->addRect((item->xi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, (item->yi+(!item->clockwise)*item->width/2)*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, item->width/2*pix_per_brick, redpen, nullitem);
+                        } else if (item->tilt == 180 && i == 0){
+                            previewscene->addRect((item->xi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, (item->yi+(item->clockwise)*item->width/2)*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, item->width/2*pix_per_brick, redpen, nullitem);
+                        } else if (i != 0 && i != 2*layer-1){
+                            int connect_line_space = ((item->tilt == 0 && item->clockwise == 0) || (item->tilt == 180 && item->clockwise == 1)) ? (2*connect_line_um+zigzag_width_um)/de_spacing_um*pix_per_brick : 0;
+                            previewscene->addRect((item->xi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, item->yi*pix_per_brick+connect_line_space, zigzag_width_um/de_spacing_um*pix_per_brick, (item->width-(2*connect_line_um+zigzag_width_um)/de_spacing_um)*pix_per_brick, redpen, nullitem);
+                        } else
+                            previewscene->addRect((item->xi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, item->yi*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
+                    } else if (item->tilt == 90 || item->tilt == 270){
+                        if (item->tilt == 90 && i == 2*layer-1){
+                            previewscene->addRect((item->xi+(item->clockwise)*item->length/2)*pix_per_brick, (item->yi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, item->length/2*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, redpen, nullitem);
+                        } else if (item->tilt == 270 && i == 0){
+                            previewscene->addRect((item->xi+(!item->clockwise)*item->length/2)*pix_per_brick, (item->yi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, item->length/2*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, redpen, nullitem);
+                        } else if (i != 0 && i != 2*layer-1){
+                            int connect_line_space = ((item->tilt == 90 && item->clockwise == 1) || (item->tilt == 270 && item->clockwise == 0)) ? (2*connect_line_um+zigzag_width_um)/de_spacing_um*pix_per_brick : 0;
+                            previewscene->addRect(item->xi*pix_per_brick+connect_line_space, (item->yi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, (item->length-(2*connect_line_um+zigzag_width_um)/de_spacing_um)*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, redpen, nullitem);
+                        } else
+                            previewscene->addRect(item->xi*pix_per_brick, (item->yi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, item->length*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, redpen, nullitem);
+                    }
+                }
+                for(int i = 0; i < 2*layer-1; i++){
+                    if(item->tilt == 0 || item->tilt == 180){
+                        bool t = (item->tilt == 0) ? item->clockwise == i%2 : !item->clockwise == i%2;
+                        int connect_line_space = ((item->tilt == 0 && item->clockwise == 0) || (item->tilt == 180 && item->clockwise == 1)) ? (2*connect_line_um+zigzag_width_um)/de_spacing_um*pix_per_brick : 0;
+                        previewscene->addRect((item->xi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick,
+                                          item->yi*pix_per_brick+t*(item->width-2*(connect_line_um+zigzag_width_um)/de_spacing_um)*pix_per_brick + connect_line_space,
+                                          (zigzag_width_um+spacing_um)/de_spacing_um*pix_per_brick,
+                                          zigzag_width_um/de_spacing_um*pix_per_brick,
+                                          redpen, nullitem);
+                    } else if (item->tilt == 90 || item->tilt == 270){
+                        bool t = (item->tilt == 90) ? !item->clockwise == i%2 : item->clockwise == i%2;
+                        int connect_line_space = ((item->tilt == 90 && item->clockwise == 1) || (item->tilt == 270 && item->clockwise == 0)) ? (2*connect_line_um+zigzag_width_um)/de_spacing_um*pix_per_brick : 0;
+                        previewscene->addRect(item->xi*pix_per_brick+t*(item->length-2*(connect_line_um+zigzag_width_um)/de_spacing_um)*pix_per_brick + connect_line_space,
+                                          (item->yi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick,
+                                          zigzag_width_um/de_spacing_um*pix_per_brick,
+                                          (zigzag_width_um+spacing_um)/de_spacing_um*pix_per_brick,
+                                          redpen, nullitem);
+                    }
+                }
+                if ((item->tilt == 0 && item->clockwise == 0) || (item->tilt == 180 && item->clockwise == 1))
+                    previewscene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, connect_line_um*2/de_spacing_um*pix_per_brick, redpen, nullitem);
+                else if ((item->tilt == 0 && item->clockwise == 1) || (item->tilt == 180 && item->clockwise == 0))
+                    previewscene->addRect(item->xi*pix_per_brick, (item->yi+item->width-2*connect_line_um/de_spacing_um)*pix_per_brick, item->length*pix_per_brick, connect_line_um*2/de_spacing_um*pix_per_brick, redpen, nullitem);
+                else if ((item->tilt == 90 && item->clockwise == 1) || (item->tilt == 270 && item->clockwise == 0))
+                    previewscene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, connect_line_um*2/de_spacing_um*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
+                else if ((item->tilt == 90 && item->clockwise == 0) || (item->tilt == 270 && item->clockwise == 1))
+                    previewscene->addRect((item->xi+item->length-2*connect_line_um/de_spacing_um)*pix_per_brick, item->yi*pix_per_brick, connect_line_um*2/de_spacing_um*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
             }
             else
                 previewscene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
@@ -1759,63 +1834,6 @@ void MainWindow::on_preview_clicked(bool checked)
             previewscene->addLine(current_seg->x[0], current_seg->y[0], current_seg->x[1], current_seg->y[1], linepen);
         }
 
-
-        nullitem = QBrush(Qt::red);
-        for(unit *item : errorunits){
-            if(item->type == "move"){                   //Show detail components for "move"
-                for(int i = 0; i < item->de_xnum; i++){
-                    if(item->tilt == 90){
-                        qDebug() << "tilted";
-                        for(int i = 0; i < item->de_ynum; i++){
-                            if(item->de_type == 1){
-                                previewscene->addRect(item->xi*pix_per_brick,
-                                           (item->yi+i*(de1_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
-                                           pix_per_brick*de1_width_mm*1000/de_spacing_um,
-                                           pix_per_brick*de1_length_mm*1000/de_spacing_um,
-                                           redpen, nullitem);
-                            } else {
-                                previewscene->addRect(item->xi*pix_per_brick,
-                                           (item->yi+i*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
-                                           pix_per_brick*de2_width_mm*1000/de_spacing_um,
-                                           pix_per_brick*de2_length_mm*1000/de_spacing_um,
-                                           redpen, nullitem);
-                            }
-                        }
-                    }
-                    else{
-                        for(int i = 0; i < item->de_xnum; i++){
-                            if(item->de_type == 1){
-                                previewscene->addRect((item->xi+i*(de1_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
-                                           item->yi*pix_per_brick,
-                                           pix_per_brick*de1_length_mm*1000/de_spacing_um,
-                                           pix_per_brick*de1_width_mm*1000/de_spacing_um,
-                                           redpen, nullitem);
-                            } else {
-                                previewscene->addRect((item->xi+i*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
-                                           item->yi*pix_per_brick,
-                                           pix_per_brick*de2_length_mm*1000/de_spacing_um,
-                                           pix_per_brick*de2_width_mm*1000/de_spacing_um,
-                                           redpen, nullitem);
-                            }
-                        }
-                    }
-                }
-            }
-            else if(item->type == "cycle"){             //Show detail components for 'cycling"
-                for(int i = 0; i < item->de_xnum; i++){
-                    for(int j = 0; j < item->de_ynum; j++){
-                        if(i!=0 && i!=item->de_xnum-1 && j!=0 && j!=item->de_ynum-1) continue;
-                            previewscene->addRect((item->xi+i*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
-                                      (item->yi+j*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
-                                      pix_per_brick*de2_length_mm*1000/de_spacing_um,
-                                      pix_per_brick*de2_width_mm*1000/de_spacing_um,
-                                      redpen, nullitem);
-                    }
-                }
-            }
-            else
-                previewscene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
-        }
         QGraphicsTextItem *new_text_item = previewscene->addText(text_edit);
         new_text_item->setPos(brick_x_start, 400);
 

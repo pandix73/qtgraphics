@@ -26,6 +26,7 @@ public:
 
     // item state
     bool Pressed;
+    bool error;
     float xi;
     float yi;
     float length = 1;
@@ -34,6 +35,10 @@ public:
     int de_xnum = 0;
     int de_ynum = 0;
     int tilt = 0;
+    //heater parameters
+    int zigzag_linewidth;
+    int zigzag_layer;
+    bool clockwise;
     QString type;
     QString text;
     QColor color = Qt::white;
