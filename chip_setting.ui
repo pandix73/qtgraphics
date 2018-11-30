@@ -21,6 +21,8 @@
 QWidget{
  font: 15pt &quot;American Typewriter&quot;;
  color: rgb(187, 210, 211);
+ border-radius : 5px;
+ border-width : 1px;
 }
 
 QPushButton{
@@ -163,7 +165,7 @@ QLineEdit{
 </string>
       </property>
       <property name="text">
-       <string>um</string>
+       <string>mm</string>
       </property>
      </widget>
     </item>
