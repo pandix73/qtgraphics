@@ -1,7 +1,6 @@
 #include "line.h"
 #include <QDebug>
 extern bool deletemode;
-extern int line_width_um;
 extern int line_width_pix;
 line::line()
 {

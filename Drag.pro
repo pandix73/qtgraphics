@@ -33,7 +33,8 @@ SOURCES += \
     save_yn_dialog.cpp \
     graphicsscene.cpp \
     line.cpp \
-    text_edit.cpp
+    checker.cpp \
+    merge_edit.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -43,13 +44,14 @@ HEADERS += \
     save_yn_dialog.h \
     graphicsscene.h \
     line.h \
-    text_edit.h
+    checker.h \
+    merge_edit.h
 
 FORMS += \
         mainwindow.ui \
     chip_setting.ui \
     save_yn_dialog.ui \
-    text_edit.ui
+    merge_edit.ui
 
 RESOURCES += \
     resource.qrc

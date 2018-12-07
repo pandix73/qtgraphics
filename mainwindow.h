@@ -6,6 +6,7 @@
 #include "switch.h"
 #include "graphicsscene.h"
 #include "line.h"
+#include "checker.h"
 #include <queue>
 #include <QMainWindow>
 #include <QGraphicsScene>
@@ -84,6 +85,7 @@ private slots:
     void close_window(save_yn_dialog *);
     void reset_setting(chip_setting *);
 
+    void ConvertAllToUM();
     void ChipParameters();
     void OuterBorder(QGraphicsScene *);
     void BackgroundGrid(QGraphicsScene *);
@@ -91,7 +93,7 @@ private slots:
     void ChipScaleDots(QGraphicsScene *);
     void ChipBorder(QGraphicsScene *);
     void ChipScale(QGraphicsScene *);
-
+    void DefaultControlPad(QGraphicsScene *);
     void Info();
     void on_preview_clicked(bool checked);
 

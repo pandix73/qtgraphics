@@ -15,24 +15,22 @@ public:
     explicit chip_setting(QWidget *parent = 0);
     ~chip_setting();
 
+    float chip_length_cm = 7.6;
+    float chip_width_cm = 5.2;
+    int chip_border_mm = 10;
 
-    float chip_length_mm = 76;
-    float chip_width_mm = 52;
-    float chip_border_mm = 5;
+    int cp_length_mm = 2;
+    int cp_width_mm = 4;
 
-    float cp_length_mm = 8;
-    float cp_width_mm = 2;
+    int de1_length_mm = 2;
+    int de1_width_mm = 4;
+    int de2_length_mm = 1;
+    int de2_width_mm = 2;
 
-    float de1_length_mm = 1;
-    float de1_width_mm = 5;
-    float de2_length_mm = 3;
-    float de2_width_mm = 3;
-
-
-    float de_spacing_mm = 0.5;
-    float cp_spacing_mm = 2.54;
-    float line_width_mm = 0.353;
-
+    int de_spacing_um = 300;
+    int line_spacing_um = 900;
+    int cp_spacing_um = 300;
+    int line_width_um = 353;
 
 signals:
     void reset(chip_setting *);
