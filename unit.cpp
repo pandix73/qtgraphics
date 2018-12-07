@@ -142,18 +142,21 @@ void unit::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void unit::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event){
     if(this->type == "merge"){
-        merge_edit *edit = new merge_edit(0);
+        merge_edit *edit = new merge_edit(this->text, this->length, this->width, 0);
         edit->setWindowTitle("Text Edit");
-        edit->type = this->type;
-        connect(edit, SIGNAL(update_this_label(QString)), this, SLOT(update_label(QString, int , int)));
+//        edit->text = this->text;
+//        qDebug() << "unit" << this->text;
+//        edit->length = this->length;
+//        edit->width = this->width;
+        connect(edit, SIGNAL(update_this_label(QString, int, int)), this, SLOT(update_label(QString, int , int)));
         edit->show();
     }
 
 }
 
 void unit::update_label(QString text, int a, int  b){
+    this->length = a;
+    this->width = b;
     this->text = text;
-    this->setToolTip(text);
-
 }
 

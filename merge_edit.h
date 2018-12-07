@@ -13,12 +13,15 @@ class merge_edit : public QDialog
     Q_OBJECT
 
 public:
-    explicit merge_edit(QWidget *parent = 0);
+    explicit merge_edit(QString text, int length, int width, QWidget *parent = 0);
     ~merge_edit();
-    QString temp_text;
+    int length;
+    int width;
     QString type;
+    QString text;
+
 signals:
-    void update_this_label(QString);
+    void update_this_label(QString, int, int);
 
 private slots:
     void on_enter_clicked();

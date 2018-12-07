@@ -486,11 +486,12 @@ void MainWindow::save_svg()
       out << cp_length_mm << "\n" << cp_width_mm << "\n";
       out << de1_length_mm << "\n" << de1_width_mm << "\n" << de2_length_mm  << "\n"<< de2_width_mm << "\n";
 
-      out << de_spacing_um << "\n";
+      out << de_spacing_mm << "\n";
       out << cp_spacing_mm << "\n";
-      out << line_width_um  << "\n";
+      out << line_width_mm  << "\n";
 
       out << num_merge << "\n" << num_dispenser << "\n" << num_move << "\n" << num_cycling << "\n" <<num_heater << "\n" << num_de << "\n";
+      out << cp_length_mm << "\n" << cp_width_mm << "\n" << cp_spacing_mm << "\n";
       out << allunits.size() << "\n";
       for(unit *item: allunits){
         out << item->type << "\n";
@@ -500,6 +501,11 @@ void MainWindow::save_svg()
         }
         if(item->type == "move"){
             out << item->tilt << "\n";
+        }
+        if(item->type == "heat"){
+            out << item->tilt << "\n";
+            out << item->zigzag_linewidth << "\n";
+            out << item->zigzag_layer << "\n";
         }
         out << item->length << "\n" << item->width << "\n";
         out << item->color.red() << "\n" << item->color.green() << "\n" << item->color.blue() << "\n" << item->color.alpha() << "\n";
@@ -545,9 +551,9 @@ void MainWindow::load_svg_clicked()
     de2_length_mm  = in.readLine().toFloat();
     de2_width_mm = in.readLine().toFloat();
 
-    de_spacing_um = in.readLine().toFloat();
+    de_spacing_mm = in.readLine().toFloat();
     cp_spacing_mm = in.readLine().toFloat();
-    line_width_um  = in.readLine().toFloat();
+    line_width_mm  = in.readLine().toFloat();
     //line_width_pix = in.readLine().toFloat();
 
     num_merge = in.readLine().toInt();
@@ -556,6 +562,9 @@ void MainWindow::load_svg_clicked()
     num_cycling = in.readLine().toInt();
     num_heater = in.readLine().toInt();
     num_de = in.readLine().toInt();
+    cp_length_mm = in.readLine().toFloat();
+    cp_width_mm = in.readLine().toFloat();
+    cp_spacing_mm = in.readLine().toFloat();
 
     //Set Chip to mainscene
     mainscene = CreateNewScene();
@@ -575,6 +584,11 @@ void MainWindow::load_svg_clicked()
         }
         if(item->type == "move"){
             item->tilt = in.readLine(). toInt();
+        }
+        if(item->type == "heat"){
+            item->tilt = in.readLine(). toInt();
+            item->zigzag_linewidth = in.readLine(). toInt();
+            item->zigzag_layer = in.readLine(). toInt();
         }
         item->length = in.readLine().toInt();
         item->width = in.readLine().toInt();
@@ -871,7 +885,7 @@ void MainWindow::delete_from_list(unit *item)
     if(item->type == "dispenser"){ num_dispenser--; num_de -= 1;}
     if(item->type == "move"){ num_move--; num_de -= item->de_xnum*item->de_ynum;}
     if(item->type == "cycle"){ num_cycling--; num_de -= (item->de_xnum + item->de_ynum - 2) * 2;}
-    if(item->type == "heater"){ num_heater--; num_de -= 2;}
+    if(item->type == "heat"){ num_heater--; num_de -= 2;}
     Info();
     allunits.removeOne(item);
     delete item;
@@ -1681,7 +1695,7 @@ void MainWindow::on_preview_clicked(bool checked)
         checker *check = new checker(allunits, tempunits, passunits, errorunits);
         checker_map = check->checker_map;
 
-        previewscene = new QGraphicsScene(0, 0, 760, 520, ui->view);
+        previewscene = new QGraphicsScene(0, 0, 608, 500, ui->view);
         previewscene->setBackgroundBrush(Qt::white);
         graypen = QPen(Qt::black);
         redpen = QPen(Qt::black);
@@ -1701,15 +1715,15 @@ void MainWindow::on_preview_clicked(bool checked)
                         for(int i = 0; i < item->de_ynum; i++){
                             if(item->de_type == 1){
                                 previewscene->addRect(item->xi*pix_per_brick,
-                                           (item->yi+i*(de1_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
-                                           pix_per_brick*de1_width_mm*1000/de_spacing_um,
-                                           pix_per_brick*de1_length_mm*1000/de_spacing_um,
+                                           (item->yi+i*(de1_length_um/de_spacing_um + 1))*pix_per_brick,
+                                           pix_per_brick*de1_width_um/de_spacing_um,
+                                           pix_per_brick*de1_length_um/de_spacing_um,
                                            redpen, nullitem);
                             } else {
                                 previewscene->addRect(item->xi*pix_per_brick,
-                                           (item->yi+i*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
-                                           pix_per_brick*de2_width_mm*1000/de_spacing_um,
-                                           pix_per_brick*de2_length_mm*1000/de_spacing_um,
+                                           (item->yi+i*(de2_length_um/de_spacing_um + 1))*pix_per_brick,
+                                           pix_per_brick*de2_width_um/de_spacing_um,
+                                           pix_per_brick*de2_length_um/de_spacing_um,
                                            redpen, nullitem);
                             }
                         }
@@ -1717,16 +1731,16 @@ void MainWindow::on_preview_clicked(bool checked)
                     else{
                         for(int i = 0; i < item->de_xnum; i++){
                             if(item->de_type == 1){
-                                previewscene->addRect((item->xi+i*(de1_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
+                                previewscene->addRect((item->xi+i*(de1_length_um/de_spacing_um + 1))*pix_per_brick,
                                            item->yi*pix_per_brick,
-                                           pix_per_brick*de1_length_mm*1000/de_spacing_um,
-                                           pix_per_brick*de1_width_mm*1000/de_spacing_um,
+                                           pix_per_brick*de1_length_um/de_spacing_um,
+                                           pix_per_brick*de1_width_um/de_spacing_um,
                                            redpen, nullitem);
                             } else {
-                                previewscene->addRect((item->xi+i*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
+                                previewscene->addRect((item->xi+i*(de2_length_um/de_spacing_um + 1))*pix_per_brick,
                                            item->yi*pix_per_brick,
-                                           pix_per_brick*de2_length_mm*1000/de_spacing_um,
-                                           pix_per_brick*de2_width_mm*1000/de_spacing_um,
+                                           pix_per_brick*de2_length_um/de_spacing_um,
+                                           pix_per_brick*de2_width_um/de_spacing_um,
                                            redpen, nullitem);
                             }
                         }
@@ -1737,10 +1751,10 @@ void MainWindow::on_preview_clicked(bool checked)
                 for(int i = 0; i < item->de_xnum; i++){
                     for(int j = 0; j < item->de_ynum; j++){
                         if(i!=0 && i!=item->de_xnum-1 && j!=0 && j!=item->de_ynum-1) continue;
-                            previewscene->addRect((item->xi+i*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
-                                      (item->yi+j*(de2_length_mm*1000/de_spacing_um + 1))*pix_per_brick,
-                                      pix_per_brick*de2_length_mm*1000/de_spacing_um,
-                                      pix_per_brick*de2_width_mm*1000/de_spacing_um,
+                            previewscene->addRect((item->xi+i*(de2_length_um/de_spacing_um + 1))*pix_per_brick,
+                                      (item->yi+j*(de2_length_um/de_spacing_um + 1))*pix_per_brick,
+                                      pix_per_brick*de2_length_um/de_spacing_um,
+                                      pix_per_brick*de2_width_um/de_spacing_um,
                                       redpen, nullitem);
                     }
                 }
@@ -1856,8 +1870,6 @@ void MainWindow::on_text_enter_clicked()
     new_text_item->setPos(brick_x_start, 400);
     text_item = new_text_item;
     text_edited = true;
-
-
 
 }
 
