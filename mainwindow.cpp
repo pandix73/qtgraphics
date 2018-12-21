@@ -223,11 +223,12 @@ void MainWindow::LineBackgroundGrid(QGraphicsScene *scene){
 void MainWindow::ChipScaleDots(QGraphicsScene *scene){
     //chip scale                                                                        //show dots of scale near the chip border, each interval stands for 1cm in real size
     for(int i = 10; i < chip_length_mm; i+=10){
-        scene->addEllipse(brick_x_start-border_px + i*cm_to_px, brick_y_start-border_px+chip_length_px-2, 1, 1, redpen);
+        scene->addEllipse(brick_x_start-border_px + i*mm_to_px, brick_y_start-border_px+chip_width_px-2, 1, 1, redpen);
     }
     for(int i = 10; i < chip_width_mm; i+=10){
-        scene->addEllipse(brick_x_start-border_px+2, brick_y_start-border_px + i*cm_to_px, 1, 1, redpen);
+        scene->addEllipse(brick_x_start-border_px+2, brick_y_start-border_px + i*mm_to_px, 1, 1, redpen);
     }
+    qDebug() << chip_length_px << chip_width_px;
 }
 
 void MainWindow::ChipBorder(QGraphicsScene *scene){
@@ -1439,8 +1440,8 @@ void MainWindow::on_merge_create_clicked()
             merge->type = "merge";
             merge->xi = position;
             merge->yi = 10;
-            merge->length = ui->merge_length->text().toInt();
-            merge->width = ui->merge_width->text().toInt();
+            merge->length = ui->merge_length->text().toInt()*1000/de_spacing_um;
+            merge->width = ui->merge_width->text().toInt()*1000/de_spacing_um;
             merge->color = merge_color;
             ui->view->scene()->addItem(merge);
             allunits.prepend(merge);
@@ -1519,24 +1520,24 @@ void MainWindow::on_move_create_clicked()
                 move->de_xnum = 1;
                 move->de_ynum = ui->move_size->text().toInt();
                 if(move->de_type == 1){
-                    move->length = move->de_xnum*de1_width_mm*1000/de_spacing_um;
-                    move->width = move->de_ynum*de1_length_mm*1000/de_spacing_um + move->de_ynum-1;
+                    move->length = move->de_xnum*de1_width_um/de_spacing_um;
+                    move->width = move->de_ynum*de1_length_um/de_spacing_um + move->de_ynum-1;
                 }
                 else{
-                    move->length = move->de_xnum*de2_width_mm*1000/de_spacing_um;
-                    move->width = move->de_ynum*de2_length_mm*1000/de_spacing_um + move->de_ynum-1;
+                    move->length = move->de_xnum*de2_width_um/de_spacing_um;
+                    move->width = move->de_ynum*de2_length_um/de_spacing_um + move->de_ynum-1;
                 }
             }
             else{
                 move->de_xnum = ui->move_size->text().toInt();
                 move->de_ynum = 1;
                 if(move->de_type == 1){
-                    move->length = move->de_xnum*de1_length_mm*1000/de_spacing_um + move->de_xnum-1;
-                    move->width = move->de_ynum*de1_width_mm*1000/de_spacing_um;
+                    move->length = move->de_xnum*de1_length_um/de_spacing_um + move->de_xnum-1;
+                    move->width = move->de_ynum*de1_width_um/de_spacing_um;
                 }
                 else{
-                    move->length = move->de_xnum*de2_length_mm*1000/de_spacing_um + move->de_xnum-1;
-                    move->width = move->de_ynum*de2_width_mm*1000/de_spacing_um;
+                    move->length = move->de_xnum*de2_length_um/de_spacing_um + move->de_xnum-1;
+                    move->width = move->de_ynum*de2_width_um/de_spacing_um;
                 }
             }
             move->color = moving_color;
@@ -1580,12 +1581,12 @@ void MainWindow::on_cycling_create_clicked()
             cycle->de_xnum = ui->cycling_length->text().toInt();
             cycle->de_ynum = ui->cycling_width->text().toInt();
             if(cycle->type == 1){
-                cycle->length = cycle->de_xnum*de1_length_mm*1000/de_spacing_um + cycle->de_xnum-1;
-                cycle->width = cycle->de_ynum*de1_length_mm*1000/de_spacing_um + cycle->de_ynum-1;
+                cycle->length = cycle->de_xnum*de1_length_um/de_spacing_um + cycle->de_xnum-1;
+                cycle->width = cycle->de_ynum*de1_length_um/de_spacing_um + cycle->de_ynum-1;
             }
             else{
-                cycle->length = cycle->de_xnum*de2_length_mm*1000/de_spacing_um + cycle->de_xnum-1;
-                cycle->width = cycle->de_ynum*de2_length_mm*1000/de_spacing_um + cycle->de_ynum-1;
+                cycle->length = cycle->de_xnum*de2_length_um/de_spacing_um + cycle->de_xnum-1;
+                cycle->width = cycle->de_ynum*de2_length_um/de_spacing_um + cycle->de_ynum-1;
             }
             cycle->color = cycling_color;
             ui->view->scene()->addItem(cycle);
@@ -1619,14 +1620,16 @@ void MainWindow::on_heater_create_clicked()
             heat->xi = position;
             heat->yi = 20;
             heat->tilt = ui->heater_tilt->text().toInt();
-            heat->clockwise = ui->heater_clockwise->text().toInt();
+//            heat->clockwise = ui->heater_clockwise->text().toInt();
+            heat->clockwise = ui->clockwise->isChecked();
+            heat->de_xnum = ui->heater_width->text().toInt();
             heat->zigzag_linewidth = ui->heater_linewidth->text().toInt();
             heat->zigzag_layer = ui->heater_layer->text().toInt();
             heat->length = 1+((4*heat->zigzag_layer-1)*heat->zigzag_linewidth-1)/de_spacing_um;
             heat->width = 1000*ui->heater_width->text().toInt()/de_spacing_um;
             if(heat->tilt == 90 || heat->tilt == 270)std::swap(heat->length, heat->width);
-            heat->de_xnum = 1;
-            heat->de_ynum = 1;
+//            heat->de_xnum = 1;
+//            heat->de_ynum = 1;
             heat->color = heat_color;        
             ui->view->scene()->addItem(heat);
             allunits.prepend(heat);

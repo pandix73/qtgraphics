@@ -428,7 +428,7 @@ QPushButton{
 </string>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>false</bool>
@@ -1433,64 +1433,6 @@ QSpinBox{
         <string>Heater</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="1" column="7">
-         <widget class="QPushButton" name="heater_create">
-          <property name="text">
-           <string>Create</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLabel" name="heater_width_label">
-          <property name="text">
-           <string>width</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QLineEdit" name="heater_width">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="3">
-         <widget class="QLabel" name="heater_linewidth_label">
-          <property name="text">
-           <string>linewidth</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="4">
-         <widget class="QLineEdit" name="heater_linewidth">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="5">
-         <widget class="QLabel" name="heater_layer_label">
-          <property name="text">
-           <string>layer</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="6">
-         <widget class="QLineEdit" name="heater_layer">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="2">
          <widget class="QLineEdit" name="heater_tilt">
           <property name="sizePolicy">
@@ -1511,20 +1453,84 @@ QSpinBox{
           </property>
          </widget>
         </item>
-        <item row="1" column="3">
-         <widget class="QLabel" name="heater_clockwise_label">
+        <item row="0" column="1">
+         <widget class="QLabel" name="heater_width_label">
           <property name="text">
-           <string>clockwise</string>
+           <string>width</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="4">
+         <widget class="QLineEdit" name="heater_linewidth">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="7">
+         <widget class="QPushButton" name="heater_create">
+          <property name="text">
+           <string>Create</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLineEdit" name="heater_width">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="6">
+         <widget class="QLineEdit" name="heater_layer">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QLabel" name="heater_linewidth_label">
+          <property name="text">
+           <string>linewidth</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="5">
+         <widget class="QLabel" name="heater_layer_label">
+          <property name="text">
+           <string>layer</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QRadioButton" name="clockwise">
+          <property name="styleSheet">
+           <string notr="true">	background-color : rgb(46, 52, 66);</string>
+          </property>
+          <property name="text">
+           <string>CW</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
         <item row="1" column="4">
-         <widget class="QSpinBox" name="heater_clockwise">
-          <property name="minimum">
-           <number>0</number>
+         <widget class="QRadioButton" name="counterclockwise">
+          <property name="styleSheet">
+           <string notr="true">	background-color : rgb(46, 52, 66);</string>
           </property>
-          <property name="maximum">
-           <number>1</number>
+          <property name="text">
+           <string>CCW</string>
           </property>
          </widget>
         </item>

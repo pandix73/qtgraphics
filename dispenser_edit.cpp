@@ -1,9 +1,9 @@
-#include "merge_edit.h"
-#include "ui_merge_edit.h"
+#include "dispenser_edit.h"
+#include "ui_dispenser_edit.h"
 
-merge_edit::merge_edit(QString text, int length, int width, QWidget *parent) :
+dispenser_edit::dispenser_edit(QString text, int length, int width, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::merge_edit)
+    ui(new Ui::dispenser_edit)
 {
     ui->setupUi(this);
     this->length = length;
@@ -17,12 +17,13 @@ merge_edit::merge_edit(QString text, int length, int width, QWidget *parent) :
 
 }
 
-merge_edit::~merge_edit()
+dispenser_edit::~dispenser_edit()
 {
     delete ui;
 }
 
-void merge_edit::on_enter_clicked()
+
+void dispenser_edit::on_enter_clicked()
 {
     if(!ui->size_input_length->text().isEmpty()) length = ui->size_input_length->text().toInt();
     if(!ui->size_input_width->text().isEmpty()) width = ui->size_input_width->text().toInt();

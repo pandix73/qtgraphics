@@ -17,7 +17,6 @@ public:
     ~merge_edit();
     int length;
     int width;
-    QString type;
     QString text;
 
 signals:

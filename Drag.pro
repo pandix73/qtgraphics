@@ -34,7 +34,11 @@ SOURCES += \
     graphicsscene.cpp \
     line.cpp \
     checker.cpp \
-    merge_edit.cpp
+    merge_edit.cpp \
+    dispenser_edit.cpp \
+    move_edit.cpp \
+    cycle_edit.cpp \
+    heat_edit.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -45,13 +49,21 @@ HEADERS += \
     graphicsscene.h \
     line.h \
     checker.h \
-    merge_edit.h
+    merge_edit.h \
+    dispenser_edit.h \
+    move_edit.h \
+    cycle_edit.h \
+    heat_edit.h
 
 FORMS += \
         mainwindow.ui \
     chip_setting.ui \
     save_yn_dialog.ui \
-    merge_edit.ui
+    merge_edit.ui \
+    dispenser_edit.ui \
+    move_edit.ui \
+    cycle_edit.ui \
+    heat_edit.ui
 
 RESOURCES += \
     resource.qrc

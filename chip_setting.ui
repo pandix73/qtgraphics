@@ -389,7 +389,7 @@ QLineEdit{
 </string>
       </property>
       <property name="text">
-       <string>cm</string>
+       <string>mm</string>
       </property>
      </widget>
     </item>
@@ -468,7 +468,7 @@ QLineEdit{
 </string>
       </property>
       <property name="text">
-       <string>cm</string>
+       <string>mm</string>
       </property>
      </widget>
     </item>

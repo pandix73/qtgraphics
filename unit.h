@@ -11,7 +11,10 @@
 #include <QMenu>
 #include <QAction>
 #include "merge_edit.h"
-
+#include "dispenser_edit.h"
+#include "move_edit.h"
+#include "cycle_edit.h"
+#include "heat_edit.h"
 class unit : public QObject, public QGraphicsItem
 {
     Q_OBJECT
@@ -48,7 +51,12 @@ public:
     QColor unit_de2_color = QColor(0, 0, 255, 127);
 
 public slots:
-    void update_label(QString text, int a, int b);
+    void update_merge(QString, int, int);
+    void update_dispenser(QString , int , int);
+    void update_move(QString, int, int, int);
+    void update_cycle(QString, int, int);
+    void update_heat(QString, int , int , int , int , int );
+
 signals:
     void delete_this_item(unit *item);
 
