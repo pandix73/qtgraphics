@@ -12,7 +12,7 @@ bool linemode = false;
 //Chip setting
 float chip_length_mm = 76;
 float chip_width_mm = 52;
-float chip_border_mm = 5;
+float chip_border_mm = 6;
 
 int chip_length_um;
 int chip_width_um;
@@ -20,7 +20,7 @@ int chip_border_um;
 
 
 float cp_length_mm = 8;
-float cp_width_mm = 2;
+float cp_width_mm = 1.524;
 
 int cp_length_um;
 int cp_width_um;
@@ -36,12 +36,12 @@ int de1_width_um;
 int de2_length_um;
 int de2_width_um;
 
-float de_spacing_mm = 0.5;
-float cp_spacing_mm = 2.54;
+float de_spacing_mm = 0.3;
+float cp_spacing_mm = 1.016;
 float line_width_mm = 0.353;
 
 
-int de_spacing_um = 500;
+int de_spacing_um = 300;
 int cp_spacing_um = 2540;
 int line_width_um = 353;
 
@@ -89,7 +89,7 @@ int num_heater = 0;
 int num_de = 0;
 
 //unit map
-int unitmap[200][200];
+int unitmap[500][500];
 
 
 float px_to_cm = 9921/21;
@@ -218,16 +218,19 @@ void MainWindow::BackgroundGrid(QGraphicsScene *scene){
     //background grid (in dotted form)
     for(int i = 0; i <= brick_xnum; i++){
         for(int j = 0; j <= brick_ynum; j++){
-            scene->addEllipse(brick_x_start+i*pix_per_brick, brick_y_start+j*pix_per_brick, 0.5, 0.5, graypen);
+            ;//scene->addEllipse(brick_x_start+i*pix_per_brick, brick_y_start+j*pix_per_brick, 0.5, 0.5, graypen);
         }
     }
 }
 
 void MainWindow::LineBackgroundGrid(QGraphicsScene *scene){
     //background grid (in dotted form)
-    for(int i = 0; i <= brick_xnum; i++){
-        for(int j = 0; j <= brick_ynum; j++){
-            scene->addEllipse(brick_x_start+i*pix_per_brick, brick_y_start+j*pix_per_brick, 0.5, 0.5, graypen);
+    double line_pix_per_brick = double(pix_per_brick)*line_width_um/de_spacing_um;
+    int line_brick_xnum = double(brick_xnum)*de_spacing_um/line_width_um;
+    int line_brick_ynum = double(brick_ynum)*de_spacing_um/line_width_um;
+    for(int i = 0; i <= line_brick_xnum; i++){
+        for(int j = 0; j <= line_brick_ynum; j++){
+            ;//scene->addEllipse(brick_x_start+i*line_pix_per_brick, brick_y_start+j*line_pix_per_brick, 0.5, 0.5, graypen);
         }
     }
 }
@@ -256,12 +259,13 @@ void MainWindow::ChipScale(QGraphicsScene *scene){
 }
 
 void MainWindow::DefaultControlPad(QGraphicsScene *scene){
-    int cp_length = cp_length_um / de_spacing_um;
-    int cp_width = cp_width_um / de_spacing_um;
-    int cp_space = cp_spacing_um / de_spacing_um;
-    int cp_xi_start = brick_x_start / pix_per_brick;
-    int cp_xi_start_right = brick_x_start / pix_per_brick + brick_xnum  - cp_length;
-    int cp_yi_start = brick_y_start / pix_per_brick;
+    float cp_length = float(cp_length_um) / de_spacing_um;
+    float cp_width = float(cp_width_um) / de_spacing_um;
+    float cp_space = float(cp_spacing_um) / de_spacing_um;
+    qDebug()<<cp_length<<cp_width<<cp_space;
+    float cp_xi_start = brick_x_start / pix_per_brick;
+    float cp_xi_start_right = brick_x_start / pix_per_brick + brick_xnum  - cp_length;
+    float cp_yi_start = brick_y_start / pix_per_brick;
 
     int num_control_pad = brick_ynum / (cp_width + cp_space);
     for(int i=0; i<=num_control_pad; i++){
@@ -288,7 +292,7 @@ void MainWindow::DefaultControlPad(QGraphicsScene *scene){
         scene->addItem(cp_right);
         allunits.prepend(cp_right);
 
-        cp_yi_start += cp_width+ cp_space;
+        cp_yi_start += cp_width + cp_space;
         connect(cp_right, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
     }
 
@@ -973,8 +977,8 @@ void MainWindow::on_zoomout_clicked()
 void MainWindow::on_connect_btn_clicked()
 {
 
-    int xsize = brick_xnum;//(chip_length_cm*10 - 2*chip_border_mm)*1000 / de_spacing_um;
-    int ysize = brick_ynum;//(chip_width_cm*10 - 2*chip_border_mm)*1000 / de_spacing_um;
+    int xsize = brick_xnum;
+    int ysize = brick_ynum;
     float shift = chip_border_mm*1000 / de_spacing_um;
 
     struct edge{
@@ -1000,7 +1004,7 @@ void MainWindow::on_connect_btn_clicked()
     memset(unitmap, 0, sizeof(unitmap));
     int unit_id = 2;
     int cpad_id = -2;
-    bool source[200][200] = {{false}};
+    bool source[500][500] = {{false}};
 
     for(unit *item : allunits){
         if(item->type == "move"){
@@ -1046,6 +1050,10 @@ void MainWindow::on_connect_btn_clicked()
             }
 
         } else if(item->type == "dispenser" || item->type == "merge"){
+            /*int templ = item->length;
+            int tempw = item->width;
+            item->length *= de_spacing_um/line_width_um;
+            item->width *= de_spacing_um/line_width_um;*/
             for(int i = 0; i <= item->length; i++)
                 for(int j = 0; j <= item->width; j++)
                     unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = unit_id;//(i == int(item->length/2) || j == int(item->width/2)) ? 1 : unit_id;
@@ -1055,6 +1063,8 @@ void MainWindow::on_connect_btn_clicked()
             unitmap[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width*1)] = 1;
             unitmap[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width*0)] = 1;
             unit_id ++;
+            /*item->length = templ;
+            item->width = tempw;*/
         } else if(item->type == "heat"){
             for(int i = 0; i <= item->length; i++)
                 for(int j = 0; j <= item->width; j++)
@@ -1070,8 +1080,10 @@ void MainWindow::on_connect_btn_clicked()
             unit_id ++;
         } else if(item->type == "controlpad"){
             for(int i = 0; i <= item->length; i++)
-                for(int j = 0; j <= item->width; j++)
-                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = (i == int(item->length/2) /*|| j == int(item->width/2)*/) ? -1 : cpad_id;
+                for(int j = 0; j <= item->width; j++){
+                    qDebug()<<int(item->xi - shift) + i<<int(item->yi - shift) + j;
+                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = (/*i == int(item->length/2) ||*/ j == int(item->width/2)) ? -1 : cpad_id;
+                }
             cpad_id --;
         }
     }
@@ -1834,7 +1846,7 @@ void MainWindow::on_preview_clicked(bool checked)
             else if(item->type == "heat"){
                 int layer = item->zigzag_layer;
                 double zigzag_width_um = item->zigzag_linewidth;
-                double spacing_um = int((item->length*de_spacing_um-2*zigzag_width_um*layer)/(2*layer-1));
+                double spacing_um = 200;//int((item->length*de_spacing_um-2*zigzag_width_um*layer)/(2*layer-1));
                 double connect_line_um = 353;
                 //draw parallel lines
                 for(int i = 0; i < 2*layer; i++){
