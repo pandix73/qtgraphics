@@ -32,6 +32,8 @@ public:
     bool error;
     float xi;
     float yi;
+    float actual_length = 1;
+    float actual_width = 1;
     float length = 1;
     float width = 1;
     int de_type = 0;

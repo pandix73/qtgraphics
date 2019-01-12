@@ -181,16 +181,28 @@ void MainWindow::ChipParameters(){
     cm_to_px = 10000/de_spacing_um*pix_per_brick;
     mm_to_px = 1000/de_spacing_um*pix_per_brick;
 
-    border_px = chip_border_um/de_spacing_um*pix_per_brick;                        //border width in pixel
-    brick_xnum = (chip_length_um - 2*chip_border_um)/de_spacing_um;             //how many background dots are needed in x-azis
-    brick_ynum = (chip_width_um - 2*chip_border_um)/de_spacing_um;              //how many background dots are needed in y-axis
+//    border_px = chip_border_um/de_spacing_um*pix_per_brick;                        //border width in pixel
+//    brick_xnum = (chip_length_um - 2*chip_border_um)/de_spacing_um;             //how many background dots are needed in x-azis
+//    brick_ynum = (chip_width_um - 2*chip_border_um)/de_spacing_um;              //how many background dots are needed in y-axis
 
-    chip_length_px = brick_xnum*pix_per_brick+border_px*2;                              //chip_length in pixel
-    chip_width_px = brick_ynum*pix_per_brick+border_px*2;                               //chip_width in pixel
+
+//    chip_length_px = brick_xnum*pix_per_brick+border_px*2;                              //chip_length in pixel
+//    chip_width_px = brick_ynum*pix_per_brick+border_px*2;                               //chip_width in pixel
+
+
+    chip_length_px = pix_per_brick * chip_length_um/de_spacing_um;
+    chip_width_px = pix_per_brick * chip_width_um/de_spacing_um;
+
+    border_px = chip_length_px * chip_border_um / chip_length_um;                        //border width in pixel
+    brick_xnum = (chip_length_px - 2*border_px)/pix_per_brick;             //how many background dots are needed in x-azis
+    brick_ynum = (chip_width_px - 2*border_px)/pix_per_brick;              //how many background dots are needed in y-axis
 
     brick_x_start = (608 - chip_length_px)/2 + border_px;                                //where to start drawing dots in y-axis
     brick_y_start = (500 - chip_width_px)/2 + border_px;
-
+    while(brick_x_start%pix_per_brick != 0)
+        brick_x_start++;
+    while(brick_y_start%pix_per_brick != 0)
+        brick_y_start++;
     line_width_pix = pix_per_brick*line_width_um/de_spacing_um;
 }
 
@@ -228,7 +240,7 @@ void MainWindow::ChipScaleDots(QGraphicsScene *scene){
     for(int i = 10; i < chip_width_mm; i+=10){
         scene->addEllipse(brick_x_start-border_px+2, brick_y_start-border_px + i*mm_to_px, 1, 1, redpen);
     }
-    qDebug() << chip_length_px << chip_width_px;
+
 }
 
 void MainWindow::ChipBorder(QGraphicsScene *scene){
@@ -416,6 +428,62 @@ void MainWindow::mode_label(bool bChecked){
                                       redpen, nullitem);
                     }
                 }
+            }else if(item->type == "heat"){
+                int layer = item->zigzag_layer;
+                double zigzag_width_um = item->zigzag_linewidth;
+                double spacing_um = int((item->length*de_spacing_um-2*zigzag_width_um*layer)/(2*layer-1));
+                double connect_line_um = 353;
+                //draw parallel lines
+                for(int i = 0; i < 2*layer; i++){
+                    if(item->tilt == 0 || item->tilt == 180){
+                        if (item->tilt == 0 && i == 2*layer-1){
+                            DestroyRect << linescene->addRect((item->xi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, (item->yi+(!item->clockwise)*item->width/2)*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, item->width/2*pix_per_brick, redpen, nullitem);
+                        } else if (item->tilt == 180 && i == 0){
+                            DestroyRect << linescene->addRect((item->xi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, (item->yi+(item->clockwise)*item->width/2)*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, item->width/2*pix_per_brick, redpen, nullitem);
+                        } else if (i != 0 && i != 2*layer-1){
+                            int connect_line_space = ((item->tilt == 0 && item->clockwise == 0) || (item->tilt == 180 && item->clockwise == 1)) ? (2*connect_line_um+zigzag_width_um)/de_spacing_um*pix_per_brick : 0;
+                            DestroyRect << linescene->addRect((item->xi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, item->yi*pix_per_brick+connect_line_space, zigzag_width_um/de_spacing_um*pix_per_brick, (item->width-(2*connect_line_um+zigzag_width_um)/de_spacing_um)*pix_per_brick, redpen, nullitem);
+                        } else
+                            DestroyRect << linescene->addRect((item->xi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, item->yi*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
+                    } else if (item->tilt == 90 || item->tilt == 270){
+                        if (item->tilt == 90 && i == 2*layer-1){
+                            DestroyRect << linescene->addRect((item->xi+(item->clockwise)*item->length/2)*pix_per_brick, (item->yi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, item->length/2*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, redpen, nullitem);
+                        } else if (item->tilt == 270 && i == 0){
+                            DestroyRect << linescene->addRect((item->xi+(!item->clockwise)*item->length/2)*pix_per_brick, (item->yi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, item->length/2*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, redpen, nullitem);
+                        } else if (i != 0 && i != 2*layer-1){
+                            int connect_line_space = ((item->tilt == 90 && item->clockwise == 1) || (item->tilt == 270 && item->clockwise == 0)) ? (2*connect_line_um+zigzag_width_um)/de_spacing_um*pix_per_brick : 0;
+                            DestroyRect << linescene->addRect(item->xi*pix_per_brick+connect_line_space, (item->yi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, (item->length-(2*connect_line_um+zigzag_width_um)/de_spacing_um)*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, redpen, nullitem);
+                        } else
+                            DestroyRect << linescene->addRect(item->xi*pix_per_brick, (item->yi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, item->length*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, redpen, nullitem);
+                    }
+                }
+                for(int i = 0; i < 2*layer-1; i++){
+                    if(item->tilt == 0 || item->tilt == 180){
+                        bool t = (item->tilt == 0) ? item->clockwise == i%2 : !item->clockwise == i%2;
+                        int connect_line_space = ((item->tilt == 0 && item->clockwise == 0) || (item->tilt == 180 && item->clockwise == 1)) ? (2*connect_line_um+zigzag_width_um)/de_spacing_um*pix_per_brick : 0;
+                        DestroyRect << linescene->addRect((item->xi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick,
+                                          item->yi*pix_per_brick+t*(item->width-2*(connect_line_um+zigzag_width_um)/de_spacing_um)*pix_per_brick + connect_line_space,
+                                          (zigzag_width_um+spacing_um)/de_spacing_um*pix_per_brick,
+                                          zigzag_width_um/de_spacing_um*pix_per_brick,
+                                          redpen, nullitem);
+                    } else if (item->tilt == 90 || item->tilt == 270){
+                        bool t = (item->tilt == 90) ? !item->clockwise == i%2 : item->clockwise == i%2;
+                        int connect_line_space = ((item->tilt == 90 && item->clockwise == 1) || (item->tilt == 270 && item->clockwise == 0)) ? (2*connect_line_um+zigzag_width_um)/de_spacing_um*pix_per_brick : 0;
+                        DestroyRect << linescene->addRect(item->xi*pix_per_brick+t*(item->length-2*(connect_line_um+zigzag_width_um)/de_spacing_um)*pix_per_brick + connect_line_space,
+                                          (item->yi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick,
+                                          zigzag_width_um/de_spacing_um*pix_per_brick,
+                                          (zigzag_width_um+spacing_um)/de_spacing_um*pix_per_brick,
+                                          redpen, nullitem);
+                    }
+                }
+                if ((item->tilt == 0 && item->clockwise == 0) || (item->tilt == 180 && item->clockwise == 1))
+                    DestroyRect << linescene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, connect_line_um*2/de_spacing_um*pix_per_brick, redpen, nullitem);
+                else if ((item->tilt == 0 && item->clockwise == 1) || (item->tilt == 180 && item->clockwise == 0))
+                    DestroyRect << linescene->addRect(item->xi*pix_per_brick, (item->yi+item->width-2*connect_line_um/de_spacing_um)*pix_per_brick, item->length*pix_per_brick, connect_line_um*2/de_spacing_um*pix_per_brick, redpen, nullitem);
+                else if ((item->tilt == 90 && item->clockwise == 1) || (item->tilt == 270 && item->clockwise == 0))
+                    DestroyRect << linescene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, connect_line_um*2/de_spacing_um*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
+                else if ((item->tilt == 90 && item->clockwise == 0) || (item->tilt == 270 && item->clockwise == 1))
+                    DestroyRect << linescene->addRect((item->xi+item->length-2*connect_line_um/de_spacing_um)*pix_per_brick, item->yi*pix_per_brick, connect_line_um*2/de_spacing_um*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
             }
             else
                 DestroyRect << linescene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
@@ -691,7 +759,7 @@ void MainWindow::export_clicked()
             unit *export_item = new unit();
             //export_item = item;
             export_item->xi = (item->xi - (brick_x_start-border_px)/pix_per_brick) * de_spacing_um* px_to_cm  / 10000 / pix_per_brick;
-            export_item->yi = item->yi * de_spacing_um * px_to_cm  / 10000 / pix_per_brick;
+            export_item->yi = (item->yi - (brick_y_start-border_px)/pix_per_brick) * de_spacing_um * px_to_cm  / 10000 / pix_per_brick;
             export_item->length = item->length * de_spacing_um * px_to_cm  / 10000 / pix_per_brick;
             export_item->width = item->width *de_spacing_um * px_to_cm  / 10000 / pix_per_brick;
 
@@ -712,8 +780,7 @@ void MainWindow::export_clicked()
                                    blackpen, blackbrush);
                     }
                 }
-            }
-            else if(item->type == "cycle"){
+            }else if(item->type == "cycle"){
                 for(int i = 0; i < item->de_xnum; i++){
                     for(int j = 0; j < item->de_ynum; j++){
                         if(i!=0 && i!=item->de_xnum-1 && j!=0 && j!=item->de_ynum-1) continue;
@@ -724,8 +791,7 @@ void MainWindow::export_clicked()
                                       blackpen, blackbrush);
                     }
                 }
-            }
-            else{
+            }else{
                 export_scene->addItem(export_item);
             }
 
@@ -776,7 +842,7 @@ void MainWindow::pdf_clicked()
             unit *export_item = new unit();
             //export_item = item;
             export_item->xi = (item->xi - (brick_x_start-border_px)/pix_per_brick) * de_spacing_um* px_to_cm  / 10000 / pix_per_brick;
-            export_item->yi = item->yi * de_spacing_um * px_to_cm  / 10000 / pix_per_brick;
+            export_item->yi = (item->yi - (brick_y_start-border_px)/pix_per_brick) * de_spacing_um * px_to_cm  / 10000 / pix_per_brick;
             export_item->length = item->length * de_spacing_um * px_to_cm  / 10000 / pix_per_brick;
             export_item->width = item->width *de_spacing_um * px_to_cm  / 10000 / pix_per_brick;
 
@@ -789,7 +855,7 @@ void MainWindow::pdf_clicked()
                                    px_to_cm/10*de1_length_mm,
                                    px_to_cm/10*de1_width_mm,
                                    blackpen, blackbrush);
-                    } else {
+                    }else {
                         export_scene->addRect(((item->xi+i*(de2_length_um/de_spacing_um + 1)) - (brick_x_start-border_px)/pix_per_brick )* de_spacing_um* px_to_cm  / 10000,
                                    item->yi* de_spacing_um * px_to_cm  / 10000,
                                    px_to_cm/10*de2_length_mm,
@@ -797,8 +863,7 @@ void MainWindow::pdf_clicked()
                                    blackpen, blackbrush);
                     }
                 }
-            }
-            else if(item->type == "cycle"){
+            }else if(item->type == "cycle"){
                 for(int i = 0; i < item->de_xnum; i++){
                     for(int j = 0; j < item->de_ynum; j++){
                         if(i!=0 && i!=item->de_xnum-1 && j!=0 && j!=item->de_ynum-1) continue;
@@ -1440,6 +1505,8 @@ void MainWindow::on_merge_create_clicked()
             merge->type = "merge";
             merge->xi = position;
             merge->yi = 10;
+            merge->actual_length = ui->merge_length->text().toInt();
+            merge->actual_width = ui->merge_width->text().toInt();
             merge->length = ui->merge_length->text().toInt()*1000/de_spacing_um;
             merge->width = ui->merge_width->text().toInt()*1000/de_spacing_um;
             merge->color = merge_color;
@@ -1482,6 +1549,8 @@ void MainWindow::on_dispenser_create_clicked()
             dispenser->de_type = 0;
             dispenser->de_xnum = 1;
             dispenser->de_ynum = 1;
+            dispenser->actual_length = ui->dispenser_length->text().toInt();
+            dispenser->actual_width = ui->dispenser_width->text().toInt();
             dispenser->length = ui->dispenser_length->text().toInt()*1000/de_spacing_um;
             dispenser->width = ui->dispenser_width->text().toInt()*1000/de_spacing_um;
             dispenser->color = dispenser_color;

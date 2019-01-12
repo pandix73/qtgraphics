@@ -4,8 +4,8 @@ extern bool deletemode;
 bool detailmode = false;
 
 //setting parameter
-extern int chip_length_cm;
-extern int chip_width_cm;
+//extern int chip_length_cm;
+//extern int chip_width_cm;
 extern int chip_border_mm;
 extern int cp_length_mm;
 extern int cp_width_mm;
@@ -116,7 +116,6 @@ void unit::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if(!deletemode){
         Pressed = true;
-        qDebug() << "unit deletemode : "<< deletemode;
         update();
         QGraphicsItem::mousePressEvent(event);
     }
@@ -142,12 +141,12 @@ void unit::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void unit::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event){
     if(this->type == "merge"){
-        merge_edit *edit = new merge_edit(this->text, this->length, this->width, 0);
+        merge_edit *edit = new merge_edit(this->text, this->actual_length, this->actual_width, 0);
         edit->setWindowTitle("Merge Edit");
         connect(edit, SIGNAL(update_this_label(QString, int, int)), this, SLOT(update_merge(QString, int , int)));
         edit->show();
     }else if(this->type == "dispenser"){
-        dispenser_edit *edit = new dispenser_edit(this->text, this->length, this->width, 0);
+        dispenser_edit *edit = new dispenser_edit(this->text, this->actual_length, this->actual_width, 0);
         edit->setWindowTitle("Dispener Edit");
         connect(edit, SIGNAL(update_this_label(QString, int, int)), this, SLOT(update_dispenser(QString, int , int)));
         edit->show();

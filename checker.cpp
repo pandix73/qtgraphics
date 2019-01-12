@@ -1,4 +1,5 @@
 #include "checker.h"
+#include <QDebug>
 extern int brick_xnum;
 extern int brick_ynum;
 extern int border_px;
@@ -12,7 +13,7 @@ checker::checker(QList<unit*> &allunits, QList<unit*> &tempunits, QList<unit*> &
     tempunits.clear();
     passunits.clear();
     errorunits.clear();
-    //Create Checker_map
+    // Create Checker_map
     checker_map = new int*[brick_xnum];
     for(int i = 0; i < brick_xnum; ++i){
         checker_map[i] = new int[brick_ynum];
@@ -23,38 +24,85 @@ checker::checker(QList<unit*> &allunits, QList<unit*> &tempunits, QList<unit*> &
     int border_brick = border_px / pix_per_brick;
     int fill_x, fill_y;
 
-        //Fill Checker_map
+    // Fill Checker_map
     for(unit *item : allunits){
         item->error = false;
-        if(item->type == "controlpad")
+        // no need to consider controlpad
+        if(item->type == "controlpad" || item->type == "heat")
             continue;
+
         bool jump = false;
         for(int x=0; x<item->length; x++){
             for(int y=0; y<item->width; y++){
                 fill_x = item->xi + x - border_brick;
                 fill_y = item->yi + y - border_brick;
                 if(fill_x >=0 && fill_y >=0 && fill_x < brick_xnum && fill_y < brick_ynum){
-                    if(checker_map[fill_x][fill_y] == 0){
-                        checker_map[fill_x][fill_y] = 1;
-                    }
-                    else{
-                        item->error = true;
-                        errorunits << item;
-                        jump = true;
-                        continue;
-                    }
+                        checker_map[fill_x][fill_y] += 1;
                 }
             }
-            if(jump)
-                continue;
         }
-        if(jump)
-            continue;
-        else
-            tempunits << item;
     }
 
-        //Check every item. Make sure they all have neighbors
+    //Check overlap
+    for(unit *item : allunits){
+        if(item->type == "controlpad" || item->type == "heat")
+            continue;
+        int flag = 0;
+        int start_x = item->xi - border_brick;
+        int start_y = item->yi - border_brick;
+        int end_x = start_x + item->length;
+        int end_y = start_y + item->width;
+
+        for(int i=start_x; i<=end_x; i++){
+            for(int j=start_y; j<=end_y; j++){
+                //Too close
+                if(i==start_x){
+                    if(checker_map[i-1][j] > 0){
+                        item->error = true;
+                        errorunits << item;
+                        flag = 1;
+                        break;
+                    }
+                }
+                if(i==end_x){
+                    if(checker_map[i][j] > 0){
+                        item->error = true;
+                        errorunits << item;
+                        flag = 1;
+                        break;
+                    }
+                }
+                if(j==start_y){
+                    if(checker_map[i][j-1] > 0){
+                        item->error = true;
+                        errorunits << item;
+                        flag = 1;
+                        break;
+                    }
+                }
+                if(j==end_y){
+                    if(checker_map[i][j] > 0){
+                        item->error = true;
+                        errorunits << item;
+                        flag = 1;
+                        break;
+                    }
+                }
+                if(checker_map[i][j] > 1){
+                    item->error = true;
+                    errorunits << item;
+                    flag = 1;
+                    break;
+                }
+            }
+            if(flag) break;
+        }
+
+
+        if(!flag) tempunits << item;
+    }
+
+    // Check spacing (too far away)
     for(unit *item : tempunits){
         int cross = 0;
         int start_x = item->xi - border_brick;
