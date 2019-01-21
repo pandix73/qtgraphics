@@ -38,6 +38,7 @@ line* graphicsscene::PassSegToTurn(line *seg){
         current_seg = seg;
         current_seg->next = nullptr;
     }
+
     qDebug() << seg->x[0] << " " << seg->x[1] << " " << seg->y[0] << " " << seg->y[1];
     this->addItem(seg);
     connect(seg, SIGNAL(delete_this_line(line *)), this, SLOT(delete_from_list(line *)));
@@ -81,7 +82,6 @@ void graphicsscene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
     if(!deletemode){
         if(!pressed){                                             // start a new turnning line
             offset = 0;
-            qDebug() << "offset " << offset;
             tempx1 = mouseEvent->scenePos().x() / pix_per_brick;
             tempy1 = mouseEvent->scenePos().y() / pix_per_brick;
             roundx1 = mouseEvent->scenePos().x() - tempx1*pix_per_brick + offset;

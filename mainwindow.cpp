@@ -60,7 +60,7 @@ int brick_y_start;
 
 int pix_per_brick;         //How many PIXELs on the screen should we show to represent de_spacing
 int cm_to_px;              //how many PIXELS are in 1 cm
-int mm_to_px;
+float mm_to_px;
 //Unit color
 QColor merge_color      = QColor(255, 208, 166, 127);
 QColor cycling_color    = QColor(1, 96, 177, 127);
@@ -177,9 +177,13 @@ void MainWindow::ChipParameters(){
 
     pix_per_brick = fmin(608/((chip_length_um/de_spacing_um)),                  //calculate the size of each brick that fits the screeen the most
                          500/((chip_width_um/de_spacing_um)));
-
+    qDebug() << "pix per brick" << pix_per_brick;
+    qDebug() << chip_length_um << de_spacing_um;
+    qDebug() << chip_width_um << de_spacing_um;
+    qDebug() << (chip_length_um/de_spacing_um) << (chip_width_um/de_spacing_um);
+    qDebug() << 608/(chip_length_um/de_spacing_um) << 500/(chip_width_um/de_spacing_um);
     cm_to_px = 10000/de_spacing_um*pix_per_brick;
-    mm_to_px = 1000/de_spacing_um*pix_per_brick;
+    mm_to_px = 1000.0/de_spacing_um*pix_per_brick;
 
 //    border_px = chip_border_um/de_spacing_um*pix_per_brick;                        //border width in pixel
 //    brick_xnum = (chip_length_um - 2*chip_border_um)/de_spacing_um;             //how many background dots are needed in x-azis
@@ -216,11 +220,19 @@ void MainWindow::OuterBorder(QGraphicsScene *scene){
 
 void MainWindow::BackgroundGrid(QGraphicsScene *scene){
     //background grid (in dotted form)
-    for(int i = 0; i <= brick_xnum; i++){
-        for(int j = 0; j <= brick_ynum; j++){
-            ;//scene->addEllipse(brick_x_start+i*pix_per_brick, brick_y_start+j*pix_per_brick, 0.5, 0.5, graypen);
+    for(int i = 0; i <= brick_xnum; i+=5){
+        for(int j = 0; j <= brick_ynum; j+=5){
+            scene->addEllipse(brick_x_start+i*pix_per_brick, brick_y_start+j*pix_per_brick, 0.5, 0.5, graypen);
         }
     }
+    //QPen pen;
+    //QVector<qreal> dashes;
+    //qreal space = pix_per_brick;
+    //dashes << 0.1 << space;
+    //pen.setDashPattern(dashes);
+    //for(int i = 0; i<= brick_xnum; i++){
+    //    scene->addLine(brick_x_start+i*pix_per_brick, brick_y_start, brick_x_start+i*pix_per_brick, brick_y_start+brick_ynum*pix_per_brick, pen);
+    //}
 }
 
 void MainWindow::LineBackgroundGrid(QGraphicsScene *scene){
@@ -228,9 +240,9 @@ void MainWindow::LineBackgroundGrid(QGraphicsScene *scene){
     double line_pix_per_brick = double(pix_per_brick)*line_width_um/de_spacing_um;
     int line_brick_xnum = double(brick_xnum)*de_spacing_um/line_width_um;
     int line_brick_ynum = double(brick_ynum)*de_spacing_um/line_width_um;
-    for(int i = 0; i <= line_brick_xnum; i++){
-        for(int j = 0; j <= line_brick_ynum; j++){
-            ;//scene->addEllipse(brick_x_start+i*line_pix_per_brick, brick_y_start+j*line_pix_per_brick, 0.5, 0.5, graypen);
+    for(int i = 0; i <= line_brick_xnum; i+=5){
+        for(int j = 0; j <= line_brick_ynum; j+=5){
+            scene->addEllipse(brick_x_start+i*line_pix_per_brick, brick_y_start+j*line_pix_per_brick, 0.5, 0.5, graypen);
         }
     }
 }
@@ -243,7 +255,7 @@ void MainWindow::ChipScaleDots(QGraphicsScene *scene){
     for(int i = 10; i < chip_width_mm; i+=10){
         scene->addEllipse(brick_x_start-border_px+2, brick_y_start-border_px + i*mm_to_px, 1, 1, redpen);
     }
-
+    floatqDebug() << mm_to_px << cm_to_px;
 }
 
 void MainWindow::ChipBorder(QGraphicsScene *scene){
@@ -1724,7 +1736,11 @@ void MainWindow::on_heater_create_clicked()
 /////////////////////////////////////  SETTING  /////////////////////////////////////
 void MainWindow::on_setting_btn_clicked()
 {
-    chip_setting *chip = new chip_setting(this);
+    chip_setting *chip = new chip_setting(this, chip_length_mm, chip_width_mm, chip_border_mm,
+                                          cp_length_mm, cp_width_mm,
+                                          de1_length_mm, de1_width_mm, de2_length_mm, de2_width_mm,
+                                          de_spacing_mm, cp_spacing_mm, line_width_mm);
+
     chip->setWindowTitle("Setting");
     connect(chip, SIGNAL(reset(chip_setting *)), this, SLOT(reset_setting(chip_setting *)));
     chip->show();
@@ -1955,6 +1971,13 @@ void MainWindow::on_text_enter_clicked()
     text_item = new_text_item;
     text_edited = true;
 
+}
+
+void MainWindow::on_text_delete_clicked()
+{
+    if(text_edited){
+        delete text_item;
+    }
 }
 
 void MainWindow::on_tabWidget_tabBarClicked(int index)

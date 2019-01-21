@@ -103,6 +103,7 @@ private slots:
     void on_zoomout_clicked();
 
     void on_text_enter_clicked();
+    void on_text_delete_clicked();
 
     void EmptyMessage();
     void WarningMessage(QString message);

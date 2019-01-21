@@ -34,14 +34,18 @@ void line::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
     if(slope > 1 || slope < -1){
         if(y[0] < y[1])
             rect =  QRectF(x[0], y[0], line_width_pix, y[1] - y[0]);
-        else
-            rect =  QRectF(x[0], y[1], line_width_pix, y[0] - y[1]);
+        else{
+            // add line_width_pix to fill the little error space at the corner
+            rect =  QRectF(x[0], y[1], line_width_pix, y[0] - y[1] + line_width_pix);
+        }
     }
     else{
         if(x[0] < x[1])
             rect =  QRectF(x[0], y[0], x[1] - x[0], line_width_pix);
-        else
-            rect =  QRectF(x[1], y[0], x[0] - x[1], line_width_pix);
+        else{
+            // add line_width_pix to fill the little error space at the corner
+            rect =  QRectF(x[1], y[0], x[0] - x[1]+ line_width_pix, line_width_pix );
+        }
     }
 
     path.addRect(rect);
