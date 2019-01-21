@@ -196,6 +196,7 @@ void MainWindow::ChipParameters(){
 
     chip_length_px = pix_per_brick * chip_length_um/de_spacing_um;
     chip_width_px = pix_per_brick * chip_width_um/de_spacing_um;
+    qDebug()<<chip_length_px<<chip_width_px;
 
     border_px = chip_length_px * chip_border_um / chip_length_um;                        //border width in pixel
     brick_xnum = (chip_length_px - 2*border_px)/pix_per_brick;             //how many background dots are needed in x-azis
@@ -989,8 +990,10 @@ void MainWindow::on_zoomout_clicked()
 void MainWindow::on_connect_btn_clicked()
 {
 
-    int xsize = brick_xnum;
-    int ysize = brick_ynum;
+    int xoff = (brick_x_start-border_px)/pix_per_brick;
+    int yoff = (brick_y_start-border_px)/pix_per_brick;
+    int xsize = brick_xnum + xoff;
+    int ysize = brick_ynum + yoff;
     float shift = chip_border_mm*1000 / de_spacing_um;
 
     struct edge{
@@ -1017,6 +1020,8 @@ void MainWindow::on_connect_btn_clicked()
     int unit_id = 2;
     int cpad_id = -2;
     bool source[500][500] = {{false}};
+    int routmap[500][500];
+    memset(routmap, 0, sizeof(routmap));
 
     for(unit *item : allunits){
         if(item->type == "move"){
@@ -1048,7 +1053,6 @@ void MainWindow::on_connect_btn_clicked()
                 for(int j = 0; j < item->de_ynum; j++){
                     if(i!=0 && i!=item->de_xnum-1 && j!=0 && j!=item->de_ynum-1)
                         continue;
-                    qDebug() << i << j;
                     for(int k = 0; k <= unit_length; k++)
                         for (int l = 0; l <= unit_length; l++)
                             unitmap[int(item->xi - shift)+i*(unit_length+1) + k][int(item->yi - shift)+j*(unit_length+1) + l] = unit_id;//(k == int(unit_length/2) || l == int(unit_length/2)) ? 1 : unit_id;
@@ -1093,7 +1097,6 @@ void MainWindow::on_connect_btn_clicked()
         } else if(item->type == "controlpad"){
             for(int i = 0; i <= item->length; i++)
                 for(int j = 0; j <= item->width; j++){
-                    qDebug()<<int(item->xi - shift) + i<<int(item->yi - shift) + j;
                     unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = (/*i == int(item->length/2) ||*/ j == int(item->width/2)) ? -1 : cpad_id;
                 }
             cpad_id --;
@@ -1101,6 +1104,7 @@ void MainWindow::on_connect_btn_clicked()
     }
 
     qDebug() << "total de is " << num_de;
+    qDebug() << xsize << ysize;
 
     for(int i = 0; i < xsize; i++){
         QString debug;
@@ -1110,6 +1114,29 @@ void MainWindow::on_connect_btn_clicked()
         qDebug() << debug;
     }
 
+    float transfer = float(de_spacing_um) / line_width_um;
+    for(int i = 0; i < xsize; i++){
+        for(int j = 0; j < ysize; j++){
+            if(abs(routmap[int(i*transfer)][int(j*transfer)]) != 1)
+                routmap[int(i*transfer)][int(j*transfer)] = unitmap[i][j];
+        }
+    }
+    /*memset(unitmap, 0, sizeof(unitmap));
+    for(int i = 0; i < xsize*transfer; i++){
+        for(int j = 0; j < ysize*transfer; j++){
+            unitmap[i][j] = routmap[i][j];
+        }
+    }
+    qDebug()<<"routmap:";
+    xsize *= transfer;
+    ysize *= transfer;
+    for(int i = 0; i < xsize; i++){
+        QString debug;
+        for(int j = 0; j < ysize; j++){
+            debug += QString::number(routmap[i][j]);
+        }
+        qDebug() << debug;
+    }*/
 
     // set source and target
     unsigned s = unsigned(xsize*ysize*2);
@@ -1474,6 +1501,7 @@ void MainWindow::on_controlpad_btn_clicked()
         qDebug() << "y" << cp_yi_start;
         connect(cp_right, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
     }
+
 //    for(int i=0; i<num_de; i++){
 //        //mainscene->addRect(cp_x_start, cp_y_start, cp_length_mm*mm_to_px, cp_width_mm*mm_to_px, graypen, QColor(94, 93, 93, 54));
 //        //cp_x_start += cp_length_mm*mm_to_px + cp_spacing_um * mm_to_px / 1000;

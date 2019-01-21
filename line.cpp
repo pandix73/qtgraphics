@@ -75,8 +75,6 @@ void line::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void line::merge(){
     if(this->next != nullptr){
-        //qDebug()<<this->next->x[1]<<this->x[0];
-        //qDebug()<<this->next->y[1]<<this->y[0];
         if(int(this->next->x[1]) == int(this->x[0]) || int(this->next->y[1]) == int(this->y[0])){
             this->x[1] = this->next->x[1];
             this->y[1] = this->next->y[1];
