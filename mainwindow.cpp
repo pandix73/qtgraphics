@@ -513,7 +513,6 @@ void MainWindow::mode_label(bool bChecked){
     }
     /////// UNIT MODE ///////
     else{
-        float offset = linescene->offset;
         EmptyMessage();
         deletemode = false;
         ui->eraser->setStyleSheet("background-color: rgb(42, 48, 58);");
@@ -532,10 +531,10 @@ void MainWindow::mode_label(bool bChecked){
         for(line *head : linescene->alllines){
             line *current_seg = head;
             while(current_seg->next != NULL){
-                DestroyLine << mainscene->addLine(current_seg->x[0]+offset, current_seg->y[0]+offset, current_seg->x[1]+offset, current_seg->y[1]+offset, linepen);
+                DestroyLine << mainscene->addLine(current_seg->x[0], current_seg->y[0], current_seg->x[1], current_seg->y[1], linepen);
                 current_seg = current_seg->next;
             }
-            DestroyLine << mainscene->addLine(current_seg->x[0]+offset, current_seg->y[0]+offset, current_seg->x[1]+offset, current_seg->y[1]+offset, linepen);
+            DestroyLine << mainscene->addLine(current_seg->x[0], current_seg->y[0], current_seg->x[1], current_seg->y[1], linepen);
         }
         ui->view->setScene(mainscene);
         linemode = false;
@@ -1424,7 +1423,7 @@ void MainWindow::on_connect_btn_clicked()
         linescene->AddTurnline(newline);
     }
 
-    qDebug() << linescene->alllines.size();
+    qDebug() << "num of lines" << linescene->alllines.size();
     linescene->update();
     ui->view->scene()->update();
 }
@@ -1755,6 +1754,7 @@ void MainWindow::clear_number_of_units(){
     num_heater = 0;
     num_de = 0;
 }
+
 void MainWindow::reset_setting(chip_setting *new_chip)
 {
     clear_number_of_units();
