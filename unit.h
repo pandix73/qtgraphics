@@ -3,13 +3,13 @@
 #include <QObject>
 #include <QGraphicsView>
 #include <QGraphicsScene>
-//#include <QGraphicsSceneContextMenuEvent>
 #include <QPainter>
 #include <QGraphicsItem>
 #include <QPoint>
 #include <QWidget>
 #include <QMenu>
 #include <QAction>
+#include <QGraphicsSceneMouseEvent>
 #include "merge_edit.h"
 #include "dispenser_edit.h"
 #include "move_edit.h"

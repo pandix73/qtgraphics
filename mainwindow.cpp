@@ -20,7 +20,7 @@ int chip_border_um;
 
 
 float cp_length_mm = 8;
-float cp_width_mm = 1.54;
+float cp_width_mm = 1.34;
 
 int cp_length_um;
 int cp_width_um;
@@ -37,7 +37,7 @@ int de2_length_um;
 int de2_width_um;
 
 float de_spacing_mm = 0.2;
-float cp_spacing_mm = 1.0;
+float cp_spacing_mm = 1.2;
 float line_width_mm = 0.353;
 
 
@@ -47,6 +47,9 @@ int line_width_um;
 
 int line_width_pix = 10;
 int line_pix_per_brick;
+
+int sensor_offset_x;
+int sensor_offset_y;
 
 //Chip Parameters
 int border_px;
@@ -505,6 +508,12 @@ void MainWindow::mode_label(bool bChecked){
                     DestroyRect << linescene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, connect_line_um*2/de_spacing_um*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
                 else if ((item->tilt == 90 && item->clockwise == 0) || (item->tilt == 270 && item->clockwise == 1))
                     DestroyRect << linescene->addRect((item->xi+item->length-2*connect_line_um/de_spacing_um)*pix_per_brick, item->yi*pix_per_brick, connect_line_um*2/de_spacing_um*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
+            }
+            else if(item->type == "sensor"){
+                DestroyRect << linescene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
+                sensor_offset_x = (item->length*pix_per_brick - 24)/2;
+                sensor_offset_y = (item->width*pix_per_brick - 24)/2;
+                DestroyRect << linescene->addRect(item->xi*pix_per_brick+sensor_offset_x, item->yi*pix_per_brick+sensor_offset_y, 24, 24, redpen, blackbrush);
             }
             else
                 DestroyRect << linescene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
@@ -1476,17 +1485,39 @@ void MainWindow::on_merge_create_clicked()
     else if(ui->merge_width->text().isEmpty()){
         WarningMessage("Missing Width");
     }
+    else if(ui->temperature_sensor->isChecked()){
+        EmptyMessage();
+        int number = ui->merge_num->value();
+        int position = 20;
+        //num_merge += number;
+        while(number--){
+            unit *sensor = new unit();
+            sensor->type = "sensor";
+            sensor->xi = position;
+            sensor->yi = 20;
+            sensor->actual_length = ui->merge_length->text().toInt();
+            sensor->actual_width = ui->merge_width->text().toInt();
+            sensor->length = ui->merge_length->text().toInt()*1000/de_spacing_um;
+            sensor->width = ui->merge_width->text().toInt()*1000/de_spacing_um;
+            sensor->color = merge_color;
+            ui->view->scene()->addItem(sensor);
+            allunits.prepend(sensor);
+            position += ui->merge_length->text().toInt() + 3;
+            connect(sensor, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
+            num_de += 1;
+        }
+        ui->num_merge->setText(QString::number(num_merge));
+    }
     else{
         EmptyMessage();
-        blackpen.setWidth(6);
         int number = ui->merge_num->value();
-        int position = 5;
+        int position = 20;
         num_merge += number;
         while(number--){
             unit *merge = new unit();
             merge->type = "merge";
             merge->xi = position;
-            merge->yi = 10;
+            merge->yi = 20;
             merge->actual_length = ui->merge_length->text().toInt();
             merge->actual_width = ui->merge_width->text().toInt();
             merge->length = ui->merge_length->text().toInt()*1000/de_spacing_um;
@@ -1521,13 +1552,13 @@ void MainWindow::on_dispenser_create_clicked()
     else{
         EmptyMessage();
         int number = ui->dispenser_num->value();
-        int position = 5;
+        int position = 20;
         num_dispenser += number;
         while(number--){
             unit *dispenser = new unit();
             dispenser->type = "dispenser";
             dispenser->xi = position;
-            dispenser->yi = 5;
+            dispenser->yi = 20;
             dispenser->de_type = 0;
             dispenser->de_xnum = 1;
             dispenser->de_ynum = 1;
@@ -1558,13 +1589,13 @@ void MainWindow::on_move_create_clicked()
     else{
         EmptyMessage();
         int number = ui->move_num->value();
-        int position = 5;
+        int position = 20;
         num_move += number;
         while(number--){
             unit *move = new unit();
             move->type = "move";
             move->xi = position;
-            move->yi = 0;
+            move->yi = 20;
             move->tilt = ui->move_tilt->text().toInt();
             move->de_type = ui->move_electrod->value();
             if(move->tilt == 90){
@@ -1621,13 +1652,13 @@ void MainWindow::on_cycling_create_clicked()
     else{
         EmptyMessage();
         int number = ui->cycling_num->value();
-        int position = 5;
+        int position = 20;
         num_cycling += number;
         while(number--){
             unit *cycle = new unit();
             cycle->type = "cycle";
             cycle->xi = position;
-            cycle->yi = 15;
+            cycle->yi = 20;
             cycle->de_type = 2;
             cycle->de_xnum = ui->cycling_length->text().toInt();
             cycle->de_ynum = ui->cycling_width->text().toInt();
@@ -1663,7 +1694,7 @@ void MainWindow::on_heater_create_clicked()
     else{
         EmptyMessage();
         int number = 1;//ui->heater_num->text().toInt();
-        int position = 5;
+        int position = 20;
         num_heater += number;
         while(number--){
             unit *heat = new unit();
@@ -1691,6 +1722,8 @@ void MainWindow::on_heater_create_clicked()
         ui->num_heater->setText(QString::number(num_heater));
     }
 }
+
+
 /////////////////////////////////////  SETTING  /////////////////////////////////////
 void MainWindow::on_setting_btn_clicked()
 {
@@ -1873,6 +1906,13 @@ void MainWindow::on_preview_clicked(bool checked)
                     previewscene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, connect_line_um*2/de_spacing_um*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
                 else if ((item->tilt == 90 && item->clockwise == 0) || (item->tilt == 270 && item->clockwise == 1))
                     previewscene->addRect((item->xi+item->length-2*connect_line_um/de_spacing_um)*pix_per_brick, item->yi*pix_per_brick, connect_line_um*2/de_spacing_um*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
+            }
+            else if(item->type == "sensor"){
+                previewscene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
+                sensor_offset_x = (item->length*pix_per_brick - 24)/2;
+                sensor_offset_y = (item->width*pix_per_brick - 24)/2;
+                previewscene->addRect(item->xi*pix_per_brick+sensor_offset_x, item->yi*pix_per_brick+sensor_offset_y, 24, 24, redpen, blackbrush);
+                qDebug() << "hey yo" << (item->length-4)*pix_per_brick;
             }
             else
                 previewscene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);

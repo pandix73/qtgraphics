@@ -20,7 +20,6 @@
 #include <QFileDialog>
 #include <QPrinter>
 #include <QDateTime>
-
 namespace Ui {
     class MainWindow;
 }

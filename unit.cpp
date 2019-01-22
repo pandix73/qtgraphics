@@ -22,7 +22,7 @@ unit::unit()
     Pressed = false;
     error = false;
     text = "";
-    setFlag(ItemIsMovable);
+    setFlags(QGraphicsItem::ItemIsSelectable | QGraphicsItem::ItemIsMovable);
 }
 
 QRectF unit::boundingRect() const
@@ -49,14 +49,12 @@ void unit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
         if(this->type == "move"){
             for(int i = 0; i < this->de_xnum; i++){
                 if(this->de_type == 1){
-//                    qDebug() << "TYPE 1";
                     painter->setBrush(QBrush(unit_de1_color));
                     painter->drawRect(rect.x()+i*(pix_per_brick*de1_length_um/de_spacing_um + pix_per_brick),
                                       rect.y(),
                                       pix_per_brick*de1_length_um/de_spacing_um,
                                       pix_per_brick*de1_width_um/de_spacing_um);
                 } else {
-//                    qDebug() << "TYPE 2";
                     painter->setBrush(QBrush(unit_de2_color));
                     painter->drawRect(rect.x()+i*(pix_per_brick*de2_length_um/de_spacing_um + pix_per_brick),
                                       rect.y(),
@@ -85,12 +83,11 @@ void unit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
                                   rect.y(),
                                   pix_per_brick*zigzag_width_um/de_spacing_um,
                                   pix_per_brick*this->width*1000/de_spacing_um);
-//                qDebug() << (rect.x()+pix_per_brick*i*(zigzag_space_um+zigzag_width_um)/de_spacing_um,
-//                             rect.y(),
-//                             pix_per_brick*zigzag_width_um/de_spacing_um,
-//                             pix_per_brick*de2_length_um/de_spacing_um);
             }
 
+
+        } else if(this->type == "sensor"){
+            painter->drawRect(rect);
 
         } else {
             painter->drawRect(rect);
@@ -114,11 +111,17 @@ void unit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 
 void unit::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if(!deletemode){
-        Pressed = true;
-        update();
-        QGraphicsItem::mousePressEvent(event);
+    if(event->button() == Qt::LeftButton){
+        if (event->modifiers() == Qt::ShiftModifier) {
+            qDebug() << "Custom item left clicked with shift key.";
+            setSelected(true);
+        }
     }
+//    if(!deletemode){
+//        Pressed = true;
+//        update();
+//        QGraphicsItem::mousePressEvent(event);
+//    }
 }
 
 void unit::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
