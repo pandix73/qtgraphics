@@ -20,7 +20,7 @@ int chip_border_um;
 
 
 float cp_length_mm = 8;
-float cp_width_mm = 1.524;
+float cp_width_mm = 1.54;
 
 int cp_length_um;
 int cp_width_um;
@@ -36,14 +36,14 @@ int de1_width_um;
 int de2_length_um;
 int de2_width_um;
 
-float de_spacing_mm = 0.3;
-float cp_spacing_mm = 1.016;
+float de_spacing_mm = 0.2;
+float cp_spacing_mm = 1.0;
 float line_width_mm = 0.353;
 
 
-int de_spacing_um = 300;
-int cp_spacing_um = 2540;
-int line_width_um = 353;
+int de_spacing_um;
+int cp_spacing_um;
+int line_width_um;
 
 int line_width_pix = 10;
 
@@ -69,10 +69,9 @@ QColor dispenser_color  = QColor(215, 230, 144, 127);
 QColor heat_color       = QColor(108, 137, 147, 127);
 
 //Pen setting
-QPen graypen(Qt::gray);
-QPen redpen(Qt::red);
-QPen blackpen(Qt::black);
-QPen whitepen(Qt::white);
+QPen graypen(Qt::gray, 0);
+QPen redpen(Qt::red, 0);
+QPen blackpen(Qt::black, 0);
 QPen linepen(Qt::gray);
 QPen outlinepen;
 
@@ -255,7 +254,7 @@ void MainWindow::ChipScaleDots(QGraphicsScene *scene){
     for(int i = 10; i < chip_width_mm; i+=10){
         scene->addEllipse(brick_x_start-border_px+2, brick_y_start-border_px + i*mm_to_px, 1, 1, redpen);
     }
-    floatqDebug() << mm_to_px << cm_to_px;
+//    floatqDebug() << mm_to_px << cm_to_px;
 }
 
 void MainWindow::ChipBorder(QGraphicsScene *scene){
@@ -274,7 +273,7 @@ void MainWindow::DefaultControlPad(QGraphicsScene *scene){
     float cp_length = float(cp_length_um) / de_spacing_um;
     float cp_width = float(cp_width_um) / de_spacing_um;
     float cp_space = float(cp_spacing_um) / de_spacing_um;
-    qDebug()<<cp_length<<cp_width<<cp_space;
+//    qDebug()<<cp_length<<cp_width<<cp_space;
     float cp_xi_start = brick_x_start / pix_per_brick;
     float cp_xi_start_right = brick_x_start / pix_per_brick + brick_xnum  - cp_length;
     float cp_yi_start = brick_y_start / pix_per_brick;
@@ -1047,7 +1046,7 @@ void MainWindow::on_connect_btn_clicked()
                 for(int j = 0; j < item->de_ynum; j++){
                     if(i!=0 && i!=item->de_xnum-1 && j!=0 && j!=item->de_ynum-1)
                         continue;
-                    qDebug() << i << j;
+//                    qDebug() << i << j;
                     for(int k = 0; k <= unit_length; k++)
                         for (int l = 0; l <= unit_length; l++)
                             unitmap[int(item->xi - shift)+i*(unit_length+1) + k][int(item->yi - shift)+j*(unit_length+1) + l] = unit_id;//(k == int(unit_length/2) || l == int(unit_length/2)) ? 1 : unit_id;
@@ -1469,8 +1468,8 @@ void MainWindow::on_controlpad_btn_clicked()
         allunits.prepend(cp_right);
 
         cp_yi_start += cp_width+ cp_space;
-        qDebug() << cp_space << cp_width;
-        qDebug() << "y" << cp_yi_start;
+//        qDebug() << cp_space << cp_width;
+//        qDebug() << "y" << cp_yi_start;
         connect(cp_right, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
     }
 //    for(int i=0; i<num_de; i++){
@@ -1797,9 +1796,9 @@ void MainWindow::on_preview_clicked(bool checked)
 
         previewscene = new QGraphicsScene(0, 0, 608, 500, ui->view);
         previewscene->setBackgroundBrush(Qt::white);
-        graypen = QPen(Qt::black);
-        redpen = QPen(Qt::black);
-        linepen = QPen(Qt::black);
+        graypen = QPen(Qt::black, 0);
+        redpen = QPen(Qt::black, 0);
+        linepen = QPen(Qt::black, 0);
         nullitem = QBrush(Qt::black);
 
         OuterBorder(previewscene);
@@ -1811,7 +1810,6 @@ void MainWindow::on_preview_clicked(bool checked)
             if(item->type == "move"){                   //Show detail components for "move"
                 for(int i = 0; i < item->de_xnum; i++){
                     if(item->tilt == 90){
-                        qDebug() << "tilted";
                         for(int i = 0; i < item->de_ynum; i++){
                             if(item->de_type == 1){
                                 previewscene->addRect(item->xi*pix_per_brick,
@@ -1937,9 +1935,9 @@ void MainWindow::on_preview_clicked(bool checked)
     }
     else{
         EnableCreateUnit(true);
-        graypen = QPen(Qt::gray);
-        redpen = QPen(Qt::red);
-        linepen = QPen(Qt::gray);
+        graypen = QPen(Qt::gray, 0);
+        redpen = QPen(Qt::red, 0);
+        linepen = QPen(Qt::gray, 0);
         linepen.setWidth(line_width_pix);
         nullitem = QBrush(QColor(94, 94, 94, 54));
         if(!linemode){
