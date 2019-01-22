@@ -38,25 +38,25 @@ void unit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
     painter->setBrush(brush);
     if(Pressed)
     {
-        QPen pen(Qt::lightGray, 1);
+        QPen pen(Qt::lightGray, 0);
         painter->setPen(pen);
         painter->drawRect(rect);
     }
     else if (detailmode)
     {
-        QPen pen(Qt::black, 1);
+        QPen pen(Qt::black, 0);
         painter->setPen(pen);
         if(this->type == "move"){
             for(int i = 0; i < this->de_xnum; i++){
                 if(this->de_type == 1){
-                    qDebug() << "TYPE 1";
+//                    qDebug() << "TYPE 1";
                     painter->setBrush(QBrush(unit_de1_color));
                     painter->drawRect(rect.x()+i*(pix_per_brick*de1_length_um/de_spacing_um + pix_per_brick),
                                       rect.y(),
                                       pix_per_brick*de1_length_um/de_spacing_um,
                                       pix_per_brick*de1_width_um/de_spacing_um);
                 } else {
-                    qDebug() << "TYPE 2";
+//                    qDebug() << "TYPE 2";
                     painter->setBrush(QBrush(unit_de2_color));
                     painter->drawRect(rect.x()+i*(pix_per_brick*de2_length_um/de_spacing_um + pix_per_brick),
                                       rect.y(),
@@ -85,10 +85,10 @@ void unit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
                                   rect.y(),
                                   pix_per_brick*zigzag_width_um/de_spacing_um,
                                   pix_per_brick*this->width*1000/de_spacing_um);
-                qDebug() << (rect.x()+pix_per_brick*i*(zigzag_space_um+zigzag_width_um)/de_spacing_um,
-                             rect.y(),
-                             pix_per_brick*zigzag_width_um/de_spacing_um,
-                             pix_per_brick*de2_length_um/de_spacing_um);
+//                qDebug() << (rect.x()+pix_per_brick*i*(zigzag_space_um+zigzag_width_um)/de_spacing_um,
+//                             rect.y(),
+//                             pix_per_brick*zigzag_width_um/de_spacing_um,
+//                             pix_per_brick*de2_length_um/de_spacing_um);
             }
 
 
@@ -99,7 +99,7 @@ void unit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
     }
     else
     {
-        QPen pen(Qt::black, 1);
+        QPen pen(Qt::black, 0);
         painter->setPen(pen);
         painter->drawRect(rect);
     }
