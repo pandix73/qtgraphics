@@ -2,6 +2,7 @@
 #include <QDebug>
 extern bool deletemode;
 extern int line_width_pix;
+extern int line_pix_per_brick;
 line::line()
 {
     setFlags(ItemIsSelectable);
@@ -33,25 +34,25 @@ void line::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
     float slope = (y[1] - y[0]) / (x[1] - x[0]);
     if(slope > 1 || slope < -1){
         if(y[0] < y[1])
-            rect =  QRectF(x[0], y[0], line_width_pix, y[1] - y[0]);
+            rect =  QRectF(x[0] - (float)line_width_pix/2, y[0] - (float)line_width_pix/2, line_width_pix, y[1] - y[0] + line_width_pix);
         else{
             // add line_width_pix to fill the little error space at the corner
-            rect =  QRectF(x[0], y[1], line_width_pix, y[0] - y[1] + line_width_pix);
+            rect =  QRectF(x[0] - (float)line_width_pix/2, y[1] - (float)line_width_pix/2, line_width_pix, y[0] - y[1] + line_width_pix);
         }
     }
     else{
         if(x[0] < x[1])
-            rect =  QRectF(x[0], y[0], x[1] - x[0], line_width_pix);
+            rect =  QRectF(x[0] - (float)line_width_pix/2, y[0] - (float)line_width_pix/2, x[1] - x[0] + line_width_pix, line_width_pix);
         else{
             // add line_width_pix to fill the little error space at the corner
-            rect =  QRectF(x[1], y[0], x[0] - x[1]+ line_width_pix, line_width_pix );
+            rect =  QRectF(x[1] - (float)line_width_pix/2, y[0] - (float)line_width_pix/2, x[0] - x[1]+ line_width_pix, line_width_pix );
         }
     }
 
     path.addRect(rect);
     QBrush brush(Qt::gray);
     painter->setBrush(brush);
-    QPen pen(Qt::black, 1);
+    QPen pen(Qt::black, 0);
     painter->setPen(pen);
     painter->drawPath(path);
     update();

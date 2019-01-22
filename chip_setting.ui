@@ -490,7 +490,7 @@ QLineEdit{
 </string>
       </property>
       <property name="text">
-       <string>um</string>
+       <string>mm</string>
       </property>
      </widget>
     </item>

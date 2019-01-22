@@ -46,6 +46,7 @@ int cp_spacing_um;
 int line_width_um;
 
 int line_width_pix = 10;
+int line_pix_per_brick;
 
 //Chip Parameters
 int border_px;
@@ -72,7 +73,7 @@ QColor heat_color       = QColor(108, 137, 147, 127);
 QPen graypen(Qt::gray, 0);
 QPen redpen(Qt::red, 0);
 QPen blackpen(Qt::black, 0);
-QPen linepen(Qt::gray);
+QPen linepen(Qt::gray, 0);
 QPen outlinepen;
 
 //Brush setting
@@ -174,13 +175,13 @@ void MainWindow::ConvertAllToUM(){
 
 void MainWindow::ChipParameters(){
 
-    pix_per_brick = fmin(608/((chip_length_um/de_spacing_um)),                  //calculate the size of each brick that fits the screeen the most
-                         500/((chip_width_um/de_spacing_um)));
+    pix_per_brick = fmin(760/((chip_length_um/de_spacing_um)),                  //calculate the size of each brick that fits the screeen the most
+                         520/((chip_width_um/de_spacing_um)));
     qDebug() << "pix per brick" << pix_per_brick;
     qDebug() << chip_length_um << de_spacing_um;
     qDebug() << chip_width_um << de_spacing_um;
     qDebug() << (chip_length_um/de_spacing_um) << (chip_width_um/de_spacing_um);
-    qDebug() << 608/(chip_length_um/de_spacing_um) << 500/(chip_width_um/de_spacing_um);
+    qDebug() << 760/(chip_length_um/de_spacing_um) << 520/(chip_width_um/de_spacing_um);
     cm_to_px = 10000/de_spacing_um*pix_per_brick;
     mm_to_px = 1000.0/de_spacing_um*pix_per_brick;
 
@@ -201,13 +202,14 @@ void MainWindow::ChipParameters(){
     brick_xnum = (chip_length_px - 2*border_px)/pix_per_brick;             //how many background dots are needed in x-azis
     brick_ynum = (chip_width_px - 2*border_px)/pix_per_brick;              //how many background dots are needed in y-axis
 
-    brick_x_start = (608 - chip_length_px)/2 + border_px;                                //where to start drawing dots in y-axis
-    brick_y_start = (500 - chip_width_px)/2 + border_px;
+    brick_x_start = (760 - chip_length_px)/2 + border_px;                                //where to start drawing dots in y-axis
+    brick_y_start = (520 - chip_width_px)/2 + border_px;
     while(brick_x_start%pix_per_brick != 0)
         brick_x_start++;
     while(brick_y_start%pix_per_brick != 0)
         brick_y_start++;
     line_width_pix = pix_per_brick*line_width_um/de_spacing_um;
+    line_pix_per_brick = pix_per_brick * 1000 / de_spacing_um;
 }
 
 void MainWindow::OuterBorder(QGraphicsScene *scene){
@@ -236,12 +238,13 @@ void MainWindow::BackgroundGrid(QGraphicsScene *scene){
 }
 
 void MainWindow::LineBackgroundGrid(QGraphicsScene *scene){
-    //background grid (in dotted form)
-    double line_pix_per_brick = double(pix_per_brick)*line_width_um/de_spacing_um;
-    int line_brick_xnum = double(brick_xnum)*de_spacing_um/line_width_um;
-    int line_brick_ynum = double(brick_ynum)*de_spacing_um/line_width_um;
-    for(int i = 0; i <= line_brick_xnum; i+=5){
-        for(int j = 0; j <= line_brick_ynum; j+=5){
+    //line background grid (in dotted form)
+//    double line_pix_per_brick = double(pix_per_brick)*line_width_um/de_spacing_um;
+    double line_pix_per_brick = double(pix_per_brick)*1000/de_spacing_um;
+    int line_brick_xnum = double(brick_xnum)*de_spacing_um/1000;
+    int line_brick_ynum = double(brick_ynum)*de_spacing_um/1000;
+    for(int i = 0; i <= line_brick_xnum; i+=1){
+        for(int j = 0; j <= line_brick_ynum; j+=1){
             scene->addEllipse(brick_x_start+i*line_pix_per_brick, brick_y_start+j*line_pix_per_brick, 0.5, 0.5, graypen);
         }
     }
@@ -345,7 +348,7 @@ void MainWindow::WarningMessage(QString message){
 
 //Create New Scene
 QGraphicsScene* MainWindow::CreateNewScene(){
-    QGraphicsScene * scene = new QGraphicsScene(0, 0, 608, 500, ui->view);
+    QGraphicsScene * scene = new QGraphicsScene(0, 0, 760, 520, ui->view);
     scene->setBackgroundBrush(Qt::white);
 
     //Draw chip basics
@@ -360,12 +363,14 @@ QGraphicsScene* MainWindow::CreateNewScene(){
 
     //Update Info Board
     Info();
+    zoom_factor /= 1.1;
+    ui->view->setTransform(QTransform().scale(zoom_factor, zoom_factor));
     return scene;
 }
 
 graphicsscene* MainWindow::CreateLineScene(){
     graphicsscene* scene = new graphicsscene(ui->view);                                 //create a new scene
-    scene->setSceneRect(QRectF(0, 0, 608, 500));
+    scene->setSceneRect(QRectF(0, 0, 760, 520));
     scene->setBackgroundBrush(Qt::white);
 
     //Draw chip basics
@@ -1454,79 +1459,6 @@ void MainWindow::on_connect_btn_clicked()
     ui->view->scene()->update();
 }
 
-//CREATE CONTROL PAD
-void MainWindow::on_controlpad_btn_clicked()
-{
-    int cp_length = cp_length_mm*1000 / de_spacing_um;
-    int cp_width = cp_width_mm*1000 / de_spacing_um;
-    int cp_space = cp_spacing_mm*1000 / de_spacing_um;
-    int cp_xi_start = brick_x_start / pix_per_brick;
-    int cp_xi_start_right = brick_x_start / pix_per_brick + brick_xnum  - cp_length;
-    int cp_yi_start = brick_y_start / pix_per_brick;
-
-
-//    for(auto unit : allunits){
-//        if(unit->type == "controlpad"){
-//            allunits.removeOne(unit);
-//            unit->deleteLater();
-//        }
-//    }
-    int num_control_pad = brick_ynum / (cp_width + cp_space);
-    for(int i=0; i<num_control_pad; i++){
-        unit *cp = new unit();
-        cp->type = "controlpad";
-        cp->xi = cp_xi_start;
-        cp->yi = cp_yi_start;
-        cp->length = cp_length;
-        cp->width = cp_width;
-        cp->color = Qt::black;
-        ui->view->scene()->addItem(cp);
-        allunits.prepend(cp);
-        connect(cp, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
-
-        unit *cp_right = new unit();
-        cp_right->type = "controlpad";
-        cp_right->xi = cp_xi_start_right;
-        cp_right->yi = cp_yi_start;
-        cp_right->length = cp_length;
-        cp_right->width = cp_width;
-        cp_right->color = Qt::black;
-        ui->view->scene()->addItem(cp_right);
-        allunits.prepend(cp_right);
-
-        cp_yi_start += cp_width+ cp_space;
-//        qDebug() << cp_space << cp_width;
-//        qDebug() << "y" << cp_yi_start;
-        connect(cp_right, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
-    }
-
-//    for(int i=0; i<num_de; i++){
-//        //mainscene->addRect(cp_x_start, cp_y_start, cp_length_mm*mm_to_px, cp_width_mm*mm_to_px, graypen, QColor(94, 93, 93, 54));
-//        //cp_x_start += cp_length_mm*mm_to_px + cp_spacing_um * mm_to_px / 1000;
-//        unit *cp = new unit();
-//        cp->type = "controlpad";
-//        cp->xi = cp_xi_start;
-//        cp->yi = cp_yi_start;
-//        cp->length = cp_length_mm*1000/de_spacing_um;
-//        cp->width = cp_width_mm*1000/de_spacing_um;
-//        cp->color = Qt::black;
-//        ui->view->scene()->addItem(cp);
-//        allunits.prepend(cp);
-
-//        if(cp_xi_start+cp->length+1 >= brick_xnum){
-//            cp_xi_start = chip_border_mm*1000 / de_spacing_um;
-//            cp_yi_start += int(brick_ynum - cp->width);
-//        } else {
-//            cp_xi_start += cp->length+1;
-//        }
-//        //cp_xi_start = (cp_xi_start+cp->length+1 >= brick_xnum) ? chip_border_mm*1000 / de_spacing_um : cp_xi_start + cp->length+1;
-//        //cp_yi_start = ((i+1)*(cp->length+1) >= brick_xnum) ? int(brick_ynum - cp->width): cp_yi_start;
-//        qDebug() << brick_xnum;
-//        connect(cp, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
-//    }
-}
-
-
 /////////////////////////////////////  CREATE UNITS  /////////////////////////////////////
 //MERGE
 void MainWindow::on_merge_create_clicked()
@@ -1822,7 +1754,7 @@ void MainWindow::on_preview_clicked(bool checked)
         checker *check = new checker(allunits, tempunits, passunits, errorunits);
         checker_map = check->checker_map;
 
-        previewscene = new QGraphicsScene(0, 0, 608, 500, ui->view);
+        previewscene = new QGraphicsScene(0, 0, 760, 520, ui->view);
         previewscene->setBackgroundBrush(Qt::white);
         graypen = QPen(Qt::black, 0);
         redpen = QPen(Qt::black, 0);

@@ -62,7 +62,6 @@ private slots:
 
     void on_setting_btn_clicked();                  // "setting button" clicked, open new setting window
     void on_connect_btn_clicked();
-    void on_controlpad_btn_clicked();
 
     // CREATE UNITS
     void EnableCreateUnit(bool enable);
