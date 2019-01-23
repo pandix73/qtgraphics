@@ -109,15 +109,12 @@ void unit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 
 void unit::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-//    if(event->button() == Qt::LeftButton){
-//        setSelected(true);
-        if(!deletemode){
-            Pressed = true;
-            update();
-            QGraphicsItem::mousePressEvent(event);
-        }
-//    }
 
+    if(!deletemode){
+        Pressed = true;
+        update();
+        QGraphicsItem::mousePressEvent(event);
+    }
 }
 
 void unit::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)

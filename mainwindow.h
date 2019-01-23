@@ -69,6 +69,7 @@ private slots:
     void on_merge_create_clicked();                 // "create merge" clicked
     void on_cycling_create_clicked();               // "create cycling" clicked
     void on_heater_create_clicked();                // "create heater" clicked
+    void on_heat_line_clicked();
 
     void mode_label(bool bChecked);
 

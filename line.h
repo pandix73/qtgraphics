@@ -22,6 +22,7 @@ public:
     float x[10];
     float y[10];
     int segments = 0;
+    bool heater_line;
     line *previous;
     line *next;
 signals:
