@@ -76,9 +76,11 @@ QColor heat_color       = QColor(108, 137, 147, 127);
 //Pen setting
 QPen graypen(Qt::gray, 0);
 QPen redpen(Qt::red, 0);
-QPen blackpen(Qt::black, 0);
+//QPen blackpen(Qt::green);
 QPen linepen(Qt::gray, 0);
+QPen nopen(Qt::NoPen);
 QPen outlinepen;
+
 
 //Brush setting
 QBrush nullitem(QColor(94, 94, 94, 54));
@@ -770,7 +772,6 @@ void MainWindow::load_svg_clicked()
 //EXPORT AI
 void MainWindow::export_clicked()
 {
-
     QString newPath = QFileDialog::getSaveFileName(this, "Save Ai", path, tr("AI files (*.ai)"));
     if (newPath.isEmpty()) return;
     path = newPath;
@@ -788,6 +789,7 @@ void MainWindow::export_clicked()
            qDebug() << "Error!";
            return;
        }
+       p.setPen(Qt::NoPen);
 
        // reset all sizes to REAL SIZE
        QGraphicsScene *export_scene = new QGraphicsScene(0, 0, printer.pageRect().width(), printer.pageRect().height());
@@ -798,8 +800,6 @@ void MainWindow::export_clicked()
 
        //units in REAL SIZE
        for(unit *item : allunits){
-            unit *export_item = new unit();
-
             if(item->type == "move"){
                 if(item->tilt == 90){
                     for(int i = 0; i < item->de_ynum; i++){
@@ -808,13 +808,13 @@ void MainWindow::export_clicked()
                                        ((item->yi+i*(de1_length_um/de_spacing_um + 1)) - (float)(brick_y_start-border_px)/pix_per_brick )* (float)de_spacing_um* px_to_cm / 10000,
                                        px_to_cm/10*de1_width_mm,
                                        px_to_cm/10*de1_length_mm,
-                                       blackpen, blackbrush);
+                                       nopen, blackbrush);
                         } else {
                             export_scene->addRect(item->xi * de_spacing_um * px_to_cm / 10000,
                                        ((item->yi+i*(de2_length_um/de_spacing_um + 1)) - (float)(brick_y_start-border_px)/pix_per_brick )* (float)de_spacing_um* px_to_cm / 10000,
                                        px_to_cm/10*de2_width_mm,
                                        px_to_cm/10*de2_length_mm,
-                                       blackpen, blackbrush);
+                                       nopen, blackbrush);
                         }
                     }
                 }
@@ -825,13 +825,13 @@ void MainWindow::export_clicked()
                                        item->yi* de_spacing_um * px_to_cm  / 10000,
                                        px_to_cm/10*de1_length_mm,
                                        px_to_cm/10*de1_width_mm,
-                                       blackpen, blackbrush);
+                                       nopen, blackbrush);
                         } else {
                             export_scene->addRect(((item->xi+i*(de2_length_um/de_spacing_um + 1)) - (float)(brick_x_start-border_px)/pix_per_brick )* (float)de_spacing_um* px_to_cm  / 10000,
                                        item->yi* de_spacing_um * px_to_cm  / 10000,
                                        px_to_cm/10*de2_length_mm,
                                        px_to_cm/10*de2_width_mm,
-                                       blackpen, blackbrush);
+                                       nopen, blackbrush);
                         }
                     }
                 }
@@ -843,27 +843,15 @@ void MainWindow::export_clicked()
                                       (item->yi+j*(de2_length_um/de_spacing_um + 1))* de_spacing_um * px_to_cm  / 10000,
                                       px_to_cm / 10*de2_length_mm,
                                       px_to_cm / 10*de2_length_mm,
-                                      blackpen, blackbrush);
+                                      nopen, blackbrush);
                     }
                 }
             }else{
-//                export_item->xi = (item->xi - (float)(brick_x_start-border_px)/pix_per_brick) * px_to_mm  / 10;
-//                export_item->yi = (item->yi - (float)(brick_y_start-border_px)/pix_per_brick) * px_to_mm  / 10;
-//                export_item->length = item->length * px_to_mm / 10;
-//                export_item->width = item->width * px_to_mm / 10;
-//                floatqDebug() << item->length << item->width;
-//                export_item->color = QColor(Qt::black);
-//                export_scene->addItem(export_item);
                 export_scene->addRect(item->xi*de_spacing_um* px_to_mm / 1000,
                           item->yi*de_spacing_um * px_to_mm / 1000,
                           px_to_cm / 10*item->actual_length,
                           px_to_cm / 10*item->actual_width,
-                          blackpen, blackbrush);
-                if(item->type=="merge"){
-                    qDebug() << item->xi << item->yi << de_spacing_um << px_to_mm;
-                    floatqDebug() << item->xi* de_spacing_um* px_to_mm / 1000 << item->yi* de_spacing_um * px_to_mm / 1000;
-                    qDebug() << px_to_cm / 10*item->actual_length << px_to_cm / 10*item->actual_width;
-                }
+                          nopen, blackbrush);
             }
        }
        linepen.setColor(Qt::black);
@@ -911,7 +899,6 @@ void MainWindow::pdf_clicked()
        //units in REAL SIZE
        for(unit *item : allunits){
             unit *export_item = new unit();
-            //export_item = item;
             export_item->xi = (item->xi - (brick_x_start-border_px)/pix_per_brick) * de_spacing_um* px_to_cm  / 10000 / pix_per_brick;
             export_item->yi = (item->yi - (brick_y_start-border_px)/pix_per_brick) * de_spacing_um * px_to_cm  / 10000 / pix_per_brick;
             export_item->length = item->length * de_spacing_um * px_to_cm  / 10000 / pix_per_brick;
@@ -919,19 +906,38 @@ void MainWindow::pdf_clicked()
 
             export_item->color = QColor(Qt::black);
             if(item->type == "move"){
-                for(int i = 0; i < item->de_xnum; i++){
-                    if(item->de_type == 1){
-                        export_scene->addRect(((item->xi+i*(de1_length_um/de_spacing_um + 1)) - (brick_x_start-border_px)/pix_per_brick )* de_spacing_um* px_to_cm  / 10000,
-                                   item->yi* de_spacing_um * px_to_cm  / 10000,
-                                   px_to_cm/10*de1_length_mm,
-                                   px_to_cm/10*de1_width_mm,
-                                   blackpen, blackbrush);
-                    }else {
-                        export_scene->addRect(((item->xi+i*(de2_length_um/de_spacing_um + 1)) - (brick_x_start-border_px)/pix_per_brick )* de_spacing_um* px_to_cm  / 10000,
-                                   item->yi* de_spacing_um * px_to_cm  / 10000,
-                                   px_to_cm/10*de2_length_mm,
-                                   px_to_cm/10*de2_width_mm,
-                                   blackpen, blackbrush);
+                if(item->tilt == 90){
+                    for(int i = 0; i < item->de_ynum; i++){
+                        if(item->de_type == 1){
+                            export_scene->addRect(item->xi * de_spacing_um * px_to_cm / 10000,
+                                       ((item->yi+i*(de1_length_um/de_spacing_um + 1)) - (float)(brick_y_start-border_px)/pix_per_brick )* (float)de_spacing_um* px_to_cm / 10000,
+                                       px_to_cm/10*de1_width_mm,
+                                       px_to_cm/10*de1_length_mm,
+                                       nopen, blackbrush);
+                        } else {
+                            export_scene->addRect(item->xi * de_spacing_um * px_to_cm / 10000,
+                                       ((item->yi+i*(de2_length_um/de_spacing_um + 1)) - (float)(brick_y_start-border_px)/pix_per_brick )* (float)de_spacing_um* px_to_cm / 10000,
+                                       px_to_cm/10*de2_width_mm,
+                                       px_to_cm/10*de2_length_mm,
+                                       nopen, blackbrush);
+                        }
+                    }
+                }
+                else {
+                    for(int i = 0; i < item->de_xnum; i++){
+                        if(item->de_type == 1){
+                            export_scene->addRect(((item->xi+i*(de1_length_um/de_spacing_um + 1)) - (float)(brick_x_start-border_px)/pix_per_brick )* (float)de_spacing_um* px_to_cm  / 10000,
+                                       item->yi* de_spacing_um * px_to_cm  / 10000,
+                                       px_to_cm/10*de1_length_mm,
+                                       px_to_cm/10*de1_width_mm,
+                                       nopen, blackbrush);
+                        } else {
+                            export_scene->addRect(((item->xi+i*(de2_length_um/de_spacing_um + 1)) - (float)(brick_x_start-border_px)/pix_per_brick )* (float)de_spacing_um* px_to_cm  / 10000,
+                                       item->yi* de_spacing_um * px_to_cm  / 10000,
+                                       px_to_cm/10*de2_length_mm,
+                                       px_to_cm/10*de2_width_mm,
+                                       nopen, blackbrush);
+                        }
                     }
                 }
             }else if(item->type == "cycle"){
@@ -942,7 +948,7 @@ void MainWindow::pdf_clicked()
                                           (item->yi+j*(de2_length_um/de_spacing_um + 1))* de_spacing_um * px_to_cm  / 10000,
                                           px_to_cm / 10*de2_length_mm,
                                           px_to_cm / 10*de2_length_mm,
-                                          blackpen, blackbrush);
+                                          nopen, blackbrush);
                     }
                 }
             }
@@ -1859,9 +1865,6 @@ void MainWindow::on_preview_clicked(bool checked)
 
         previewscene = new QGraphicsScene(0, 0, 760, 520, ui->view);
         previewscene->setBackgroundBrush(Qt::white);
-        graypen = QPen(Qt::black, 0);
-        redpen = QPen(Qt::black, 0);
-        linepen = QPen(Qt::black, 0);
         nullitem = QBrush(Qt::black);
 
         OuterBorder(previewscene);
@@ -1879,13 +1882,13 @@ void MainWindow::on_preview_clicked(bool checked)
                                            (item->yi+i*(de1_length_um/de_spacing_um + 1))*pix_per_brick,
                                            pix_per_brick*de1_width_um/de_spacing_um,
                                            pix_per_brick*de1_length_um/de_spacing_um,
-                                           redpen, nullitem);
+                                           nopen, nullitem);
                             } else {
                                 previewscene->addRect(item->xi*pix_per_brick,
                                            (item->yi+i*(de2_length_um/de_spacing_um + 1))*pix_per_brick,
                                            pix_per_brick*de2_width_um/de_spacing_um,
                                            pix_per_brick*de2_length_um/de_spacing_um,
-                                           redpen, nullitem);
+                                           nopen, nullitem);
                             }
                         }
                     }
@@ -1896,13 +1899,13 @@ void MainWindow::on_preview_clicked(bool checked)
                                            item->yi*pix_per_brick,
                                            pix_per_brick*de1_length_um/de_spacing_um,
                                            pix_per_brick*de1_width_um/de_spacing_um,
-                                           redpen, nullitem);
+                                           nopen, nullitem);
                             } else {
                                 previewscene->addRect((item->xi+i*(de2_length_um/de_spacing_um + 1))*pix_per_brick,
                                            item->yi*pix_per_brick,
                                            pix_per_brick*de2_length_um/de_spacing_um,
                                            pix_per_brick*de2_width_um/de_spacing_um,
-                                           redpen, nullitem);
+                                           nopen, nullitem);
                             }
                         }
                     }
@@ -1916,7 +1919,7 @@ void MainWindow::on_preview_clicked(bool checked)
                                       (item->yi+j*(de2_length_um/de_spacing_um + 1))*pix_per_brick,
                                       pix_per_brick*de2_length_um/de_spacing_um,
                                       pix_per_brick*de2_width_um/de_spacing_um,
-                                      redpen, nullitem);
+                                      nopen, nullitem);
                     }
                 }
             }
@@ -1929,24 +1932,24 @@ void MainWindow::on_preview_clicked(bool checked)
                 for(int i = 0; i < 2*layer; i++){
                     if(item->tilt == 0 || item->tilt == 180){
                         if (item->tilt == 0 && i == 2*layer-1){
-                            previewscene->addRect((item->xi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, (item->yi+(!item->clockwise)*item->width/2)*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, item->width/2*pix_per_brick, redpen, nullitem);
+                            previewscene->addRect((item->xi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, (item->yi+(!item->clockwise)*item->width/2)*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, item->width/2*pix_per_brick, nopen, nullitem);
                         } else if (item->tilt == 180 && i == 0){
-                            previewscene->addRect((item->xi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, (item->yi+(item->clockwise)*item->width/2)*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, item->width/2*pix_per_brick, redpen, nullitem);
+                            previewscene->addRect((item->xi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, (item->yi+(item->clockwise)*item->width/2)*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, item->width/2*pix_per_brick, nopen, nullitem);
                         } else if (i != 0 && i != 2*layer-1){
                             int connect_line_space = ((item->tilt == 0 && item->clockwise == 0) || (item->tilt == 180 && item->clockwise == 1)) ? (2*connect_line_um+zigzag_width_um)/de_spacing_um*pix_per_brick : 0;
-                            previewscene->addRect((item->xi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, item->yi*pix_per_brick+connect_line_space, zigzag_width_um/de_spacing_um*pix_per_brick, (item->width-(2*connect_line_um+zigzag_width_um)/de_spacing_um)*pix_per_brick, redpen, nullitem);
+                            previewscene->addRect((item->xi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, item->yi*pix_per_brick+connect_line_space, zigzag_width_um/de_spacing_um*pix_per_brick, (item->width-(2*connect_line_um+zigzag_width_um)/de_spacing_um)*pix_per_brick, nopen, nullitem);
                         } else
-                            previewscene->addRect((item->xi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, item->yi*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
+                            previewscene->addRect((item->xi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, item->yi*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, item->width*pix_per_brick, nopen, nullitem);
                     } else if (item->tilt == 90 || item->tilt == 270){
                         if (item->tilt == 90 && i == 2*layer-1){
-                            previewscene->addRect((item->xi+(item->clockwise)*item->length/2)*pix_per_brick, (item->yi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, item->length/2*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, redpen, nullitem);
+                            previewscene->addRect((item->xi+(item->clockwise)*item->length/2)*pix_per_brick, (item->yi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, item->length/2*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, nopen, nullitem);
                         } else if (item->tilt == 270 && i == 0){
-                            previewscene->addRect((item->xi+(!item->clockwise)*item->length/2)*pix_per_brick, (item->yi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, item->length/2*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, redpen, nullitem);
+                            previewscene->addRect((item->xi+(!item->clockwise)*item->length/2)*pix_per_brick, (item->yi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, item->length/2*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, nopen, nullitem);
                         } else if (i != 0 && i != 2*layer-1){
                             int connect_line_space = ((item->tilt == 90 && item->clockwise == 1) || (item->tilt == 270 && item->clockwise == 0)) ? (2*connect_line_um+zigzag_width_um)/de_spacing_um*pix_per_brick : 0;
-                            previewscene->addRect(item->xi*pix_per_brick+connect_line_space, (item->yi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, (item->length-(2*connect_line_um+zigzag_width_um)/de_spacing_um)*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, redpen, nullitem);
+                            previewscene->addRect(item->xi*pix_per_brick+connect_line_space, (item->yi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, (item->length-(2*connect_line_um+zigzag_width_um)/de_spacing_um)*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, nopen, nullitem);
                         } else
-                            previewscene->addRect(item->xi*pix_per_brick, (item->yi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, item->length*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, redpen, nullitem);
+                            previewscene->addRect(item->xi*pix_per_brick, (item->yi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick, item->length*pix_per_brick, zigzag_width_um/de_spacing_um*pix_per_brick, nopen, nullitem);
                     }
                 }
                 for(int i = 0; i < 2*layer-1; i++){
@@ -1957,7 +1960,7 @@ void MainWindow::on_preview_clicked(bool checked)
                                           item->yi*pix_per_brick+t*(item->width-2*(connect_line_um+zigzag_width_um)/de_spacing_um)*pix_per_brick + connect_line_space,
                                           (zigzag_width_um+spacing_um)/de_spacing_um*pix_per_brick,
                                           zigzag_width_um/de_spacing_um*pix_per_brick,
-                                          redpen, nullitem);
+                                          nopen, nullitem);
                     } else if (item->tilt == 90 || item->tilt == 270){
                         bool t = (item->tilt == 90) ? !item->clockwise == i%2 : item->clockwise == i%2;
                         int connect_line_space = ((item->tilt == 90 && item->clockwise == 1) || (item->tilt == 270 && item->clockwise == 0)) ? (2*connect_line_um+zigzag_width_um)/de_spacing_um*pix_per_brick : 0;
@@ -1965,27 +1968,27 @@ void MainWindow::on_preview_clicked(bool checked)
                                           (item->yi+i*(zigzag_width_um+spacing_um)/de_spacing_um)*pix_per_brick,
                                           zigzag_width_um/de_spacing_um*pix_per_brick,
                                           (zigzag_width_um+spacing_um)/de_spacing_um*pix_per_brick,
-                                          redpen, nullitem);
+                                          nopen, nullitem);
                     }
                 }
                 if ((item->tilt == 0 && item->clockwise == 0) || (item->tilt == 180 && item->clockwise == 1))
-                    previewscene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, connect_line_um*2/de_spacing_um*pix_per_brick, redpen, nullitem);
+                    previewscene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, connect_line_um*2/de_spacing_um*pix_per_brick, nopen, nullitem);
                 else if ((item->tilt == 0 && item->clockwise == 1) || (item->tilt == 180 && item->clockwise == 0))
-                    previewscene->addRect(item->xi*pix_per_brick, (item->yi+item->width-2*connect_line_um/de_spacing_um)*pix_per_brick, item->length*pix_per_brick, connect_line_um*2/de_spacing_um*pix_per_brick, redpen, nullitem);
+                    previewscene->addRect(item->xi*pix_per_brick, (item->yi+item->width-2*connect_line_um/de_spacing_um)*pix_per_brick, item->length*pix_per_brick, connect_line_um*2/de_spacing_um*pix_per_brick, nopen, nullitem);
                 else if ((item->tilt == 90 && item->clockwise == 1) || (item->tilt == 270 && item->clockwise == 0))
-                    previewscene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, connect_line_um*2/de_spacing_um*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
+                    previewscene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, connect_line_um*2/de_spacing_um*pix_per_brick, item->width*pix_per_brick, nopen, nullitem);
                 else if ((item->tilt == 90 && item->clockwise == 0) || (item->tilt == 270 && item->clockwise == 1))
-                    previewscene->addRect((item->xi+item->length-2*connect_line_um/de_spacing_um)*pix_per_brick, item->yi*pix_per_brick, connect_line_um*2/de_spacing_um*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
+                    previewscene->addRect((item->xi+item->length-2*connect_line_um/de_spacing_um)*pix_per_brick, item->yi*pix_per_brick, connect_line_um*2/de_spacing_um*pix_per_brick, item->width*pix_per_brick, nopen, nullitem);
             }
             else if(item->type == "sensor"){
-                previewscene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
+                previewscene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, nopen, nullitem);
                 sensor_offset_x = (item->length*pix_per_brick - 24)/2;
                 sensor_offset_y = (item->width*pix_per_brick - 24)/2;
-                previewscene->addRect(item->xi*pix_per_brick+sensor_offset_x, item->yi*pix_per_brick+sensor_offset_y, 24, 24, redpen, blackbrush);
+                previewscene->addRect(item->xi*pix_per_brick+sensor_offset_x, item->yi*pix_per_brick+sensor_offset_y, 24, 24, nopen, blackbrush);
                 qDebug() << "hey yo" << (item->length-4)*pix_per_brick;
             }
             else
-                previewscene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
+                previewscene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, nopen, nullitem);
         }
 
         linepen.setWidth(line_width_pix);
@@ -2007,8 +2010,6 @@ void MainWindow::on_preview_clicked(bool checked)
     }
     else{
         EnableCreateUnit(true);
-        graypen = QPen(Qt::gray, 0);
-        redpen = QPen(Qt::red, 0);
         linepen = QPen(Qt::gray, 0);
         linepen.setWidth(line_width_pix);
         nullitem = QBrush(QColor(94, 94, 94, 54));

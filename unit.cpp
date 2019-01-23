@@ -109,7 +109,6 @@ void unit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 
 void unit::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-
     if(!deletemode){
         Pressed = true;
         update();
