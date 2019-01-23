@@ -8,6 +8,7 @@ int screen_length;
 /////////////////////////////////////  CHIP INFO  /////////////////////////////////////
 bool deletemode = false;
 bool linemode = false;
+bool heat_line = false;
 
 //Chip setting
 float chip_length_mm = 76;
@@ -39,7 +40,7 @@ int de2_width_um;
 float de_spacing_mm = 0.2;
 float cp_spacing_mm = 1.2;
 float line_width_mm = 0.353;
-
+//float line_width_mm = 0.706;
 
 int de_spacing_um;
 int cp_spacing_um;
@@ -242,7 +243,7 @@ void MainWindow::BackgroundGrid(QGraphicsScene *scene){
 
 void MainWindow::LineBackgroundGrid(QGraphicsScene *scene){
     //line background grid (in dotted form)
-//    double line_pix_per_brick = double(pix_per_brick)*line_width_um/de_spacing_um;
+    //double line_pix_per_brick = double(pix_per_brick)*line_width_um/de_spacing_um;
     double line_pix_per_brick = double(pix_per_brick)*1000/de_spacing_um;
     int line_brick_xnum = double(brick_xnum)*de_spacing_um/1000;
     int line_brick_ynum = double(brick_ynum)*de_spacing_um/1000;
@@ -543,12 +544,14 @@ void MainWindow::mode_label(bool bChecked){
         linepen.setColor(Qt::gray);
         linepen.setWidth(line_width_pix);
         for(line *head : linescene->alllines){
+            if(head->heater_line)linepen.setWidth(line_width_pix*2);
             line *current_seg = head;
             while(current_seg->next != NULL){
                 DestroyLine << mainscene->addLine(current_seg->x[0], current_seg->y[0], current_seg->x[1], current_seg->y[1], linepen);
                 current_seg = current_seg->next;
             }
             DestroyLine << mainscene->addLine(current_seg->x[0], current_seg->y[0], current_seg->x[1], current_seg->y[1], linepen);
+            if(head->heater_line)linepen.setWidth(line_width_pix);
         }
         ui->view->setScene(mainscene);
         linemode = false;
@@ -744,12 +747,14 @@ void MainWindow::load_svg_clicked()
     linepen.setWidth(line_width_pix);
 
     for(line *head : linescene->alllines){
+        if(head->heater_line)linepen.setWidth(line_width_pix*2);
         line *current_seg = head;
         while(current_seg->next != NULL){
             DestroyLine << mainscene->addLine(current_seg->x[0], current_seg->y[0], current_seg->x[1], current_seg->y[1], linepen);
             current_seg = current_seg->next;
         }
         DestroyLine << mainscene->addLine(current_seg->x[0], current_seg->y[0], current_seg->x[1], current_seg->y[1], linepen);
+        if(head->heater_line)linepen.setWidth(line_width_pix);
     }
 
     ui->view->setScene(mainscene);
@@ -777,7 +782,7 @@ void MainWindow::export_clicked()
            return;
        }
         // reset all sizes to REAL SIZE
-       QGraphicsScene *export_scene = new QGraphicsScene(0, 0, 9921, 14031);
+       QGraphicsScene *export_scene = new QGraphicsScene(0, 0, printer.pageRect().width(), printer.pageRect().height());
 
 
        // border in REAL SIZE
@@ -829,12 +834,14 @@ void MainWindow::export_clicked()
        linepen.setColor(Qt::black);
        linepen.setWidth(line_width_um * px_to_cm  / 10000);
        for(line *head : linescene->alllines){
+           if(head->heater_line)linepen.setWidth(2 * line_width_um * px_to_cm / 10000);
            line *current_seg = head;
            while(current_seg->next != NULL){
                export_scene->addLine(current_seg->x[0]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, current_seg->y[0]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, current_seg->x[1]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, current_seg->y[1]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, linepen);
                current_seg = current_seg->next;
            }
            export_scene->addLine(current_seg->x[0]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, current_seg->y[0]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, current_seg->x[1]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, current_seg->y[1]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, linepen);
+           if(head->heater_line)linepen.setWidth(line_width_um * px_to_cm / 10000);
        }
 
        export_scene->render(&p);
@@ -911,12 +918,14 @@ void MainWindow::pdf_clicked()
        linepen.setColor(Qt::black);
        linepen.setWidth(line_width_um * px_to_cm  / 10000);
        for(line *head : linescene->alllines){
+           if(head->heater_line)linepen.setWidth(2 * line_width_um * px_to_cm / 10000);
            line *current_seg = head;
            while(current_seg->next != NULL){
                export_scene->addLine(current_seg->x[0]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, current_seg->y[0]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, current_seg->x[1]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, current_seg->y[1]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, linepen);
                current_seg = current_seg->next;
            }
            export_scene->addLine(current_seg->x[0]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, current_seg->y[0]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, current_seg->x[1]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, current_seg->y[1]* de_spacing_um * px_to_cm  / 10000 / pix_per_brick, linepen);
+           if(head->heater_line)linepen.setWidth(line_width_um * px_to_cm / 10000);
        }
 
        export_scene->render(&p);
@@ -1002,10 +1011,10 @@ void MainWindow::on_zoomout_clicked()
 void MainWindow::on_connect_btn_clicked()
 {
 
-    int xoff = (brick_x_start-border_px)/pix_per_brick;
-    int yoff = (brick_y_start-border_px)/pix_per_brick;
-    int xsize = brick_xnum + xoff;
-    int ysize = brick_ynum + yoff;
+    //int xoff = (brick_x_start-border_px)/pix_per_brick;
+    //int yoff = (brick_y_start-border_px)/pix_per_brick;
+    int xsize = brick_xnum;// + xoff;
+    int ysize = brick_ynum;// + yoff;
     float shift = chip_border_mm*1000 / de_spacing_um;
 
     struct edge{
@@ -1078,21 +1087,27 @@ void MainWindow::on_connect_btn_clicked()
             }
 
         } else if(item->type == "dispenser" || item->type == "merge"){
-            /*int templ = item->length;
-            int tempw = item->width;
-            item->length *= de_spacing_um/line_width_um;
-            item->width *= de_spacing_um/line_width_um;*/
+            /*int starti = (item->xi - shift)*de_spacing_um/line_width_um;
+            int endi = (item->xi + item->length - shift)*de_spacing_um/line_width_um;
+            int startj = (item->yi - shift)*de_spacing_um/line_width_um;
+            int endj = (item->yi + item->width - shift)*de_spacing_um/line_width_um;
+            for(int i = starti; i <= endi; i++)
+                for(int j = startj; j <= endj; j++)
+                    unitmap[i][j] = unit_id;
+            source[(starti+endi)/2][(startj+endj)/2] = true;
+            unitmap[starti][(startj+endj)/2] = 1;
+            unitmap[endi][(startj+endj)/2] = 1;
+            unitmap[(starti+endi)/2][startj] = 1;
+            unitmap[(starti+endi)/2][endj] = 1;*/
             for(int i = 0; i <= item->length; i++)
                 for(int j = 0; j <= item->width; j++)
-                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = unit_id;//(i == int(item->length/2) || j == int(item->width/2)) ? 1 : unit_id;
+                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = unit_id;
             source[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width/2)] = true;
             unitmap[int(item->xi - shift) + int(item->length*1)][int(item->yi - shift) + int(item->width/2)] = 1;
             unitmap[int(item->xi - shift) + int(item->length*0)][int(item->yi - shift) + int(item->width/2)] = 1;
             unitmap[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width*1)] = 1;
             unitmap[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width*0)] = 1;
             unit_id ++;
-            /*item->length = templ;
-            item->width = tempw;*/
         } else if(item->type == "heat"){
             for(int i = 0; i <= item->length; i++)
                 for(int j = 0; j <= item->width; j++)
@@ -1107,11 +1122,24 @@ void MainWindow::on_connect_btn_clicked()
             unitmap[vertex_x][vertex_y] = 1;
             unit_id ++;
         } else if(item->type == "controlpad"){
-            for(int i = 0; i <= item->length; i++)
-                for(int j = 0; j <= item->width; j++){
+            for(int i = -1; i <= item->length+1; i++)
+                for(int j = -1; j <= item->width+1; j++){
+                    if(i < 0 || j < 0)continue;
                     unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = (/*i == int(item->length/2) ||*/ j == int(item->width/2)) ? -1 : cpad_id;
                 }
             cpad_id --;
+            /*qDebug()<<item->xi<<starti<<item->yi<<startj;
+            int starti = (item->xi - brick_x_start)*de_spacing_um/line_width_um;
+            int endi = (item->xi + item->length - brick_x_start)*de_spacing_um/line_width_um;
+            int startj = (item->yi - brick_y_start)*de_spacing_um/line_width_um;
+            int endj = (item->yi + item->width - brick_y_start)*de_spacing_um/line_width_um;
+            for(int i = starti; i <= endi; i++){
+                for(int j = startj; j <= endj; j++){
+                    unitmap[i][j] = cpad_id;
+                }
+            }
+            cpad_id --;
+            */
         }
     }
 
@@ -1126,14 +1154,14 @@ void MainWindow::on_connect_btn_clicked()
         qDebug() << debug;
     }
 
-    float transfer = float(de_spacing_um) / line_width_um;
+    /*float transfer = float(de_spacing_um) / line_width_um;
     for(int i = 0; i < xsize; i++){
         for(int j = 0; j < ysize; j++){
             if(abs(routmap[int(i*transfer)][int(j*transfer)]) != 1)
                 routmap[int(i*transfer)][int(j*transfer)] = unitmap[i][j];
         }
     }
-    /*memset(unitmap, 0, sizeof(unitmap));
+    memset(unitmap, 0, sizeof(unitmap));
     for(int i = 0; i < xsize*transfer; i++){
         for(int j = 0; j < ysize*transfer; j++){
             unitmap[i][j] = routmap[i][j];
@@ -1289,8 +1317,8 @@ void MainWindow::on_connect_btn_clicked()
     enum path{none=0, startDown=1, startLeft=2, startUp=3, startRight=4, endDown=5, endLeft=10, endUp=15, endRight=20, DownLeft=26, DownRight=27, UpLeft=28, UpRight=29};
     int pathmap[500][500] = {{none}};
 
-    for(int i = 0; i < xsize; i++){
-        for(int j = 0; j < ysize; j++){
+    for(unsigned i = 0; i < xsize; i++){
+        for(unsigned j = 0; j < ysize; j++){
             for(edge e : graph[unsigned(i*ysize+j)]){
                 if(e.flow > 0 && e.to != s && e.to != t){
                     unsigned to_x = (e.to-unsigned(xsize*ysize)) / unsigned(ysize);
@@ -1723,6 +1751,11 @@ void MainWindow::on_heater_create_clicked()
     }
 }
 
+//HEAT_LINE
+void MainWindow::on_heat_line_clicked()
+{
+    heat_line = ui->heat_line->isChecked();
+}
 
 /////////////////////////////////////  SETTING  /////////////////////////////////////
 void MainWindow::on_setting_btn_clicked()
@@ -1920,12 +1953,14 @@ void MainWindow::on_preview_clicked(bool checked)
 
         linepen.setWidth(line_width_pix);
         for(line *head : linescene->alllines){
+            if(head->heater_line)linepen.setWidth(line_width_pix*2);
             line *current_seg = head;
             while(current_seg->next != NULL){
                 previewscene->addLine(current_seg->x[0], current_seg->y[0], current_seg->x[1], current_seg->y[1], linepen);
                 current_seg = current_seg->next;
             }
             previewscene->addLine(current_seg->x[0], current_seg->y[0], current_seg->x[1], current_seg->y[1], linepen);
+            if(head->heater_line)linepen.setWidth(line_width_pix);
         }
 
         QGraphicsTextItem *new_text_item = previewscene->addText(text_edit);

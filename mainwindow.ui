@@ -2395,6 +2395,25 @@ QPushButton{
      <string>T sensor</string>
     </property>
    </widget>
+   <widget class="QRadioButton" name="heat_line">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>1055</x>
+      <y>10</y>
+      <width>81</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">	background-color : rgb(46, 52, 66);</string>
+    </property>
+    <property name="text">
+     <string>Heat line</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -2402,7 +2421,7 @@ QPushButton{
      <x>0</x>
      <y>0</y>
      <width>1252</width>
-     <height>22</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
