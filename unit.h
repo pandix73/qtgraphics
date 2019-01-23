@@ -9,7 +9,7 @@
 #include <QWidget>
 #include <QMenu>
 #include <QAction>
-#include <QGraphicsSceneMouseEvent>
+//#include <QGraphicsSceneMouseEvent>
 #include "merge_edit.h"
 #include "dispenser_edit.h"
 #include "move_edit.h"

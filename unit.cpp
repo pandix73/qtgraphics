@@ -4,8 +4,6 @@ extern bool deletemode;
 bool detailmode = false;
 
 //setting parameter
-//extern int chip_length_cm;
-//extern int chip_width_cm;
 extern int chip_border_mm;
 extern int cp_length_mm;
 extern int cp_width_mm;
@@ -111,17 +109,15 @@ void unit::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 
 void unit::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    if(event->button() == Qt::LeftButton){
-        if (event->modifiers() == Qt::ShiftModifier) {
-            qDebug() << "Custom item left clicked with shift key.";
-            setSelected(true);
+//    if(event->button() == Qt::LeftButton){
+//        setSelected(true);
+        if(!deletemode){
+            Pressed = true;
+            update();
+            QGraphicsItem::mousePressEvent(event);
         }
-    }
-//    if(!deletemode){
-//        Pressed = true;
-//        update();
-//        QGraphicsItem::mousePressEvent(event);
 //    }
+
 }
 
 void unit::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)

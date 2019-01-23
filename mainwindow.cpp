@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QGraphicsSvgItem>
-#define floatqDebug() qDebug() << fixed << qSetRealNumberPrecision(2)
+#define floatqDebug() qDebug() << fixed << qSetRealNumberPrecision(6)
 int screen_width;
 int screen_length;
 
@@ -95,8 +95,8 @@ int num_de = 0;
 int unitmap[500][500];
 
 
-float px_to_cm = 9921/21;
-float px_to_mm = 9921/210;
+float px_to_cm;
+float px_to_mm;
 /////////////////////////////////////  MAINWINDOW  /////////////////////////////////////
 MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -213,6 +213,10 @@ void MainWindow::ChipParameters(){
         brick_y_start++;
     line_width_pix = pix_per_brick*line_width_um/de_spacing_um;
     line_pix_per_brick = pix_per_brick * 1000 / de_spacing_um;
+
+    px_to_cm = (float)9921/21;
+    px_to_mm = (float)9921/210;
+
 }
 
 void MainWindow::OuterBorder(QGraphicsScene *scene){
@@ -280,7 +284,6 @@ void MainWindow::DefaultControlPad(QGraphicsScene *scene){
     float cp_length = float(cp_length_um) / de_spacing_um;
     float cp_width = float(cp_width_um) / de_spacing_um;
     float cp_space = float(cp_spacing_um) / de_spacing_um;
-//    qDebug()<<cp_length<<cp_width<<cp_space;
     float cp_xi_start = brick_x_start / pix_per_brick;
     float cp_xi_start_right = brick_x_start / pix_per_brick + brick_xnum  - cp_length;
     float cp_yi_start = brick_y_start / pix_per_brick;
@@ -294,6 +297,8 @@ void MainWindow::DefaultControlPad(QGraphicsScene *scene){
         cp->yi = cp_yi_start;
         cp->length = cp_length;
         cp->width = cp_width;
+        cp->actual_length = cp_length_mm;
+        cp->actual_width = cp_width_mm;
         cp->color = Qt::black;
         scene->addItem(cp);
         allunits.prepend(cp);
@@ -306,6 +311,8 @@ void MainWindow::DefaultControlPad(QGraphicsScene *scene){
         cp_right->yi = cp_yi_start;
         cp_right->length = cp_length;
         cp_right->width = cp_width;
+        cp_right->actual_length = cp_length_mm;
+        cp_right->actual_width = cp_width_mm;
         cp_right->color = Qt::black;
         scene->addItem(cp_right);
         allunits.prepend(cp_right);
@@ -776,37 +783,51 @@ void MainWindow::export_clicked()
            qDebug() << "Error!";
            return;
        }
-        // reset all sizes to REAL SIZE
-       QGraphicsScene *export_scene = new QGraphicsScene(0, 0, 9921, 14031);
 
+       // reset all sizes to REAL SIZE
+       QGraphicsScene *export_scene = new QGraphicsScene(0, 0, printer.pageRect().width(), printer.pageRect().height());
 
        // border in REAL SIZE
-       export_scene->addRect(0, 0, chip_length_mm*px_to_mm, chip_width_mm*px_to_mm, graypen);
+       export_scene->addRect(0, 0, (float)chip_length_mm*px_to_mm, (float)chip_width_mm*px_to_mm, graypen);
+       floatqDebug() << "Actual size" << chip_length_mm*px_to_mm <<  chip_width_mm*px_to_mm;
 
        //units in REAL SIZE
        for(unit *item : allunits){
             unit *export_item = new unit();
-            //export_item = item;
-            export_item->xi = (item->xi - (brick_x_start-border_px)/pix_per_brick) * de_spacing_um* px_to_cm  / 10000 / pix_per_brick;
-            export_item->yi = (item->yi - (brick_y_start-border_px)/pix_per_brick) * de_spacing_um * px_to_cm  / 10000 / pix_per_brick;
-            export_item->length = item->length * de_spacing_um * px_to_cm  / 10000 / pix_per_brick;
-            export_item->width = item->width *de_spacing_um * px_to_cm  / 10000 / pix_per_brick;
 
-            export_item->color = QColor(Qt::black);
             if(item->type == "move"){
-                for(int i = 0; i < item->de_xnum; i++){
-                    if(item->de_type == 1){
-                        export_scene->addRect(((item->xi+i*(de1_length_um/de_spacing_um + 1)) - (brick_x_start-border_px)/pix_per_brick )* de_spacing_um* px_to_cm  / 10000,
-                                   item->yi* de_spacing_um * px_to_cm  / 10000,
-                                   px_to_cm/10*de1_length_mm,
-                                   px_to_cm/10*de1_width_mm,
-                                   blackpen, blackbrush);
-                    } else {
-                        export_scene->addRect(((item->xi+i*(de2_length_um/de_spacing_um + 1)) - (brick_x_start-border_px)/pix_per_brick )* de_spacing_um* px_to_cm  / 10000,
-                                   item->yi* de_spacing_um * px_to_cm  / 10000,
-                                   px_to_cm/10*de2_length_mm,
-                                   px_to_cm/10*de2_width_mm,
-                                   blackpen, blackbrush);
+                if(item->tilt == 90){
+                    for(int i = 0; i < item->de_ynum; i++){
+                        if(item->de_type == 1){
+                            export_scene->addRect(item->xi * de_spacing_um * px_to_cm / 10000,
+                                       ((item->yi+i*(de1_length_um/de_spacing_um + 1)) - (float)(brick_y_start-border_px)/pix_per_brick )* (float)de_spacing_um* px_to_cm / 10000,
+                                       px_to_cm/10*de1_width_mm,
+                                       px_to_cm/10*de1_length_mm,
+                                       blackpen, blackbrush);
+                        } else {
+                            export_scene->addRect(item->xi * de_spacing_um * px_to_cm / 10000,
+                                       ((item->yi+i*(de2_length_um/de_spacing_um + 1)) - (float)(brick_y_start-border_px)/pix_per_brick )* (float)de_spacing_um* px_to_cm / 10000,
+                                       px_to_cm/10*de2_width_mm,
+                                       px_to_cm/10*de2_length_mm,
+                                       blackpen, blackbrush);
+                        }
+                    }
+                }
+                else {
+                    for(int i = 0; i < item->de_xnum; i++){
+                        if(item->de_type == 1){
+                            export_scene->addRect(((item->xi+i*(de1_length_um/de_spacing_um + 1)) - (float)(brick_x_start-border_px)/pix_per_brick )* (float)de_spacing_um* px_to_cm  / 10000,
+                                       item->yi* de_spacing_um * px_to_cm  / 10000,
+                                       px_to_cm/10*de1_length_mm,
+                                       px_to_cm/10*de1_width_mm,
+                                       blackpen, blackbrush);
+                        } else {
+                            export_scene->addRect(((item->xi+i*(de2_length_um/de_spacing_um + 1)) - (float)(brick_x_start-border_px)/pix_per_brick )* (float)de_spacing_um* px_to_cm  / 10000,
+                                       item->yi* de_spacing_um * px_to_cm  / 10000,
+                                       px_to_cm/10*de2_length_mm,
+                                       px_to_cm/10*de2_width_mm,
+                                       blackpen, blackbrush);
+                        }
                     }
                 }
             }else if(item->type == "cycle"){
@@ -821,10 +842,24 @@ void MainWindow::export_clicked()
                     }
                 }
             }else{
-                export_scene->addItem(export_item);
+//                export_item->xi = (item->xi - (float)(brick_x_start-border_px)/pix_per_brick) * px_to_mm  / 10;
+//                export_item->yi = (item->yi - (float)(brick_y_start-border_px)/pix_per_brick) * px_to_mm  / 10;
+//                export_item->length = item->length * px_to_mm / 10;
+//                export_item->width = item->width * px_to_mm / 10;
+//                floatqDebug() << item->length << item->width;
+//                export_item->color = QColor(Qt::black);
+//                export_scene->addItem(export_item);
+                export_scene->addRect(item->xi*de_spacing_um* px_to_mm / 1000,
+                          item->yi*de_spacing_um * px_to_mm / 1000,
+                          px_to_cm / 10*item->actual_length,
+                          px_to_cm / 10*item->actual_width,
+                          blackpen, blackbrush);
+                if(item->type=="merge"){
+                    qDebug() << item->xi << item->yi << de_spacing_um << px_to_mm;
+                    floatqDebug() << item->xi* de_spacing_um* px_to_mm / 1000 << item->yi* de_spacing_um * px_to_mm / 1000;
+                    qDebug() << px_to_cm / 10*item->actual_length << px_to_cm / 10*item->actual_width;
+                }
             }
-
-
        }
        linepen.setColor(Qt::black);
        linepen.setWidth(line_width_um * px_to_cm  / 10000);
@@ -1766,10 +1801,11 @@ void MainWindow::reset_setting(chip_setting *new_chip)
     cp_spacing_mm = new_chip->cp_spacing_mm;
     line_width_mm = new_chip->line_width_mm;
 
+    allunits.clear();
     QGraphicsScene *newscene = CreateNewScene();
     graphicsscene *newlinescene = CreateLineScene();
 
-    allunits.clear();
+//    allunits.clear();
     this->mainscene = newscene;
     this->linescene = newlinescene;
 
@@ -1784,6 +1820,7 @@ void MainWindow::reset_setting(chip_setting *new_chip)
 void MainWindow::on_preview_clicked(bool checked)
 {
     if(checked){
+        qDebug() << "SIZE" << mainscene->selectedItems().size();
         checker *check = new checker(allunits, tempunits, passunits, errorunits);
         checker_map = check->checker_map;
 
@@ -1949,7 +1986,14 @@ void MainWindow::on_preview_clicked(bool checked)
     }
 }
 
-
+//unit m_selectedItems = m_source_scene->selectedItems();
+//// The following slot is called when some action(paste) is triggered.
+//void MainWindow::OnPaste()
+//{
+////m_selectedItems contains a list of selected graphic items
+//    foreach(item,m_selectedItems)
+//      m_target_scene->add(item);
+//}
 /////////////////////////////////////  TEXT EDIT  /////////////////////////////////////
 void MainWindow::on_text_enter_clicked()
 {

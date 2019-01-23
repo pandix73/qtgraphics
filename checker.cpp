@@ -36,7 +36,6 @@ checker::checker(QList<unit*> &allunits, QList<unit*> &tempunits, QList<unit*> &
             for(int y=0; y<item->width; y++){
                 fill_x = item->xi + x - border_brick;
                 fill_y = item->yi + y - border_brick;
-                qDebug() << "fill" << fill_x << fill_y;
                 if(fill_x >=0 && fill_y >=0 && fill_x < brick_xnum && fill_y < brick_ynum){
                     checker_map[fill_x][fill_y] += 1;
                 }
