@@ -13,15 +13,17 @@ class dispenser_edit : public QDialog
     Q_OBJECT
 
 public:
-    explicit dispenser_edit(QString text, int length, int width, QWidget *parent = 0);
+    explicit dispenser_edit(QString text, int actuallength, int actualwidth, QWidget *parent = 0);
     ~dispenser_edit();
+    int actual_length;
+    int actual_width;
     int length;
     int width;
     QString type;
     QString text;
 
 signals:
-    void update_this_label(QString, int, int);
+    void update_this_label(QString, int, int, int, int);
 
 private slots:
     void on_enter_clicked();

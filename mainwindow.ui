@@ -390,7 +390,7 @@ QPushButton{
 </string>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>false</bool>
@@ -868,20 +868,6 @@ QLineEdit{
 }</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_13">
-           <item row="0" column="1">
-            <widget class="QLabel" name="label_27">
-             <property name="text">
-              <string>Number of Y-Merge</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="3">
-            <widget class="QLabel" name="num_merge">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
            <item row="3" column="2">
             <spacer name="horizontalSpacer_3">
              <property name="orientation">
@@ -898,24 +884,10 @@ QLineEdit{
              </property>
             </spacer>
            </item>
-           <item row="3" column="3">
-            <widget class="QLabel" name="num_move">
+           <item row="0" column="1">
+            <widget class="QLabel" name="label_27">
              <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="1">
-            <widget class="QLabel" name="label_54">
-             <property name="text">
-              <string>Number of Heater</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="3">
-            <widget class="QLabel" name="num_dispenser">
-             <property name="text">
-              <string/>
+              <string>Number of Y-Merge</string>
              </property>
             </widget>
            </item>
@@ -926,10 +898,17 @@ QLineEdit{
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
-            <widget class="QLabel" name="label_53">
+           <item row="5" column="1">
+            <widget class="QLabel" name="label_54">
              <property name="text">
-              <string>Number of Dispenser</string>
+              <string>Number of Heater</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLabel" name="num_merge">
+             <property name="text">
+              <string/>
              </property>
             </widget>
            </item>
@@ -940,8 +919,15 @@ QLineEdit{
              </property>
             </widget>
            </item>
-           <item row="4" column="3">
-            <widget class="QLabel" name="num_cycling">
+           <item row="3" column="3">
+            <widget class="QLabel" name="num_move">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QLabel" name="num_dispenser">
              <property name="text">
               <string/>
              </property>
@@ -949,6 +935,34 @@ QLineEdit{
            </item>
            <item row="5" column="3">
             <widget class="QLabel" name="num_heater">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLabel" name="label_53">
+             <property name="text">
+              <string>Number of Dispenser</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="3">
+            <widget class="QLabel" name="num_cycling">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QLabel" name="label_55">
+             <property name="text">
+              <string>Number of Sensor</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="3">
+            <widget class="QLabel" name="num_sensor">
              <property name="text">
               <string/>
              </property>

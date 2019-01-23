@@ -53,8 +53,8 @@ public:
     QColor unit_de2_color = QColor(0, 0, 255, 127);
 
 public slots:
-    void update_merge(QString, int, int);
-    void update_dispenser(QString , int , int);
+    void update_merge(QString, int, int, int, int);
+    void update_dispenser(QString , int , int, int, int);
     void update_move(QString, int, int, int);
     void update_cycle(QString, int, int);
     void update_heat(QString, int , int , int , int , int );

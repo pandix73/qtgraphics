@@ -138,12 +138,12 @@ void unit::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event){
     if(this->type == "merge"){
         merge_edit *edit = new merge_edit(this->text, this->actual_length, this->actual_width, 0);
         edit->setWindowTitle("Merge Edit");
-        connect(edit, SIGNAL(update_this_label(QString, int, int)), this, SLOT(update_merge(QString, int , int)));
+        connect(edit, SIGNAL(update_this_label(QString, int, int, int, int)), this, SLOT(update_merge(QString, int , int, int, int)));
         edit->show();
     }else if(this->type == "dispenser"){
         dispenser_edit *edit = new dispenser_edit(this->text, this->actual_length, this->actual_width, 0);
         edit->setWindowTitle("Dispener Edit");
-        connect(edit, SIGNAL(update_this_label(QString, int, int)), this, SLOT(update_dispenser(QString, int , int)));
+        connect(edit, SIGNAL(update_this_label(QString, int, int, int, int)), this, SLOT(update_dispenser(QString, int, int, int, int)));
         edit->show();
     }else if(this->type == "move"){
         move_edit *edit = new move_edit(this->text, this->de_xnum, this->tilt, this->de_type, 0);
@@ -162,15 +162,19 @@ void unit::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event){
 
 }
 
-void unit::update_merge(QString text, int a, int b){
-    this->length = a;
-    this->width = b;
+void unit::update_merge(QString text, int a, int b, int c, int d){
+    this->actual_length = a;
+    this->actual_width = b;
+    this->length = c;
+    this->width = d;
     this->text = text;
 }
 
-void unit::update_dispenser(QString text, int a, int b){
-    this->length = a;
-    this->width = b;
+void unit::update_dispenser(QString text, int a, int b, int c, int d){
+    this->actual_length = a;
+    this->actual_width = b;
+    this->length = c;
+    this->width = d;
     this->text = text;
 }
 
