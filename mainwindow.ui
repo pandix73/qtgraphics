@@ -1906,6 +1906,9 @@ QSpinBox{
                 <height>16777215</height>
                </size>
               </property>
+              <property name="text">
+               <string>(na)</string>
+              </property>
              </widget>
             </item>
             <item row="1" column="0">
@@ -2125,7 +2128,7 @@ QSpinBox{
                </size>
               </property>
               <property name="text">
-               <string/>
+               <string>(na)</string>
               </property>
              </widget>
             </item>
