@@ -4,10 +4,12 @@ extern bool deletemode;
 extern int line_width_pix;
 extern int line_pix_per_brick;
 extern bool heat_line;
+extern bool sense_line;
 line::line()
 {
     setFlags(ItemIsSelectable);
     this->heater_line = heat_line;
+    this->sensor_line = sense_line;
 }
 
 QRectF line::boundingRect() const

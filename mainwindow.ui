@@ -2382,9 +2382,9 @@ QPushButton{
    <widget class="QRadioButton" name="temperature_sensor">
     <property name="geometry">
      <rect>
-      <x>1150</x>
+      <x>1160</x>
       <y>10</y>
-      <width>66</width>
+      <width>81</width>
       <height>16</height>
      </rect>
     </property>
@@ -2401,7 +2401,7 @@ QPushButton{
     </property>
     <property name="geometry">
      <rect>
-      <x>1055</x>
+      <x>960</x>
       <y>10</y>
       <width>81</width>
       <height>16</height>
@@ -2412,6 +2412,25 @@ QPushButton{
     </property>
     <property name="text">
      <string>Heat line</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="sense_line">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>1050</x>
+      <y>10</y>
+      <width>101</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">	background-color : rgb(46, 52, 66);</string>
+    </property>
+    <property name="text">
+     <string>Sense line</string>
     </property>
    </widget>
   </widget>

@@ -64,10 +64,18 @@ void graphicsscene::MouseToSeg(line *seg, QGraphicsSceneMouseEvent *mouseEvent){
         float slope = (mouseEvent->scenePos().y() - seg->y[0]) / (mouseEvent->scenePos().x() - seg->x[0]);
         if(slope > 1 || slope < -1){    //vertical line
             seg->x[1] = seg->x[0];
-            seg->y[1] = tempy*line_pix_per_brick;
+            //find the closest grid
+            if(roundy1 < round)
+                seg->y[1] = tempy*line_pix_per_brick;
+            else
+                seg->y[1] = (tempy+1)*line_pix_per_brick;
         }
         else{                           //horizontal line
-            seg->x[1] = tempx*line_pix_per_brick;
+            //find the closest grid
+            if(roundx1 < round)
+                seg->x[1] = tempx*line_pix_per_brick;
+            else
+                seg->x[1] = (tempx+1)*line_pix_per_brick;
             seg->y[1] = seg->y[0] ;
         }
     }
@@ -76,19 +84,28 @@ void graphicsscene::MouseToSeg(line *seg, QGraphicsSceneMouseEvent *mouseEvent){
 // Start drawing line
 void graphicsscene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
+    round = line_pix_per_brick / 2;
+    tempx = mouseEvent->scenePos().x() / line_pix_per_brick;
+    tempy = mouseEvent->scenePos().y() / line_pix_per_brick;
+    roundx1 = mouseEvent->scenePos().x() - tempx*line_pix_per_brick;
+    roundy1 = mouseEvent->scenePos().y() - tempy*line_pix_per_brick;
     if(deletemode){
         QGraphicsScene::mousePressEvent(mouseEvent);
     }
     if(!deletemode){
         if(!pressed){                                             // start a new turnning line
-            offset = 0;
-            tempx = mouseEvent->scenePos().x() / line_pix_per_brick;
-            tempy = mouseEvent->scenePos().y() / line_pix_per_brick;
-
             line *drawline = new line();
-            drawline->x[0] = tempx*line_pix_per_brick;
-            drawline->y[0] = tempy*line_pix_per_brick;
-            qDebug() << "TEMP" << tempx << tempy;
+            if(roundx1 < round)
+                drawline->x[0] = tempx*line_pix_per_brick;
+            else
+                drawline->x[0] = (tempx+1)*line_pix_per_brick;
+
+
+            if(roundy1 < round)
+                drawline->y[0] = tempy*line_pix_per_brick;
+            else
+                drawline->y[0] = (tempy+1)*line_pix_per_brick;
+
             drawline->x[1] = drawline->x[0];
             drawline->y[1] = drawline->y[0];
             segline = drawline;                                                 // the first segment
@@ -99,36 +116,17 @@ void graphicsscene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
         }
         else if(pressed){
             if(turnline->segments % 2 == 0){
+                MouseToSeg(segline, mouseEvent);
                 segline2 = PassSegToTurn(segline);
                 create_head = false;
             }
             else{
+                MouseToSeg(segline2, mouseEvent);
                 segline = PassSegToTurn(segline2);
                 create_head = false;
             }
         }
-    }
-}
-
-// Move the line with the cursor while drawing line
-void graphicsscene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent)
-{
-    if(!deletemode){
-        if(pressed){
-            tempx = mouseEvent->scenePos().x() / line_pix_per_brick;
-            tempy = mouseEvent->scenePos().y() / line_pix_per_brick;
-            roundx1 = mouseEvent->scenePos().x() - tempx*line_pix_per_brick + offset;
-            roundy1 = mouseEvent->scenePos().y() - tempy*line_pix_per_brick + offset;
-//            if((608 - chip_width_px)/2 % line_pix_per_brick != 0)
-//                roundx1 -= line_pix_per_brick/2;
-
-            if(turnline->segments % 2 == 0){
-                MouseToSeg(segline, mouseEvent);
-            }
-            else{
-                MouseToSeg(segline2, mouseEvent);
-            }
-        }
+        qDebug() << mouseEvent->scenePos().x() << mouseEvent->scenePos().y();
     }
 }
 

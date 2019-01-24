@@ -17,7 +17,7 @@ public:
     graphicsscene(QObject *parent);
     QList<line*> alllines;
     float offset;
-
+    float round;
 public slots:
     void delete_from_list(line *delete_line);
     line *PassSegToTurn(line *segline);
@@ -26,7 +26,6 @@ public slots:
     void AddTurnline(line *head);
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent);
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent);
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent);
 
 private:

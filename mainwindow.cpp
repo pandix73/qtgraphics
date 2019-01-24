@@ -9,7 +9,7 @@ int screen_length;
 bool deletemode = false;
 bool linemode = false;
 bool heat_line = false;
-
+bool sense_line = false;
 //Chip setting
 float chip_length_mm = 76;
 float chip_width_mm = 52;
@@ -185,10 +185,6 @@ void MainWindow::ChipParameters(){
     pix_per_brick = fmin(760/((chip_length_um/de_spacing_um)),                  //calculate the size of each brick that fits the screeen the most
                          520/((chip_width_um/de_spacing_um)));
     qDebug() << "pix per brick" << pix_per_brick;
-    qDebug() << chip_length_um << de_spacing_um;
-    qDebug() << chip_width_um << de_spacing_um;
-    qDebug() << (chip_length_um/de_spacing_um) << (chip_width_um/de_spacing_um);
-    qDebug() << 760/(chip_length_um/de_spacing_um) << 520/(chip_width_um/de_spacing_um);
     cm_to_px = 10000/de_spacing_um*pix_per_brick;
     mm_to_px = 1000.0/de_spacing_um*pix_per_brick;
 
@@ -203,7 +199,6 @@ void MainWindow::ChipParameters(){
 
     chip_length_px = pix_per_brick * chip_length_um/de_spacing_um;
     chip_width_px = pix_per_brick * chip_width_um/de_spacing_um;
-    qDebug()<<chip_length_px<<chip_width_px;
 
     border_px = chip_length_px * chip_border_um / chip_length_um;                        //border width in pixel
     brick_xnum = (chip_length_px - 2*border_px)/pix_per_brick;             //how many background dots are needed in x-azis
@@ -269,7 +264,6 @@ void MainWindow::ChipScaleDots(QGraphicsScene *scene){
     for(int i = 10; i < chip_width_mm; i+=10){
         scene->addEllipse(brick_x_start-border_px+2, brick_y_start-border_px + i*mm_to_px, 1, 1, redpen);
     }
-//    floatqDebug() << mm_to_px << cm_to_px;
 }
 
 void MainWindow::ChipBorder(QGraphicsScene *scene){
@@ -945,7 +939,10 @@ void MainWindow::export_clicked()
        if(head->heater_line)linepen.setWidth(2 * line_width_um * px_to_mm / 1000);
        line *current_seg = head;
        while(current_seg->next != NULL){
-           export_scene->addLine(current_seg->x[0] * scale / pix_per_brick, current_seg->y[0]* scale / pix_per_brick, current_seg->x[1]* scale / pix_per_brick, current_seg->y[1]* scale / pix_per_brick, linepen);
+           if(current_seg->sensor_line)
+               second_export_scene->addLine(current_seg->x[0] * scale / pix_per_brick, current_seg->y[0]* scale / pix_per_brick, current_seg->x[1]* scale / pix_per_brick, current_seg->y[1]* scale / pix_per_brick, linepen);
+           else
+               export_scene->addLine(current_seg->x[0] * scale / pix_per_brick, current_seg->y[0]* scale / pix_per_brick, current_seg->x[1]* scale / pix_per_brick, current_seg->y[1]* scale / pix_per_brick, linepen);
            current_seg = current_seg->next;
        }
        export_scene->addLine(current_seg->x[0]* scale / pix_per_brick, current_seg->y[0]* scale / pix_per_brick, current_seg->x[1]* scale / pix_per_brick, current_seg->y[1]* scale / pix_per_brick, linepen);
@@ -1707,6 +1704,13 @@ void MainWindow::on_merge_create_clicked()
     }
 }
 
+//SENSE_LINE
+void MainWindow::on_sense_line_clicked()
+{
+    sense_line = ui->sense_line->isChecked();
+}
+
+
 //DISPENSER
 void MainWindow::on_dispenser_create_clicked()
 {
@@ -1743,7 +1747,6 @@ void MainWindow::on_dispenser_create_clicked()
             dispenser->child_length = 5;
             dispenser->child_width = 15;
             dispenser->direction = ui->dispenser_dir->currentIndex();
-            qDebug() << dispenser->direction;
 
             // the entire component
             switch(dispenser->direction){
@@ -1999,7 +2002,6 @@ void MainWindow::reset_setting(chip_setting *new_chip)
 void MainWindow::on_preview_clicked(bool checked)
 {
     if(checked){
-        qDebug() << "SIZE" << mainscene->selectedItems().size();
         checker *check = new checker(allunits, tempunits, passunits, errorunits);
         checker_map = check->checker_map;
 
@@ -2184,9 +2186,7 @@ void MainWindow::on_preview_clicked(bool checked)
                 previewscene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, nopen, nullitem);
                 sensor_offset_x = (item->length*pix_per_brick - 24)/2;
                 sensor_offset_y = (item->width*pix_per_brick - 24)/2;
-                previewscene->addRect(item->xi*pix_per_brick+sensor_offset_x, item->yi*pix_per_brick+sensor_offset_y, 24, 24, nopen, blackbrush);
-                qDebug() << item->xi << item->yi << item->length << item->width << sensor_offset_x;
-                qDebug() << "hey yo" << (item->length-4)*pix_per_brick;
+                previewscene->addRect(item->xi*pix_per_brick+sensor_offset_x, item->yi*pix_per_brick+sensor_offset_y, 24, 24, nopen, blackbrush);         
             }
             else
                 previewscene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, nopen, nullitem);

@@ -23,6 +23,7 @@ public:
     float y[2];
     int segments = 0;
     bool heater_line;
+    bool sensor_line;
     line *previous;
     line *next;
 signals:
