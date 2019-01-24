@@ -390,7 +390,7 @@ QPushButton{
 </string>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>false</bool>
@@ -1003,7 +1003,7 @@ QSpinBox{
       <attribute name="title">
        <string>Create</string>
       </attribute>
-      <widget class="QGroupBox" name="dispensorBox">
+      <widget class="QGroupBox" name="dispenserBox">
        <property name="geometry">
         <rect>
          <x>5</x>
@@ -1026,44 +1026,9 @@ QSpinBox{
         <string notr="true"/>
        </property>
        <property name="title">
-        <string>Dispensor</string>
+        <string>Dispenser</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_6">
-        <item row="0" column="7">
-         <widget class="QPushButton" name="dispenser_create">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="autoFillBackground">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Create</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="3">
-         <widget class="QLabel" name="dispenser_width_label">
-          <property name="minimumSize">
-           <size>
-            <width>46</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>46</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>width</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="0">
          <widget class="QLabel" name="dispender_length_label">
           <property name="minimumSize">
@@ -1086,7 +1051,64 @@ QSpinBox{
           </property>
          </widget>
         </item>
+        <item row="0" column="3">
+         <widget class="QLineEdit" name="dispenser_width">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>45</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>45</width>
+            <height>16777215</height>
+           </size>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="6">
+         <widget class="QPushButton" name="dispenser_create">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Create</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="dispenser_width_label">
+          <property name="minimumSize">
+           <size>
+            <width>46</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>46</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>width</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="5">
          <widget class="QSpinBox" name="dispenser_num">
           <property name="minimumSize">
            <size>
@@ -1179,69 +1201,33 @@ QSpinBox{
          </widget>
         </item>
         <item row="0" column="4">
-         <widget class="QLineEdit" name="dispenser_width">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>45</width>
-            <height>0</height>
-           </size>
-          </property>
+         <widget class="QComboBox" name="dispenser_dir">
           <property name="maximumSize">
            <size>
-            <width>45</width>
+            <width>80</width>
             <height>16777215</height>
            </size>
           </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QLabel" name="merge_length_label_4">
-          <property name="minimumSize">
-           <size>
-            <width>35</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>35</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true"> color:rgb(78, 91, 100)</string>
-          </property>
-          <property name="text">
-           <string>mm</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="5">
-         <widget class="QLabel" name="merge_length_label_5">
-          <property name="minimumSize">
-           <size>
-            <width>35</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>35</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true"> color:rgb(78, 91, 100)</string>
-          </property>
-          <property name="text">
-           <string>mm</string>
-          </property>
+          <item>
+           <property name="text">
+            <string>up</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>right</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>down</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>left</string>
+           </property>
+          </item>
          </widget>
         </item>
        </layout>

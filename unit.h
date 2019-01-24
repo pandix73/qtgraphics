@@ -40,6 +40,13 @@ public:
     int de_xnum = 0;
     int de_ynum = 0;
     int tilt = 0;
+    //dispenser parameters
+    int direction = 0;
+    int main_length = 0;
+    int main_width = 0;
+    int child_length = 0;
+    int child_width = 0;
+
     //heater parameters
     int zigzag_linewidth;
     int zigzag_layer;
