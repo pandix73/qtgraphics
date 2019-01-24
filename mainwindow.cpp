@@ -849,39 +849,29 @@ void MainWindow::export_clicked()
         if(item->type == "move"){
             if(item->tilt == 90){
                 for(int i = 0; i < item->de_ynum; i++){
-                    if(item->de_type == 1){
-                        export_scene->addRect(item->xi * scale,
-                                   ((item->yi+i*(de1_length_um/de_spacing_um + 1)) - (float)(brick_y_start-border_px)/pix_per_brick )* scale,
-                                   px_to_mm*de1_width_mm,
-                                   px_to_mm*de1_length_mm,
-                                   nopen, blackbrush);
-                    } else {
-                        export_scene->addRect(item->xi * scale,
-                                   ((item->yi+i*(de2_length_um/de_spacing_um + 1)) - (float)(brick_y_start-border_px)/pix_per_brick )* scale,
-                                   px_to_mm*de2_width_mm,
-                                   px_to_mm*de2_length_mm,
-                                   nopen, blackbrush);
-                    }
+                    export_scene->addRect(item->xi * scale,
+                               ((item->yi+i*(item->child_length + 1)) - (float)(brick_y_start-border_px)/pix_per_brick )* scale,
+                               px_to_mm*item->child_width*de_spacing_um/1000,
+                               px_to_mm*item->child_length*de_spacing_um/1000,
+                               nopen, blackbrush);
+//                    previewscene->addRect(item->xi*pix_per_brick,
+//                               (item->yi+i*(item->child_length + 1))*pix_per_brick,
+//                               pix_per_brick*item->child_width,
+//                               pix_per_brick*item->child_length,
+//                               nopen, nullitem);
                 }
             }
             else {
                 for(int i = 0; i < item->de_xnum; i++){
-                    if(item->de_type == 1){
-                        export_scene->addRect(((item->xi+i*(de1_length_um/de_spacing_um + 1)) - (float)(brick_x_start-border_px)/pix_per_brick )* (float)de_spacing_um* px_to_cm  / 10000,
-                                   item->yi* scale,
-                                   px_to_mm*de1_length_mm,
-                                   px_to_mm*de1_width_mm,
-                                   nopen, blackbrush);
-                    } else {
-                        export_scene->addRect(((item->xi+i*(de2_length_um/de_spacing_um + 1)) - (float)(brick_x_start-border_px)/pix_per_brick )* (float)de_spacing_um* px_to_cm  / 10000,
-                                   item->yi* scale,
-                                   px_to_mm*de2_length_mm,
-                                   px_to_mm*de2_width_mm,
-                                   nopen, blackbrush);
-                    }
+                    export_scene->addRect(((item->xi+i*(item->child_length + 1)) - (float)(brick_x_start-border_px)/pix_per_brick )* (float)de_spacing_um* px_to_cm  / 10000,
+                               item->yi* scale,
+                               px_to_mm*item->child_length*de_spacing_um/1000,
+                               px_to_mm*item->child_width*de_spacing_um/1000,
+                               nopen, blackbrush);
                 }
             }
-        }else if(item->type == "cycle"){
+        }
+        else if(item->type == "cycle"){
             for(int i = 0; i < item->de_xnum; i++){
                 for(int j = 0; j < item->de_ynum; j++){
                     if(i!=0 && i!=item->de_xnum-1 && j!=0 && j!=item->de_ynum-1) continue;
@@ -892,7 +882,8 @@ void MainWindow::export_clicked()
                                   nopen, blackbrush);
                 }
             }
-        }else{
+        }
+        else{
             export_scene->addRect(item->xi * scale,
                       item->yi * scale,
                       px_to_mm*item->actual_length,
@@ -902,15 +893,15 @@ void MainWindow::export_clicked()
 
         if(item->type == "sensor"){
             second_layer = true;
-            second_export_scene->addRect((item->xi+sensor_offset_x) * scale,
-                     (item->yi+sensor_offset_y) * scale,
-                     px_to_mm*2.5,
-                     px_to_mm*2.5,
+            second_export_scene->addRect((item->xi+sensor_offset_x/pix_per_brick) * scale,
+                     (item->yi+sensor_offset_y/pix_per_brick) * scale,
+                     px_to_mm*item->child_length*de_spacing_um/1000,
+                     px_to_mm*item->child_width*de_spacing_um/1000,
                      nopen, QBrush(Qt::red));
-            export_scene->addRect((item->xi+sensor_offset_x) * scale,
-                     (item->yi+sensor_offset_y) * scale,
-                     px_to_mm*2.5,
-                     px_to_mm*2.5,
+            export_scene->addRect((item->xi+sensor_offset_x/pix_per_brick) * scale,
+                     (item->yi+sensor_offset_y/pix_per_brick) * scale,
+                     px_to_mm*item->child_length*de_spacing_um/1000,
+                     px_to_mm*item->child_width*de_spacing_um/1000,
                      nopen, QBrush(Qt::red));
         }
    }
@@ -953,6 +944,7 @@ void MainWindow::export_clicked()
           return;
       }
 
+      second_export_scene->addRect(0, 0, (float)chip_length_mm*px_to_mm, (float)chip_width_mm*px_to_mm, graypen);
       second_export_scene->render(&p2);
       p2.end();
    }
