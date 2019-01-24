@@ -414,36 +414,20 @@ void MainWindow::mode_label(bool bChecked){
             if(item->type == "move"){                   //Show detail components for "move"
                 if(item->tilt == 90){
                     for(int i = 0; i < item->de_ynum; i++){
-                        if(item->de_type == 1){
-                            DestroyRect << linescene->addRect(item->xi*pix_per_brick,
-                                       (item->yi+i*(de1_length_um/de_spacing_um + 1))*pix_per_brick,
-                                       pix_per_brick*de1_width_um/de_spacing_um,
-                                       pix_per_brick*de1_length_um/de_spacing_um,
-                                       redpen, nullitem);
-                        } else {
-                            DestroyRect << linescene->addRect(item->xi*pix_per_brick,
-                                       (item->yi+i*(de2_length_um/de_spacing_um + 1))*pix_per_brick,
-                                       pix_per_brick*de2_width_um/de_spacing_um,
-                                       pix_per_brick*de2_length_um/de_spacing_um,
-                                       redpen, nullitem);
-                        }
+                        DestroyRect << linescene->addRect(item->xi*pix_per_brick,
+                                   (item->yi+i*(item->child_length + item->child_gap))*pix_per_brick,
+                                   pix_per_brick*item->child_width,
+                                   pix_per_brick*item->child_length,
+                                   redpen, nullitem);
                     }
                 }
                 else{
                     for(int i = 0; i < item->de_xnum; i++){
-                        if(item->de_type == 1){
-                            DestroyRect << linescene->addRect((item->xi+i*(de1_length_um/de_spacing_um + 1))*pix_per_brick,
-                                       item->yi*pix_per_brick,
-                                       pix_per_brick*de1_length_um/de_spacing_um,
-                                       pix_per_brick*de1_width_um/de_spacing_um,
-                                       redpen, nullitem);
-                        } else {
-                            DestroyRect << linescene->addRect((item->xi+i*(de2_length_um/de_spacing_um + 1))*pix_per_brick,
-                                       item->yi*pix_per_brick,
-                                       pix_per_brick*de2_length_um/de_spacing_um,
-                                       pix_per_brick*de2_width_um/de_spacing_um,
-                                       redpen, nullitem);
-                        }
+                        DestroyRect << linescene->addRect((item->xi+i*(item->child_length + item->child_gap))*pix_per_brick,
+                                   item->yi*pix_per_brick,
+                                   pix_per_brick*item->child_length,
+                                   pix_per_brick*item->child_width,
+                                   redpen, nullitem);
                     }
                 }
             }
@@ -1646,16 +1630,16 @@ void MainWindow::on_merge_create_clicked()
     if(linemode){
         WarningMessage("Cannot add components in LINE mode!");
     }
-    else if(ui->merge_length->text().isEmpty() && ui->merge_width->text().isEmpty())
-    {
-        WarningMessage("Missing Length and Width");
-    }
-    else if(ui->merge_length->text().isEmpty()){
-        WarningMessage("Missing Length");
-    }
-    else if(ui->merge_width->text().isEmpty()){
-        WarningMessage("Missing Width");
-    }
+//    else if(ui->merge_length->text().isEmpty() && ui->merge_width->text().isEmpty())
+//    {
+//        WarningMessage("Missing Length and Width");
+//    }
+//    else if(ui->merge_length->text().isEmpty()){
+//        WarningMessage("Missing Length");
+//    }
+//    else if(ui->merge_width->text().isEmpty()){
+//        WarningMessage("Missing Width");
+//    }
     else if(ui->temperature_sensor->isChecked()){
         EmptyMessage();
         int number = ui->merge_num->value();
@@ -1681,26 +1665,49 @@ void MainWindow::on_merge_create_clicked()
     }
     else{
         EmptyMessage();
-        int number = ui->merge_num->value();
-        int position = 20;
-        num_merge += number;
-        while(number--){
-            unit *merge = new unit();
-            merge->type = "merge";
-            merge->xi = position;
-            merge->yi = 20;
-            merge->actual_length = ui->merge_length->text().toInt();
-            merge->actual_width = ui->merge_width->text().toInt();
-            merge->length = ui->merge_length->text().toInt()*1000/de_spacing_um;
-            merge->width = ui->merge_width->text().toInt()*1000/de_spacing_um;
-            merge->color = merge_color;
-            ui->view->scene()->addItem(merge);
-            allunits.prepend(merge);
-            position += ui->merge_length->text().toInt() + 3;
-            connect(merge, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
-            num_de += 1;
-        }
-        ui->num_merge->setText(QString::number(num_merge));
+//        int number = ui->merge_num->value();
+//        int position = 20;
+//        num_merge += number;
+//        while(number--){
+//            unit *merge = new unit();
+//            merge->type = "merge";
+//            merge->xi = position;
+//            merge->yi = 20;
+//            merge->actual_length = ui->merge_length->text().toInt();
+//            merge->actual_width = ui->merge_width->text().toInt();
+//            merge->length = ui->merge_length->text().toInt()*1000/de_spacing_um;
+//            merge->width = ui->merge_width->text().toInt()*1000/de_spacing_um;
+//            merge->color = merge_color;
+//            ui->view->scene()->addItem(merge);
+//            allunits.prepend(merge);
+//            position += ui->merge_length->text().toInt() + 3;
+//            connect(merge, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
+//            num_de += 1;
+//        }
+//        ui->num_merge->setText(QString::number(num_merge));
+
+        //Create 3 mall units to set From nodes and To node
+        unit *fromA = new unit();
+        fromA->xi = 20;
+        fromA->yi = 20;
+        fromA->length = 5;
+        fromA->width = 5;
+        fromA->color = merge_color;
+        ui->view->scene()->addItem(fromA);
+        unit *fromB = new unit();
+        fromB->xi = 30;
+        fromB->yi = 20;
+        fromB->length = 5;
+        fromB->width = 5;
+        fromB->color = merge_color;
+        ui->view->scene()->addItem(fromB);
+        unit *to = new unit();
+        to->xi = 40;
+        to->yi = 20;
+        to->length = 5;
+        to->width = 5;
+        to->color = dispenser_color;
+        ui->view->scene()->addItem(to);
     }
 }
 
@@ -1709,7 +1716,6 @@ void MainWindow::on_sense_line_clicked()
 {
     sense_line = ui->sense_line->isChecked();
 }
-
 
 //DISPENSER
 void MainWindow::on_dispenser_create_clicked()
@@ -1732,7 +1738,6 @@ void MainWindow::on_dispenser_create_clicked()
         int number = ui->dispenser_num->value();
         int position = 20;
         num_dispenser += 1;
-//        while(number--){
             unit *dispenser = new unit();
             dispenser->type = "dispenser";
             dispenser->xi = position;
@@ -1783,7 +1788,6 @@ void MainWindow::on_dispenser_create_clicked()
             position += ui->merge_length->text().toInt() + 3;
             connect(dispenser, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
             num_de += 1 + number;
-//        }
         ui->num_dispenser->setText(QString::number(num_dispenser));
     }
 }
@@ -1794,52 +1798,40 @@ void MainWindow::on_move_create_clicked()
     if(linemode){
         WarningMessage("Cannot add components in LINE mode!");
     }
-    else if(ui->move_size->text().isEmpty()){
-        WarningMessage("Missing Size");
-    }
+//    else if(ui->move_size->text().isEmpty()){
+//        WarningMessage("Missing Size");
+//    }
     else{
         EmptyMessage();
         int number = ui->move_num->value();
         int position = 20;
         num_move += number;
-        while(number--){
-            unit *move = new unit();
-            move->type = "move";
-            move->xi = position;
-            move->yi = 20;
-            move->tilt = ui->move_tilt->text().toInt();
-            move->de_type = ui->move_electrod->value();
-            if(move->tilt == 90){
-                move->de_xnum = 1;
-                move->de_ynum = ui->move_size->text().toInt();
-                if(move->de_type == 1){
-                    move->length = move->de_xnum*de1_width_um/de_spacing_um;
-                    move->width = move->de_ynum*de1_length_um/de_spacing_um + move->de_ynum-1;
-                }
-                else{
-                    move->length = move->de_xnum*de2_width_um/de_spacing_um;
-                    move->width = move->de_ynum*de2_length_um/de_spacing_um + move->de_ynum-1;
-                }
-            }
-            else{
-                move->de_xnum = ui->move_size->text().toInt();
-                move->de_ynum = 1;
-                if(move->de_type == 1){
-                    move->length = move->de_xnum*de1_length_um/de_spacing_um + move->de_xnum-1;
-                    move->width = move->de_ynum*de1_width_um/de_spacing_um;
-                }
-                else{
-                    move->length = move->de_xnum*de2_length_um/de_spacing_um + move->de_xnum-1;
-                    move->width = move->de_ynum*de2_width_um/de_spacing_um;
-                }
-            }
-            move->color = moving_color;
-            ui->view->scene()->addItem(move);
-            allunits.prepend(move);
-            position += 5;
-            connect(move, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
-            num_de += move->de_xnum * move->de_ynum;
+        unit *move = new unit();
+        move->type = "move";
+        move->xi = position;
+        move->yi = 20;
+        move->child_length = ui->move_child_length->text().toInt()*1000/de_spacing_um;
+        move->child_width = ui->move_child_width->text().toInt()*1000/de_spacing_um;
+        move->child_gap = ui->move_gap->text().toInt()/de_spacing_um;
+        move->tilt = ui->move_tilt->text().toInt();
+        move->de_type = ui->move_electrod->value();
+        if(move->tilt == 90){
+            move->de_xnum = 1;
+            move->de_ynum = number;
+            move->length = move->de_xnum*move->child_width;
+            move->width = move->de_ynum*move->child_length + move->child_gap*(move->de_ynum-1);
         }
+        else{
+            move->de_xnum = number;
+            move->de_ynum = 1;
+            move->length = move->de_xnum*move->child_length + move->child_gap*(move->de_xnum-1);
+            move->width = move->de_ynum*move->child_width;
+        }
+        move->color = moving_color;
+        ui->view->scene()->addItem(move);
+        allunits.prepend(move);
+        connect(move, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
+        num_de += move->de_xnum * move->de_ynum;
         ui->num_move->setText(QString::number(num_move));
     }
 }
@@ -2019,36 +2011,20 @@ void MainWindow::on_preview_clicked(bool checked)
                 for(int i = 0; i < item->de_xnum; i++){
                     if(item->tilt == 90){
                         for(int i = 0; i < item->de_ynum; i++){
-                            if(item->de_type == 1){
-                                previewscene->addRect(item->xi*pix_per_brick,
-                                           (item->yi+i*(de1_length_um/de_spacing_um + 1))*pix_per_brick,
-                                           pix_per_brick*de1_width_um/de_spacing_um,
-                                           pix_per_brick*de1_length_um/de_spacing_um,
-                                           nopen, nullitem);
-                            } else {
-                                previewscene->addRect(item->xi*pix_per_brick,
-                                           (item->yi+i*(de2_length_um/de_spacing_um + 1))*pix_per_brick,
-                                           pix_per_brick*de2_width_um/de_spacing_um,
-                                           pix_per_brick*de2_length_um/de_spacing_um,
-                                           nopen, nullitem);
-                            }
+                            previewscene->addRect(item->xi*pix_per_brick,
+                                       (item->yi+i*(item->child_length + 1))*pix_per_brick,
+                                       pix_per_brick*item->child_width,
+                                       pix_per_brick*item->child_length,
+                                       nopen, nullitem);
                         }
                     }
                     else{
                         for(int i = 0; i < item->de_xnum; i++){
-                            if(item->de_type == 1){
-                                previewscene->addRect((item->xi+i*(de1_length_um/de_spacing_um + 1))*pix_per_brick,
-                                           item->yi*pix_per_brick,
-                                           pix_per_brick*de1_length_um/de_spacing_um,
-                                           pix_per_brick*de1_width_um/de_spacing_um,
-                                           nopen, nullitem);
-                            } else {
-                                previewscene->addRect((item->xi+i*(de2_length_um/de_spacing_um + 1))*pix_per_brick,
-                                           item->yi*pix_per_brick,
-                                           pix_per_brick*de2_length_um/de_spacing_um,
-                                           pix_per_brick*de2_width_um/de_spacing_um,
-                                           nopen, nullitem);
-                            }
+                            previewscene->addRect((item->xi+i*(item->child_length + 1))*pix_per_brick,
+                                       item->yi*pix_per_brick,
+                                       pix_per_brick*item->child_length,
+                                       pix_per_brick*item->child_width,
+                                       nopen, nullitem);
                         }
                     }
                 }
@@ -2192,6 +2168,7 @@ void MainWindow::on_preview_clicked(bool checked)
                 previewscene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, nopen, nullitem);
         }
 
+        linepen = QPen(Qt::black);
         linepen.setWidth(line_width_pix);
         for(line *head : linescene->alllines){
             if(head->heater_line)linepen.setWidth(line_width_pix*2);
