@@ -66,6 +66,7 @@ private slots:
     void EnableCreateUnit(bool enable);
     void on_move_create_clicked();                  // "create move" clicked
     void on_dispenser_create_clicked();             // "create dispenser" clicked
+    void on_sensor_create_clicked();
     void on_merge_create_clicked();                 // "create merge" clicked
     void on_cycling_create_clicked();               // "create cycling" clicked
     void on_heater_create_clicked();                // "create heater" clicked

@@ -52,6 +52,9 @@ int line_pix_per_brick;
 int sensor_offset_x;
 int sensor_offset_y;
 
+int dispenser_offset_up_down;
+int dispenser_offset_left_right;
+
 //Chip Parameters
 int border_px;
 int brick_xnum;
@@ -502,22 +505,20 @@ void MainWindow::mode_label(bool bChecked){
             }
             else if(item->type == "sensor"){
                 DestroyRect << linescene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, redpen, nullitem);
-                sensor_offset_x = (item->length*pix_per_brick - 24)/2;
-                sensor_offset_y = (item->width*pix_per_brick - 24)/2;
-                DestroyRect << linescene->addRect(item->xi*pix_per_brick+sensor_offset_x, item->yi*pix_per_brick+sensor_offset_y, 24, 24, redpen, blackbrush);
+                DestroyRect << linescene->addRect(item->xi*pix_per_brick+sensor_offset_x, item->yi*pix_per_brick+sensor_offset_y, item->child_length*pix_per_brick, item->child_width*pix_per_brick, redpen, blackbrush);
             }
             else if(item->type == "dispenser"){
                 switch(item->direction){
                     case 0 :    //up
                         for(int i = 0; i < item->de_xnum; i++){
-                            DestroyRect << linescene->addRect((item->xi+item->child_length)*pix_per_brick,
-                                (item->yi+(i*(item->child_length+1)))*pix_per_brick,
+                            DestroyRect << linescene->addRect((item->xi+dispenser_offset_up_down)*pix_per_brick,
+                                (item->yi+(i*(item->child_length+item->child_gap)))*pix_per_brick,
                                 pix_per_brick*item->child_width,
                                 pix_per_brick*item->child_length,
                                 redpen, nullitem);
                         }
                         DestroyRect << linescene->addRect(item->xi*pix_per_brick,
-                                (item->yi+(item->de_xnum*(item->child_length+1)))*pix_per_brick,
+                                (item->yi+(item->de_xnum*(item->child_length+item->child_gap)))*pix_per_brick,
                                 item->main_length*pix_per_brick,
                                 item->main_width*pix_per_brick,
                                 redpen, nullitem);
@@ -529,8 +530,8 @@ void MainWindow::mode_label(bool bChecked){
                                 item->main_width*pix_per_brick,
                                 redpen, nullitem);
                         for(int i = 0; i < item->de_xnum; i++){
-                            DestroyRect << linescene->addRect((item->xi+item->main_length+(i*(item->child_length+1))+1)*pix_per_brick,
-                                (item->yi+item->child_length)*pix_per_brick,
+                            DestroyRect << linescene->addRect((item->xi+item->main_length+(i*(item->child_length+item->child_gap))+item->child_gap)*pix_per_brick,
+                                (item->yi+dispenser_offset_left_right)*pix_per_brick,
                                 pix_per_brick*item->child_length,
                                 pix_per_brick*item->child_width,
                                 redpen, nullitem);
@@ -543,8 +544,8 @@ void MainWindow::mode_label(bool bChecked){
                             item->main_width*pix_per_brick,
                             redpen, nullitem);
                         for(int i = 0; i < item->de_xnum; i++){
-                            DestroyRect << linescene->addRect((item->xi+item->child_length)*pix_per_brick,
-                                (item->yi+item->main_width+(i*(item->child_length+1))+1)*pix_per_brick,
+                            DestroyRect << linescene->addRect((item->xi+dispenser_offset_up_down)*pix_per_brick,
+                                (item->yi+item->main_width+(i*(item->child_length+item->child_gap))+item->child_gap)*pix_per_brick,
                                 pix_per_brick*item->child_width,
                                 pix_per_brick*item->child_length,
                                 redpen, nullitem);
@@ -552,13 +553,13 @@ void MainWindow::mode_label(bool bChecked){
                         break;
                     case 3:     //left
                         for(int i = 0; i < item->de_xnum; i++){
-                            DestroyRect << linescene->addRect((item->xi+(i*(item->child_length+1)))*pix_per_brick,
-                                (item->yi+item->child_length)*pix_per_brick,
+                            DestroyRect << linescene->addRect((item->xi+(i*(item->child_length+item->child_gap)))*pix_per_brick,
+                                (item->yi+dispenser_offset_left_right)*pix_per_brick,
                                 pix_per_brick*item->child_length,
                                 pix_per_brick*item->child_width,
                                 redpen, nullitem);
                         }
-                        DestroyRect << linescene->addRect((item->xi+(item->de_xnum*(item->child_length+1)))*pix_per_brick,
+                        DestroyRect << linescene->addRect((item->xi+(item->de_xnum*(item->child_length+item->child_gap)))*pix_per_brick,
                                 item->yi*pix_per_brick,
                                 item->main_length*pix_per_brick,
                                 item->main_width*pix_per_brick,
@@ -901,8 +902,6 @@ void MainWindow::export_clicked()
 
         if(item->type == "sensor"){
             second_layer = true;
-            int sensor_offset_x = (item->length - 24/pix_per_brick)/2;
-            int sensor_offset_y = (item->width - 24/pix_per_brick)/2;
             second_export_scene->addRect((item->xi+sensor_offset_x) * scale,
                      (item->yi+sensor_offset_y) * scale,
                      px_to_mm*2.5,
@@ -1711,12 +1710,6 @@ void MainWindow::on_merge_create_clicked()
     }
 }
 
-//SENSE_LINE
-void MainWindow::on_sense_line_clicked()
-{
-    sense_line = ui->sense_line->isChecked();
-}
-
 //DISPENSER
 void MainWindow::on_dispenser_create_clicked()
 {
@@ -1749,35 +1742,43 @@ void MainWindow::on_dispenser_create_clicked()
             dispenser->actual_width = ui->dispenser_width->text().toInt();
             dispenser->main_length = ui->dispenser_length->text().toInt()*1000/de_spacing_um;
             dispenser->main_width = ui->dispenser_width->text().toInt()*1000/de_spacing_um;
-            dispenser->child_length = 5;
-            dispenser->child_width = 15;
+
+            // child
+            dispenser->child_length = ui->dispenser_child_length->text().toInt()*1000/de_spacing_um;
+            dispenser->child_width = ui->dispenser_child_width->text().toInt()*1000/de_spacing_um;
+            dispenser->child_gap = ui->dispenser_child_gap->text().toInt()/de_spacing_um;
             dispenser->direction = ui->dispenser_dir->currentIndex();
+
 
             // the entire component
             switch(dispenser->direction){
                 case 0 :
                     dispenser->length = ui->dispenser_length->text().toInt()*1000/de_spacing_um;
-                    dispenser->width = ui->dispenser_width->text().toInt()*1000/de_spacing_um + number*(dispenser->child_length+1);
+                    dispenser->width = ui->dispenser_width->text().toInt()*1000/de_spacing_um + number*(dispenser->child_length+dispenser->child_gap);
                     dispenser->de_xnum = number;
                     dispenser->de_ynum = number;
+                    dispenser_offset_up_down = (dispenser->main_length - dispenser->child_width)/2;
                 break;
                 case 1 :
-                    dispenser->length = ui->dispenser_length->text().toInt()*1000/de_spacing_um + number*(dispenser->child_length+1);
+                    dispenser->length = ui->dispenser_length->text().toInt()*1000/de_spacing_um + number*(dispenser->child_length+dispenser->child_gap);
                     dispenser->width = ui->dispenser_width->text().toInt()*1000/de_spacing_um;
                     dispenser->de_xnum = number;
                     dispenser->de_ynum = number;
+                    dispenser_offset_left_right = (dispenser->main_width - dispenser->child_width)/2;
                 break;
                 case 2:
                     dispenser->length = ui->dispenser_length->text().toInt()*1000/de_spacing_um;
-                    dispenser->width = ui->dispenser_width->text().toInt()*1000/de_spacing_um + number*(dispenser->child_length+1);
+                    dispenser->width = ui->dispenser_width->text().toInt()*1000/de_spacing_um + number*(dispenser->child_length+dispenser->child_gap);
                     dispenser->de_xnum = number;
                     dispenser->de_ynum = number;
+                    dispenser_offset_up_down = (dispenser->main_length - dispenser->child_width)/2;
                 break;
                 case 3:
-                    dispenser->length = ui->dispenser_length->text().toInt()*1000/de_spacing_um + number*(dispenser->child_length+1);
+                    dispenser->length = ui->dispenser_length->text().toInt()*1000/de_spacing_um + number*(dispenser->child_length+dispenser->child_gap);
                     dispenser->width = ui->dispenser_width->text().toInt()*1000/de_spacing_um;
                     dispenser->de_xnum = number;
                     dispenser->de_ynum = number;
+                    dispenser_offset_left_right = (dispenser->main_width - dispenser->child_width)/2;
                 break;
             }
 
@@ -1790,6 +1791,37 @@ void MainWindow::on_dispenser_create_clicked()
             num_de += 1 + number;
         ui->num_dispenser->setText(QString::number(num_dispenser));
     }
+}
+
+//SENSOR
+void MainWindow::on_sensor_create_clicked(){
+    int position = 20;
+    num_sensor += 1;
+    unit *sensor = new unit();
+    sensor->type = "sensor";
+    sensor->xi = position;
+    sensor->yi = 20;
+    sensor->actual_length = ui->sensor_body_length->text().toInt();
+    sensor->actual_width = ui->sensor_body_width->text().toInt();
+    sensor->length = ui->sensor_body_length->text().toInt()*1000/de_spacing_um;
+    sensor->width = ui->sensor_body_width->text().toInt()*1000/de_spacing_um;
+    sensor->child_length = ui->sensor_length->text().toInt()*1000/de_spacing_um;
+    sensor->child_width = ui->sensor_width->text().toInt()*1000/de_spacing_um;
+
+    sensor_offset_x = (sensor->length - sensor->child_length)*pix_per_brick/2;
+    sensor_offset_y = (sensor->width - sensor->child_width)*pix_per_brick/2;
+    qDebug() << sensor->length << sensor->child_length;
+    sensor->color = merge_color;
+    ui->view->scene()->addItem(sensor);
+    allunits.prepend(sensor);
+    connect(sensor, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
+    num_de += 1;
+    ui->num_sensor->setText(QString::number(num_sensor));
+}
+//SENSE_LINE
+void MainWindow::on_sense_line_clicked()
+{
+    sense_line = ui->sense_line->isChecked();
 }
 
 //MOVE
@@ -2033,14 +2065,14 @@ void MainWindow::on_preview_clicked(bool checked)
                 switch(item->direction){
                     case 0 :    //up
                         for(int i = 0; i < item->de_xnum; i++){
-                            previewscene->addRect((item->xi+item->child_length)*pix_per_brick,
-                                (item->yi+(i*(item->child_length+1)))*pix_per_brick,
+                            previewscene->addRect((item->xi+dispenser_offset_up_down)*pix_per_brick,
+                                (item->yi+(i*(item->child_length+item->child_gap)))*pix_per_brick,
                                 pix_per_brick*item->child_width,
                                 pix_per_brick*item->child_length,
                                 nopen, nullitem);
                         }
                         previewscene->addRect(item->xi*pix_per_brick,
-                                (item->yi+(item->de_xnum*(item->child_length+1)))*pix_per_brick,
+                                (item->yi+(item->de_xnum*(item->child_length+item->child_gap)))*pix_per_brick,
                                 item->main_length*pix_per_brick,
                                 item->main_width*pix_per_brick,
                                 nopen, nullitem);
@@ -2052,8 +2084,8 @@ void MainWindow::on_preview_clicked(bool checked)
                                 item->main_width*pix_per_brick,
                                 nopen, nullitem);
                         for(int i = 0; i < item->de_xnum; i++){
-                            previewscene->addRect((item->xi+item->main_length+(i*(item->child_length+1))+1)*pix_per_brick,
-                                (item->yi+item->child_length)*pix_per_brick,
+                            previewscene->addRect((item->xi+item->main_length+(i*(item->child_length+item->child_gap))+item->child_gap)*pix_per_brick,
+                                (item->yi+dispenser_offset_left_right)*pix_per_brick,
                                 pix_per_brick*item->child_length,
                                 pix_per_brick*item->child_width,
                                 nopen, nullitem);
@@ -2066,8 +2098,8 @@ void MainWindow::on_preview_clicked(bool checked)
                             item->main_width*pix_per_brick,
                             redpen, nullitem);
                         for(int i = 0; i < item->de_xnum; i++){
-                            previewscene->addRect((item->xi+item->child_length)*pix_per_brick,
-                                (item->yi+item->main_width+(i*(item->child_length+1))+1)*pix_per_brick,
+                            previewscene->addRect((item->xi+dispenser_offset_up_down)*pix_per_brick,
+                                (item->yi+item->main_width+(i*(item->child_length+item->child_gap))+item->child_gap)*pix_per_brick,
                                 pix_per_brick*item->child_width,
                                 pix_per_brick*item->child_length,
                                 nopen, nullitem);
@@ -2075,13 +2107,13 @@ void MainWindow::on_preview_clicked(bool checked)
                         break;
                     case 3:     //left
                         for(int i = 0; i < item->de_xnum; i++){
-                            previewscene->addRect((item->xi+(i*(item->child_length+1)))*pix_per_brick,
-                                (item->yi+item->child_length)*pix_per_brick,
+                            previewscene->addRect((item->xi+(i*(item->child_length+item->child_gap)))*pix_per_brick,
+                                (item->yi+dispenser_offset_left_right)*pix_per_brick,
                                 pix_per_brick*item->child_length,
                                 pix_per_brick*item->child_width,
                                 nopen, nullitem);
                         }
-                        previewscene->addRect((item->xi+(item->de_xnum*(item->child_length+1)))*pix_per_brick,
+                        previewscene->addRect((item->xi+(item->de_xnum*(item->child_length+item->child_gap)))*pix_per_brick,
                                 item->yi*pix_per_brick,
                                 item->main_length*pix_per_brick,
                                 item->main_width*pix_per_brick,
@@ -2160,9 +2192,7 @@ void MainWindow::on_preview_clicked(bool checked)
             }
             else if(item->type == "sensor"){
                 previewscene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, nopen, nullitem);
-                sensor_offset_x = (item->length*pix_per_brick - 24)/2;
-                sensor_offset_y = (item->width*pix_per_brick - 24)/2;
-                previewscene->addRect(item->xi*pix_per_brick+sensor_offset_x, item->yi*pix_per_brick+sensor_offset_y, 24, 24, nopen, blackbrush);         
+                previewscene->addRect(item->xi*pix_per_brick+sensor_offset_x, item->yi*pix_per_brick+sensor_offset_y, item->child_length*pix_per_brick, item->child_width*pix_per_brick, nopen, blackbrush);
             }
             else
                 previewscene->addRect(item->xi*pix_per_brick, item->yi*pix_per_brick, item->length*pix_per_brick, item->width*pix_per_brick, nopen, nullitem);
