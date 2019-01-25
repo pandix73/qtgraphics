@@ -1358,14 +1358,19 @@ void MainWindow::on_connect_btn_clicked()
                 child_starty += (tilt==90)*(child_width + item->child_gap);
             }
 
-        } /*else if(item->type == "sensor"){
-            int ynum = (item->yi+1)/5;
-            for(int i = 0; i < ynum; i++){
+        } else if(item->type == "sensor"){
+            for(int i = 0; i <= item->length; i++)
+                for(int j = 0; j <= item->width; j++)
+                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = unit_id;
+            source[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width/2)] = true;
+            unitmap[int(item->xi - shift) + int(item->length*1)][int(item->yi - shift) + int(item->width/2)] = 1;
+            unitmap[int(item->xi - shift) + int(item->length*0)][int(item->yi - shift) + int(item->width/2)] = 1;
+            unitmap[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width*1)] = 1;
+            unitmap[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width*0)] = 1;
+            unit_id ++;
 
-            }
 
-
-        } */else if(item->type == "merge"){
+        } else if(item->type == "merge"){
             for(int i = 0; i < 3; i++){
                 int start1x = int(item->xi - shift) + i*8;
                 int start2x = int(item->xi + item->length - shift) - 15 - i*8;
@@ -1502,14 +1507,14 @@ void MainWindow::on_connect_btn_clicked()
                     addEdge(to_d, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 1);
                 } else if(unitmap[i][j] > unitmap[i+1][j]){
                     if(unitmap[i][j] == 1 || unitmap[i+1][j] == -1 || unitmap[i+1][j] == 1)
-                        //addEdge(from, to_d+unsigned(xsize*ysize), 1, 1, 1);
-                        addEdge(to_d, from+unsigned(xsize*ysize), 1, 1, 1);
+                        addEdge(from, to_d+unsigned(xsize*ysize), 1, 1, 1);
+//                        addEdge(to_d, from+unsigned(xsize*ysize), 1, 1, 1);
                     else
                         ;
                 } else {
                     if(unitmap[i+1][j] == 1 || unitmap[i][j] == -1 || unitmap[i][j] == 1)
-                        //addEdge(to_d, from+unsigned(xsize*ysize), 1, 1, 1);
-                        addEdge(from, to_d+unsigned(xsize*ysize), 1, 1, 1);
+                        addEdge(to_d, from+unsigned(xsize*ysize), 1, 1, 1);
+//                        addEdge(from, to_d+unsigned(xsize*ysize), 1, 1, 1);
                     else;
                 }
             }
@@ -1520,14 +1525,14 @@ void MainWindow::on_connect_btn_clicked()
                     addEdge(to_r, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 2);
                 } else if(unitmap[i][j] > unitmap[i][j+1]){
                     if(unitmap[i][j] == 1 || unitmap[i][j+1] == -1 || unitmap[i][j+1] == 1)
-                        //addEdge(from, to_r+unsigned(xsize*ysize), 1, 1, 2);
-                        addEdge(to_r, from+unsigned(xsize*ysize), 1, 1, 2);
+                        addEdge(from, to_r+unsigned(xsize*ysize), 1, 1, 2);
+//                        addEdge(to_r, from+unsigned(xsize*ysize), 1, 1, 2);
                     else
                         ;
                 } else {
                     if(unitmap[i][j+1] == 1 || unitmap[i][j] == -1 || unitmap[i][j] == 1)
-                        //addEdge(to_r, from+unsigned(xsize*ysize), 1, 1, 2);
-                        addEdge(from, to_r+unsigned(xsize*ysize), 1, 1, 2);
+                        addEdge(to_r, from+unsigned(xsize*ysize), 1, 1, 2);
+//                        addEdge(from, to_r+unsigned(xsize*ysize), 1, 1, 2);
                     else
                         ;
                 }
@@ -1539,14 +1544,14 @@ void MainWindow::on_connect_btn_clicked()
                   // !(j < ysize-1 && (unitmap[i][j+1] == 1 || unitmap[i][j+1] == unitmap[i][j])))
                 if(source[i][j] == true){
                     // exchange st
-                    //addEdge(s, from+unsigned(xsize*ysize), 1, 1);
-                    addEdge(from+unsigned(xsize*ysize), t, 1, 1);
+                    addEdge(s, from+unsigned(xsize*ysize), 1, 1);
+//                    addEdge(from+unsigned(xsize*ysize), t, 1, 1);
                 }
             } else if(unitmap[i][j] <= -1){
                 if(!(i < xsize-1 && (unitmap[i+1][j] == -1 || unitmap[i+1][j] == unitmap[i][j])) &&
                    !(j < ysize-1 && (unitmap[i][j+1] == -1 || unitmap[i][j+1] == unitmap[i][j]))){
-                    //addEdge(from, t, 1, 1);
-                    addEdge(s, from, 1, 1);
+                    addEdge(from, t, 1, 1);
+//                    addEdge(s, from, 1, 1);
                 }
             }
         }
@@ -1759,7 +1764,7 @@ void MainWindow::on_connect_btn_clicked()
             if(pathmap[x][y] != 0 && pathmap[x][y] <= 4){
                 int dirx = (pathmap[x][y] == startDown) ? 1 : (pathmap[x][y] == startUp) ? -1 : 0;
                 int diry = (pathmap[x][y] == startLeft) ? -1 : (pathmap[x][y] == startRight) ? 1 : 0;
-                bool heater_line = heatmap[x][y];
+                int heater_line = heatmap[x][y];
                 line* newline = new line();
                 newline->heater_line = heater_line;
                 newline->previous = nullptr;
