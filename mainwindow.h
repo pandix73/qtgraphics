@@ -50,6 +50,8 @@ public:
     QList<unit*> tempunits;
     QList<unit*> errorunits;
     QList<unit*> passunits;
+
+    int sensor_line_map[2][300] = {0};
 public slots:
     void delete_from_list(unit *a);                 // remove the unit from list when it's deleted
     QGraphicsScene* CreateNewScene();

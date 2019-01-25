@@ -1019,7 +1019,7 @@ QSpinBox{
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>-239</y>
+          <y>0</y>
           <width>503</width>
           <height>788</height>
          </rect>
@@ -2906,22 +2906,6 @@ QPushButton{
     </property>
     <property name="text">
      <string>Welcome to NTHU Chip Map Creator!</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="temperature_sensor">
-    <property name="geometry">
-     <rect>
-      <x>1160</x>
-      <y>10</y>
-      <width>81</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">	background-color : rgb(46, 52, 66);</string>
-    </property>
-    <property name="text">
-     <string>T sensor</string>
     </property>
    </widget>
    <widget class="QRadioButton" name="heat_line">

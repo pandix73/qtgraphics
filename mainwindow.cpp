@@ -317,12 +317,9 @@ void MainWindow::DefaultControlPad(QGraphicsScene *scene){
         cp_right->color = Qt::black;
         scene->addItem(cp_right);
         allunits.prepend(cp_right);
-
         cp_yi_start += cp_width + cp_space;
         connect(cp_right, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
     }
-
-
 }
 
 void MainWindow::Info(){
@@ -432,6 +429,39 @@ void MainWindow::mode_label(bool bChecked){
                                    pix_per_brick*item->child_width,
                                    redpen, nullitem);
                     }
+                }
+            }
+            else if(item->type == "merge"){
+                //LEFT
+                int i = 0;
+                int middle = item->xi + item->length/2;
+                while(middle+1 >= item->xi + i*8 + 15){
+                     DestroyRect << linescene->addRect((item->xi+i*8)*pix_per_brick,
+                                (item->yi+i*6)*pix_per_brick,
+                                pix_per_brick*15,
+                                pix_per_brick*5,
+                                redpen, nullitem);
+                    i++;
+                }
+                //RIGHT
+                i = 0;
+                int end = item->xi + item->length;
+                while(middle+-1 <= end - i*8 - 15){
+                     DestroyRect << linescene->addRect((end-i*8-15)*pix_per_brick,
+                                (item->yi+i*6)*pix_per_brick,
+                                pix_per_brick*15,
+                                pix_per_brick*5,
+                                redpen, nullitem);
+                    i++;
+                }
+                //MIDDLE
+                while(i*6 < item->width){
+                    DestroyRect << linescene->addRect((middle - 8)*pix_per_brick,
+                                (item->yi+i*6)*pix_per_brick,
+                                pix_per_brick*15,
+                                pix_per_brick*5,
+                                redpen, nullitem);
+                    i++;
                 }
             }
             else if(item->type == "cycle"){             //Show detail components for 'cycling"
@@ -838,13 +868,52 @@ void MainWindow::export_clicked()
    QGraphicsScene *export_scene = new QGraphicsScene(0, 0, printer.pageRect().width(), printer.pageRect().height());
    QGraphicsScene *second_export_scene = new QGraphicsScene(0, 0, printer.pageRect().width(), printer.pageRect().height());
 
+   bool second_layer = true;
+   float scale = de_spacing_um * px_to_mm / 1000;
+
    // border in REAL SIZE
    export_scene->addRect(0, 0, (float)chip_length_mm*px_to_mm, (float)chip_width_mm*px_to_mm, graypen);
 
+   //lines in REAL SIZE
+   linepen.setColor(Qt::black);
+   linepen.setWidth(line_width_um * px_to_mm  / 1000);
+   for(line *head : linescene->alllines){
+       if(head->heater_line)linepen.setWidth(2 * line_width_um * px_to_mm / 1000);
+       line *current_seg = head;
+       while(current_seg->next != NULL){
+           if(current_seg->sensor_line){
+               second_export_scene->addLine(current_seg->x[0] * scale / pix_per_brick, current_seg->y[0]* scale / pix_per_brick, current_seg->x[1]* scale / pix_per_brick, current_seg->y[1]* scale / pix_per_brick, redpen);
+           }
+           else
+               export_scene->addLine(current_seg->x[0] * scale / pix_per_brick, current_seg->y[0]* scale / pix_per_brick, current_seg->x[1]* scale / pix_per_brick, current_seg->y[1]* scale / pix_per_brick, linepen);
+           current_seg = current_seg->next;
+       }
+       if(current_seg->sensor_line){
+           for(unit *check_cp : allunits){
+               if(check_cp->type == "controlpad"){
+                   qDebug() << check_cp->yi*pix_per_brick << current_seg->y[1] << (check_cp->yi+check_cp->width)*pix_per_brick;
+                   if(current_seg->y[1] >= check_cp->yi*pix_per_brick && current_seg->y[1] < (check_cp->yi+check_cp->width)*pix_per_brick){
+                       second_export_scene->addRect(check_cp->xi * scale,
+                                 check_cp->yi * scale,
+                                 px_to_mm*check_cp->actual_length,
+                                 px_to_mm*check_cp->actual_width,
+                                 nopen, blackbrush);
+                   }
+               }
+           }
+//           for(int j=0; j<cp_width; j++){
+//               sensor_line_map[0][(int)cp->yi+j] = 1;
+//               sensor_line_map[1][(int)cp->yi+j] = 1;
+//           }
+           second_export_scene->addLine(current_seg->x[0]* scale / pix_per_brick, current_seg->y[0]* scale / pix_per_brick, current_seg->x[1]* scale / pix_per_brick, current_seg->y[1]* scale / pix_per_brick, redpen);
+       }
+       else
+           export_scene->addLine(current_seg->x[0]* scale / pix_per_brick, current_seg->y[0]* scale / pix_per_brick, current_seg->x[1]* scale / pix_per_brick, current_seg->y[1]* scale / pix_per_brick, linepen);
+       if(head->heater_line)linepen.setWidth(line_width_um * px_to_mm / 1000);
+   }
+
 
    //units in REAL SIZE
-   bool second_layer = false;
-   float scale = de_spacing_um * px_to_mm / 1000;
    for(unit *item : allunits){
         if(item->type == "move"){
             if(item->tilt == 90){
@@ -966,22 +1035,7 @@ void MainWindow::export_clicked()
         }
    }
 
-   //lines in REAL SIZE
-   linepen.setColor(Qt::green);
-   linepen.setWidth(line_width_um * px_to_mm  / 1000);
-   for(line *head : linescene->alllines){
-       if(head->heater_line)linepen.setWidth(2 * line_width_um * px_to_mm / 1000);
-       line *current_seg = head;
-       while(current_seg->next != NULL){
-           if(current_seg->sensor_line)
-               second_export_scene->addLine(current_seg->x[0] * scale / pix_per_brick, current_seg->y[0]* scale / pix_per_brick, current_seg->x[1]* scale / pix_per_brick, current_seg->y[1]* scale / pix_per_brick, linepen);
-           else
-               export_scene->addLine(current_seg->x[0] * scale / pix_per_brick, current_seg->y[0]* scale / pix_per_brick, current_seg->x[1]* scale / pix_per_brick, current_seg->y[1]* scale / pix_per_brick, linepen);
-           current_seg = current_seg->next;
-       }
-       export_scene->addLine(current_seg->x[0]* scale / pix_per_brick, current_seg->y[0]* scale / pix_per_brick, current_seg->x[1]* scale / pix_per_brick, current_seg->y[1]* scale / pix_per_brick, linepen);
-       if(head->heater_line)linepen.setWidth(line_width_um * px_to_mm / 1000);
-   }
+
 
    export_scene->render(&p);
    p.end();
@@ -1163,7 +1217,7 @@ void MainWindow::on_eraser_clicked()
 void MainWindow::delete_from_list(unit *item)
 {
     if(item->type == "merge"){ num_merge--; num_de -= 1;}
-    if(item->type == "dispenser"){ num_dispenser--; num_de -= 1;}
+    if(item->type == "dispenser"){ num_dispenser--; num_de -= item->de_xnum;}
     if(item->type == "move"){ num_move--; num_de -= item->de_xnum*item->de_ynum;}
     if(item->type == "cycle"){ num_cycling--; num_de -= (item->de_xnum + item->de_ynum - 2) * 2;}
     if(item->type == "heat"){ num_heater--; num_de -= 2;}
@@ -1719,84 +1773,61 @@ void MainWindow::on_merge_create_clicked()
     if(linemode){
         WarningMessage("Cannot add components in LINE mode!");
     }
-//    else if(ui->merge_length->text().isEmpty() && ui->merge_width->text().isEmpty())
-//    {
-//        WarningMessage("Missing Length and Width");
-//    }
-//    else if(ui->merge_length->text().isEmpty()){
-//        WarningMessage("Missing Length");
-//    }
-//    else if(ui->merge_width->text().isEmpty()){
-//        WarningMessage("Missing Width");
-//    }
-    else if(ui->temperature_sensor->isChecked()){
-        EmptyMessage();
-        int number = ui->merge_num->value();
-        int position = 20;
-        num_sensor += number;
-        while(number--){
-            unit *sensor = new unit();
-            sensor->type = "sensor";
-            sensor->xi = position;
-            sensor->yi = 20;
-            sensor->actual_length = ui->merge_length->text().toInt();
-            sensor->actual_width = ui->merge_width->text().toInt();
-            sensor->length = ui->merge_length->text().toInt()*1000/de_spacing_um;
-            sensor->width = ui->merge_width->text().toInt()*1000/de_spacing_um;
-            sensor->color = merge_color;
-            ui->view->scene()->addItem(sensor);
-            allunits.prepend(sensor);
-            position += ui->merge_length->text().toInt() + 3;
-            connect(sensor, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
-            num_de += 1;
-        }
-        ui->num_sensor->setText(QString::number(num_sensor));
+    else if(ui->merge_length->text().isEmpty() && ui->merge_width->text().isEmpty())
+    {
+        WarningMessage("Missing Length and Width");
+    }
+    else if(ui->merge_length->text().isEmpty()){
+        WarningMessage("Missing Length");
+    }
+    else if(ui->merge_width->text().isEmpty()){
+        WarningMessage("Missing Width");
     }
     else{
         EmptyMessage();
-//        int number = ui->merge_num->value();
-//        int position = 20;
-//        num_merge += number;
-//        while(number--){
-//            unit *merge = new unit();
-//            merge->type = "merge";
-//            merge->xi = position;
-//            merge->yi = 20;
-//            merge->actual_length = ui->merge_length->text().toInt();
-//            merge->actual_width = ui->merge_width->text().toInt();
-//            merge->length = ui->merge_length->text().toInt()*1000/de_spacing_um;
-//            merge->width = ui->merge_width->text().toInt()*1000/de_spacing_um;
-//            merge->color = merge_color;
-//            ui->view->scene()->addItem(merge);
-//            allunits.prepend(merge);
-//            position += ui->merge_length->text().toInt() + 3;
-//            connect(merge, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
-//            num_de += 1;
-//        }
-//        ui->num_merge->setText(QString::number(num_merge));
+        int number = ui->merge_num->value();
+        int position = 20;
+        num_merge += number;
+        while(number--){
+            unit *merge = new unit();
+            merge->type = "merge";
+            merge->xi = position;
+            merge->yi = 20;
+            merge->actual_length = ui->merge_length->text().toInt();
+            merge->actual_width = ui->merge_width->text().toInt();
+            merge->length = ui->merge_length->text().toInt()*1000/de_spacing_um;
+            merge->width = ui->merge_width->text().toInt()*1000/de_spacing_um;
+            merge->color = merge_color;
+            ui->view->scene()->addItem(merge);
+            allunits.prepend(merge);
+            position += ui->merge_length->text().toInt() + 3;
+            connect(merge, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
+            num_de += 1;
+        }
+        ui->num_merge->setText(QString::number(num_merge));
 
         //Create 3 mall units to set From nodes and To node
-        unit *fromA = new unit();
-        fromA->xi = 20;
-        fromA->yi = 20;
-        fromA->length = 5;
-        fromA->width = 5;
-        fromA->color = merge_color;
-        ui->view->scene()->addItem(fromA);
-        unit *fromB = new unit();
-        fromB->xi = 30;
-        fromB->yi = 20;
-        fromB->length = 5;
-        fromB->width = 5;
-        fromB->color = merge_color;
-        ui->view->scene()->addItem(fromB);
-        unit *to = new unit();
-        to->xi = 40;
-        to->yi = 20;
-        to->length = 5;
-        to->width = 5;
-        to->color = dispenser_color;
-        ui->view->scene()->addItem(to);
+//        unit *fromA = new unit();
+//        fromA->xi = 20;
+//        fromA->yi = 20;
+//        fromA->length = 5;
+//        fromA->width = 5;
+//        fromA->color = merge_color;
+//        ui->view->scene()->addItem(fromA);
+//        unit *fromB = new unit();
+//        fromB->xi = 30;
+//        fromB->yi = 20;
+//        fromB->length = 5;
+//        fromB->width = 5;
+//        fromB->color = merge_color;
+//        ui->view->scene()->addItem(fromB);
+//        unit *to = new unit();
+//        to->xi = 40;
+//        to->yi = 20;
+//        to->length = 5;
+//        to->width = 5;
+//        to->color = dispenser_color;
+//        ui->view->scene()->addItem(to);
     }
 }
 
