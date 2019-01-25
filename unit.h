@@ -41,14 +41,14 @@ public:
     int de_ynum = 0;
     int tilt = 0;
     //move parameters
-    float child_gap = 0;
+    int child_gap = 0;
 
     //dispenser parameters
     int direction = 0;
-    float main_length = 0;
-    float main_width = 0;
-    float child_length = 0;
-    float child_width = 0;
+    int main_length = 0;
+    int main_width = 0;
+    int child_length = 0;
+    int child_width = 0;
 
     //heater parameters
     int zigzag_linewidth;
