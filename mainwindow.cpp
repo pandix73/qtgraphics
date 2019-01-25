@@ -871,6 +871,66 @@ void MainWindow::export_clicked()
                 }
             }
         }
+        else if(item->type == "dispenser"){
+            switch(item->direction){
+                case 0 :
+                    for(int i = 0; i < item->de_xnum; i++){
+                        export_scene->addRect((item->xi+dispenser_offset_up_down)*scale,
+                            (item->yi+(i*(item->child_length+item->child_gap)))*scale,
+                            px_to_mm*item->child_width*de_spacing_um/1000,
+                            px_to_mm*item->child_length*de_spacing_um/1000,
+                            nopen, blackbrush);
+                    }
+                    export_scene->addRect(item->xi*scale,
+                            (item->yi+(item->de_xnum*(item->child_length+item->child_gap)))*scale,
+                            px_to_mm*item->main_length*de_spacing_um/1000,
+                            px_to_mm*item->main_width*de_spacing_um/1000,
+                            nopen, blackbrush);
+                break;
+                case 1 :    //up
+                    export_scene->addRect(item->xi*scale,
+                                item->yi*scale,
+                                px_to_mm*item->actual_length,
+                                px_to_mm*item->actual_width,
+                                nopen, blackbrush);
+                    for(int i = 0; i < item->de_xnum; i++){
+                        export_scene->addRect((item->xi+item->main_length+(i*(item->child_length+item->child_gap))+item->child_gap)*scale,
+                                (item->yi+dispenser_offset_left_right)*scale,
+                                px_to_mm*item->child_length*de_spacing_um/1000,
+                                px_to_mm*item->child_width*de_spacing_um/1000,
+                                nopen, blackbrush);
+                    }
+                break;
+                case 2:     //down
+                    export_scene->addRect(item->xi*scale,
+                            item->yi*scale,
+                            px_to_mm*item->actual_length,
+                            px_to_mm*item->actual_width,
+                            nopen, blackbrush);
+                    for(int i = 0; i < item->de_xnum; i++){
+                        export_scene->addRect((item->xi+dispenser_offset_up_down)*scale,
+                            (item->yi+item->main_width+(i*(item->child_length+item->child_gap))+item->child_gap)*scale,
+                            px_to_mm*item->child_width*de_spacing_um/1000,
+                            px_to_mm*item->child_length*de_spacing_um/1000,
+                            nopen, blackbrush);
+                    }
+                break;
+                case 3:     //left
+                    for(int i = 0; i < item->de_xnum; i++){
+                        export_scene->addRect((item->xi+(i*(item->child_length+item->child_gap)))*scale,
+                            (item->yi+dispenser_offset_left_right)*scale,
+                            px_to_mm*item->child_length*de_spacing_um/1000,
+                            px_to_mm*item->child_width*de_spacing_um/1000,
+                            nopen, blackbrush);
+                    }
+                    export_scene->addRect((item->xi+(item->de_xnum*(item->child_length+item->child_gap)))*scale,
+                            item->yi*scale,
+                            px_to_mm*item->actual_length,
+                            px_to_mm*item->actual_width,
+                            nopen, blackbrush);
+                break;
+            }
+        }
         else if(item->type == "cycle"){
             for(int i = 0; i < item->de_xnum; i++){
                 for(int j = 0; j < item->de_ynum; j++){
