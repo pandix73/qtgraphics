@@ -1216,7 +1216,7 @@ void MainWindow::on_eraser_clicked()
 //remove the deleted item from allunits list
 void MainWindow::delete_from_list(unit *item)
 {
-    if(item->type == "merge"){ num_merge--; num_de -= 1;}
+    if(item->type == "merge"){ num_merge--; num_de -= 6;}
     if(item->type == "dispenser"){ num_dispenser--; num_de -= item->de_xnum;}
     if(item->type == "move"){ num_move--; num_de -= item->de_xnum*item->de_ynum;}
     if(item->type == "cycle"){ num_cycling--; num_de -= (item->de_xnum + item->de_ynum - 2) * 2;}
@@ -1269,10 +1269,12 @@ void MainWindow::on_connect_btn_clicked()
     };
 
     // unitmap setup
+    std::vector<line*>newlines = {};
     memset(unitmap, 0, sizeof(unitmap));
     int unit_id = 2;
     int cpad_id = -2;
     bool source[500][500] = {{false}};
+    bool heatmap[500][500] = {{false}};
     int routmap[500][500];
     memset(routmap, 0, sizeof(routmap));
 
@@ -1284,8 +1286,8 @@ void MainWindow::on_connect_btn_clicked()
             for(int i = 0, j = 0; i < item->de_xnum && j < item->de_ynum; i+=(item->tilt==0), j+=(item->tilt==90)){
                 startx = int(item->xi - shift) + i*(child_length + item->child_gap);
                 starty = int(item->yi - shift) + j*(child_width  + item->child_gap);
-                for(int k = 0; k <= child_length; k++)
-                    for(int l = 0; l <= child_width; l++)
+                for(int k = 0; k < child_length; k++)
+                    for(int l = 0; l < child_width; l++)
                         unitmap[startx + k][starty + l] = unit_id;
                 source[startx + child_length/2][starty + child_width/2] = true;
                 unitmap[startx + child_length/2][starty + child_width*1] = 1;
@@ -1331,8 +1333,8 @@ void MainWindow::on_connect_btn_clicked()
             qDebug() << main_startx << main_starty << child_startx << child_starty;
 
             // main part
-            for(int i = 0; i <= item->main_length; i++)
-                for(int j = 0; j <= item->main_width; j++)
+            for(int i = 0; i < item->main_length; i++)
+                for(int j = 0; j < item->main_width; j++)
                     unitmap[main_startx + i][main_starty + j] = unit_id;
             source[main_startx  + main_length/2][main_starty + main_width/2] = true;
             unitmap[main_startx + main_length*1][main_starty + main_width/2] = 1;
@@ -1343,8 +1345,8 @@ void MainWindow::on_connect_btn_clicked()
 
             // child part
             for(int i = 0, j = 0; i < item->de_xnum && j < item->de_xnum; i+=(tilt==0), j+=(tilt==90)){
-                for(int k = 0; k <= child_length; k++)
-                    for(int l = 0; l <= child_width; l++)
+                for(int k = 0; k < child_length; k++)
+                    for(int l = 0; l < child_width; l++)
                         unitmap[child_startx + k][child_starty+ l] = unit_id;
                 source[child_startx  + child_length/2][child_starty + child_width/2] = true;
                 unitmap[child_startx + child_length*1][child_starty + child_width/2] = 1;
@@ -1356,38 +1358,77 @@ void MainWindow::on_connect_btn_clicked()
                 child_starty += (tilt==90)*(child_width + item->child_gap);
             }
 
-        } else if(item->type == "merge"){
-            /*int starti = (item->xi - shift)*de_spacing_um/line_width_um;
-            int endi = (item->xi + item->length - shift)*de_spacing_um/line_width_um;
-            int startj = (item->yi - shift)*de_spacing_um/line_width_um;
-            int endj = (item->yi + item->width - shift)*de_spacing_um/line_width_um;
-            for(int i = starti; i <= endi; i++)
-                for(int j = startj; j <= endj; j++)
-                    unitmap[i][j] = unit_id;
-            source[(starti+endi)/2][(startj+endj)/2] = true;
-            unitmap[starti][(startj+endj)/2] = 1;
-            unitmap[endi][(startj+endj)/2] = 1;
-            unitmap[(starti+endi)/2][startj] = 1;
-            unitmap[(starti+endi)/2][endj] = 1;*/
-            for(int i = 0; i <= item->length; i++)
-                for(int j = 0; j <= item->width; j++)
-                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = unit_id;
-            source[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width/2)] = true;
-            unitmap[int(item->xi - shift) + int(item->length*1)][int(item->yi - shift) + int(item->width/2)] = 1;
-            unitmap[int(item->xi - shift) + int(item->length*0)][int(item->yi - shift) + int(item->width/2)] = 1;
-            unitmap[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width*1)] = 1;
-            unitmap[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width*0)] = 1;
-            unit_id ++;
+        } /*else if(item->type == "sensor"){
+            int ynum = (item->yi+1)/5;
+            for(int i = 0; i < ynum; i++){
+
+            }
+
+
+        } */else if(item->type == "merge"){
+            for(int i = 0; i < 3; i++){
+                int start1x = int(item->xi - shift) + i*8;
+                int start2x = int(item->xi + item->length - shift) - 15 - i*8;
+                int endx = int(item->xi + item->length - shift) - i*8;
+                int starty = int(item->yi - shift) + i*6;
+                for(int j = start1x; j <= endx; j++)
+                    for(int k = 0; k <= 5; k++){
+                        unitmap[j][starty + k] = unit_id;
+                        line* newline = new line();
+                        newline->previous = nullptr;
+                        newline->next = nullptr;
+                        newline->x[0] = (start1x + 7 + shift)*pix_per_brick;
+                        newline->x[1] = (start2x + 7 + shift)*pix_per_brick;
+                        newline->y[0] = (starty + 2 + shift)*pix_per_brick;
+                        newline->y[1] = (starty + 2 + shift)*pix_per_brick;
+                        newlines.push_back(newline);
+                    }
+//                for(int j = 0; j < 15; j++)
+//                    for(int k = 0; k < 5; k++){
+//                        unitmap[start1x + j][starty + k] = unit_id;
+//                        unitmap[start2x + j][starty + k] = unit_id;
+//                    }
+                source[(start1x + endx)/2][starty + 2] = true;
+                unitmap[start1x][starty + 2] = 1;
+                unitmap[start2x+15][starty + 2] = 1;
+                unit_id ++;
+            }
+            for(int i = 3; i < 6; i++){
+                int startx = int(item->xi - shift) + 3*8;
+                int starty = int(item->yi - shift) + i*6;
+                for(int j = 0; j <= 15; j++)
+                    for(int k = 0; k <= 5; k++){
+                        unitmap[startx + j][starty + k] = unit_id;
+                    }
+                source[startx + 7][starty + 2] = true;
+                unitmap[startx][starty + 2] = 1;
+                unitmap[startx + 15][starty + 2] = 1;
+                unit_id ++;
+            }
+
+
+//            for(int i = 0; i <= item->length; i++)
+//                for(int j = 0; j <= item->width; j++)
+//                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = unit_id;
+//            source[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width/2)] = true;
+//            unitmap[int(item->xi - shift) + int(item->length*1)][int(item->yi - shift) + int(item->width/2)] = 1;
+//            unitmap[int(item->xi - shift) + int(item->length*0)][int(item->yi - shift) + int(item->width/2)] = 1;
+//            unitmap[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width*1)] = 1;
+//            unitmap[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width*0)] = 1;
+//            unit_id ++;
         } else if(item->type == "heat"){
             for(int i = 0; i <= item->length; i++)
-                for(int j = 0; j <= item->width; j++)
-                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = unit_id;//(i == int(item->length/2) || j == int(item->width/2)) ? 1 : unit_id;
+                for(int j = 0; j <= item->width; j++){
+                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = unit_id;//(i == int(item->length/2) || j == int(item->width/2)) ? 1 : unit_id;                    
+                }
             int side_point_x = int(item->xi-shift) + (item->length*((item->tilt == 0) ? 1 : (item->tilt == 180) ? 0 : 0.5));
             int side_point_y = int(item->yi-shift) + (item->width*((item->tilt == 90) ? 1 : (item->tilt == 270) ? 0 : 0.5));
             int vertex_x = int(item->xi-shift) + item->length*((item->clockwise && (item->tilt == 0 || item->tilt == 270)) || (!item->clockwise && (item->tilt == 0 || item->tilt == 90)));
             int vertex_y = int(item->yi-shift) + item->width*((item->clockwise && (item->tilt == 0 || item->tilt == 90)) || (!item->clockwise && (item->tilt == 90 || item->tilt == 180)));
             source[side_point_x][side_point_y] = true;
+            heatmap[side_point_x][side_point_y] = true;
             source[vertex_x][vertex_y] = true;
+            heatmap[vertex_x][vertex_y] = true;
             unitmap[side_point_x][side_point_y] = 1;
             unitmap[vertex_x][vertex_y] = 1;
             unit_id ++;
@@ -1398,17 +1439,7 @@ void MainWindow::on_connect_btn_clicked()
                     unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = (j > 0+1 && j < int(item->width)-1) ? ((i == -1 || i == item->length+1) ? 0 : -1) : cpad_id;
                 }
             cpad_id --;
-            /*qDebug()<<item->xi<<starti<<item->yi<<startj;
-            int starti = (item->xi - brick_x_start)*de_spacing_um/line_width_um;
-            int endi = (item->xi + item->length - brick_x_start)*de_spacing_um/line_width_um;
-            int startj = (item->yi - brick_y_start)*de_spacing_um/line_width_um;
-            int endj = (item->yi + item->width - brick_y_start)*de_spacing_um/line_width_um;
-            for(int i = starti; i <= endi; i++){
-                for(int j = startj; j <= endj; j++){
-                    unitmap[i][j] = cpad_id;
-                }
-            }
-            cpad_id --;*/
+
         }
     }
 
@@ -1420,6 +1451,8 @@ void MainWindow::on_connect_btn_clicked()
         for(int i = 0; i < xsize; i++){
             //debug += QString::number(unitmap[i][j]);
             debug += (unitmap[i][j] > 0 ? '+' : (unitmap[i][j] < 0) ? '-' : '0');
+            // line spacing adjustment
+            if(unitmap[i][j] == 0 && i%2 && j%2)unitmap[i][j] = unit_id;
         }
         qDebug() << debug;
     }
@@ -1469,12 +1502,14 @@ void MainWindow::on_connect_btn_clicked()
                     addEdge(to_d, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 1);
                 } else if(unitmap[i][j] > unitmap[i+1][j]){
                     if(unitmap[i][j] == 1 || unitmap[i+1][j] == -1 || unitmap[i+1][j] == 1)
-                        addEdge(from, to_d+unsigned(xsize*ysize), 1, 1, 1);
+                        //addEdge(from, to_d+unsigned(xsize*ysize), 1, 1, 1);
+                        addEdge(to_d, from+unsigned(xsize*ysize), 1, 1, 1);
                     else
                         ;
                 } else {
                     if(unitmap[i+1][j] == 1 || unitmap[i][j] == -1 || unitmap[i][j] == 1)
-                        addEdge(to_d, from+unsigned(xsize*ysize), 1, 1, 1);
+                        //addEdge(to_d, from+unsigned(xsize*ysize), 1, 1, 1);
+                        addEdge(from, to_d+unsigned(xsize*ysize), 1, 1, 1);
                     else;
                 }
             }
@@ -1485,12 +1520,14 @@ void MainWindow::on_connect_btn_clicked()
                     addEdge(to_r, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 2);
                 } else if(unitmap[i][j] > unitmap[i][j+1]){
                     if(unitmap[i][j] == 1 || unitmap[i][j+1] == -1 || unitmap[i][j+1] == 1)
-                        addEdge(from, to_r+unsigned(xsize*ysize), 1, 1, 2);
+                        //addEdge(from, to_r+unsigned(xsize*ysize), 1, 1, 2);
+                        addEdge(to_r, from+unsigned(xsize*ysize), 1, 1, 2);
                     else
                         ;
                 } else {
                     if(unitmap[i][j+1] == 1 || unitmap[i][j] == -1 || unitmap[i][j] == 1)
-                        addEdge(to_r, from+unsigned(xsize*ysize), 1, 1, 2);
+                        //addEdge(to_r, from+unsigned(xsize*ysize), 1, 1, 2);
+                        addEdge(from, to_r+unsigned(xsize*ysize), 1, 1, 2);
                     else
                         ;
                 }
@@ -1500,20 +1537,26 @@ void MainWindow::on_connect_btn_clicked()
             if(unitmap[i][j] >= 1){
                 //if(!(i < xsize-1 && (unitmap[i+1][j] == 1 || unitmap[i+1][j] == unitmap[i][j])) &&
                   // !(j < ysize-1 && (unitmap[i][j+1] == 1 || unitmap[i][j+1] == unitmap[i][j])))
-                if(source[i][j] == true)
-                    addEdge(s, from+unsigned(xsize*ysize), 1, 1);
+                if(source[i][j] == true){
+                    // exchange st
+                    //addEdge(s, from+unsigned(xsize*ysize), 1, 1);
+                    addEdge(from+unsigned(xsize*ysize), t, 1, 1);
+                }
             } else if(unitmap[i][j] <= -1){
                 if(!(i < xsize-1 && (unitmap[i+1][j] == -1 || unitmap[i+1][j] == unitmap[i][j])) &&
-                   !(j < ysize-1 && (unitmap[i][j+1] == -1 || unitmap[i][j+1] == unitmap[i][j])))
-                    addEdge(from, t, 1, 1);
+                   !(j < ysize-1 && (unitmap[i][j+1] == -1 || unitmap[i][j+1] == unitmap[i][j]))){
+                    //addEdge(from, t, 1, 1);
+                    addEdge(s, from, 1, 1);
+                }
             }
         }
     }
 
     int count = 0;
-    /*for(int i = 0; i < xsize; i++)
+    for(int i = 0; i < xsize; i++)
         for(int j = 0; j < ysize; j++)
-            qDebug() << unitmap[i][j];*/
+            if(unitmap[i][j] == unit_id)unitmap[i][j] = 0;
+
     for(unit* unit : allunits){
         count += unit->de_xnum*unit->de_ynum;
         qDebug() << unit->xi << unit->yi;
@@ -1710,14 +1753,15 @@ void MainWindow::on_connect_btn_clicked()
         qDebug() << debug;
     }*/
 
-    std::vector<line*>newlines = {};
 
     for(int x = 0; x < xsize; x++){
         for(int y = 0; y < ysize; y++){
             if(pathmap[x][y] != 0 && pathmap[x][y] <= 4){
                 int dirx = (pathmap[x][y] == startDown) ? 1 : (pathmap[x][y] == startUp) ? -1 : 0;
                 int diry = (pathmap[x][y] == startLeft) ? -1 : (pathmap[x][y] == startRight) ? 1 : 0;
+                bool heater_line = heatmap[x][y];
                 line* newline = new line();
+                newline->heater_line = heater_line;
                 newline->previous = nullptr;
                 newlines.push_back(newline);
                 newline->x[0] = (x+shift)*pix_per_brick;
@@ -1733,6 +1777,7 @@ void MainWindow::on_connect_btn_clicked()
                             newline->next = new line();
                             newline->next->previous = newline;
                             newline = newline->next;
+                            newline->heater_line = heater_line;
                             newline->x[0] = (i+shift)*pix_per_brick;
                             newline->y[0] = (j+shift)*pix_per_brick;
                             if (pathmap[i][j] == UpRight || pathmap[i][j] == DownLeft) {
@@ -1802,7 +1847,7 @@ void MainWindow::on_merge_create_clicked()
             allunits.prepend(merge);
             position += ui->merge_length->text().toInt() + 3;
             connect(merge, SIGNAL(delete_this_item(unit *)), this, SLOT(delete_from_list(unit *)));
-            num_de += 1;
+            num_de += 6;
         }
         ui->num_merge->setText(QString::number(num_merge));
 
