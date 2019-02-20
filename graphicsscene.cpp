@@ -93,7 +93,7 @@ void graphicsscene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
         QGraphicsScene::mousePressEvent(mouseEvent);
     }
     if(!deletemode){
-        if(!pressed){                                             // start a new turnning line
+        if(!pressed){                                             // start a new turnning line         
             line *drawline = new line();
             if(roundx1 < round)
                 drawline->x[0] = tempx*line_pix_per_brick;

@@ -233,7 +233,7 @@ void MainWindow::BackgroundGrid(QGraphicsScene *scene){
     //background grid (in dotted form)
     for(int i = 0; i <= brick_xnum; i+=5){
         for(int j = 0; j <= brick_ynum; j+=5){
-            scene->addEllipse(brick_x_start+i*pix_per_brick, brick_y_start+j*pix_per_brick, 0.5, 0.5, graypen);
+            ;//scene->addEllipse(brick_x_start+i*pix_per_brick, brick_y_start+j*pix_per_brick, 0.5, 0.5, graypen);
         }
     }
     //QPen pen;
@@ -254,7 +254,7 @@ void MainWindow::LineBackgroundGrid(QGraphicsScene *scene){
     int line_brick_ynum = double(brick_ynum)*de_spacing_um/1000;
     for(int i = 0; i <= line_brick_xnum; i+=1){
         for(int j = 0; j <= line_brick_ynum; j+=1){
-            scene->addEllipse(brick_x_start+i*line_pix_per_brick, brick_y_start+j*line_pix_per_brick, 0.5, 0.5, graypen);
+            ;//scene->addEllipse(brick_x_start+i*line_pix_per_brick, brick_y_start+j*line_pix_per_brick, 0.5, 0.5, graypen);
         }
     }
 }
@@ -262,10 +262,10 @@ void MainWindow::LineBackgroundGrid(QGraphicsScene *scene){
 void MainWindow::ChipScaleDots(QGraphicsScene *scene){
     //chip scale                                                                        //show dots of scale near the chip border, each interval stands for 1cm in real size
     for(int i = 10; i < chip_length_mm; i+=10){
-        scene->addEllipse(brick_x_start-border_px + i*mm_to_px, brick_y_start-border_px+chip_width_px-2, 1, 1, redpen);
+        ;//scene->addEllipse(brick_x_start-border_px + i*mm_to_px, brick_y_start-border_px+chip_width_px-2, 1, 1, redpen);
     }
     for(int i = 10; i < chip_width_mm; i+=10){
-        scene->addEllipse(brick_x_start-border_px+2, brick_y_start-border_px + i*mm_to_px, 1, 1, redpen);
+        ;//scene->addEllipse(brick_x_start-border_px+2, brick_y_start-border_px + i*mm_to_px, 1, 1, redpen);
     }
 }
 
@@ -1376,17 +1376,17 @@ void MainWindow::on_connect_btn_clicked()
                 int start2x = int(item->xi + item->length - shift) - 15 - i*8;
                 int endx = int(item->xi + item->length - shift) - i*8;
                 int starty = int(item->yi - shift) + i*6;
+                line* newline = new line();
+                newline->previous = nullptr;
+                newline->next = nullptr;
+                newline->x[0] = (start1x + 7 + shift)*pix_per_brick;
+                newline->x[1] = (start2x + 7 + shift)*pix_per_brick;
+                newline->y[0] = (starty + 2 + shift)*pix_per_brick;
+                newline->y[1] = (starty + 2 + shift)*pix_per_brick;
+                newlines.push_back(newline);
                 for(int j = start1x; j <= endx; j++)
                     for(int k = 0; k <= 5; k++){
                         unitmap[j][starty + k] = unit_id;
-                        line* newline = new line();
-                        newline->previous = nullptr;
-                        newline->next = nullptr;
-                        newline->x[0] = (start1x + 7 + shift)*pix_per_brick;
-                        newline->x[1] = (start2x + 7 + shift)*pix_per_brick;
-                        newline->y[0] = (starty + 2 + shift)*pix_per_brick;
-                        newline->y[1] = (starty + 2 + shift)*pix_per_brick;
-                        newlines.push_back(newline);
                     }
 //                for(int j = 0; j < 15; j++)
 //                    for(int k = 0; k < 5; k++){
@@ -1457,7 +1457,7 @@ void MainWindow::on_connect_btn_clicked()
             //debug += QString::number(unitmap[i][j]);
             debug += (unitmap[i][j] > 0 ? '+' : (unitmap[i][j] < 0) ? '-' : '0');
             // line spacing adjustment
-            if(unitmap[i][j] == 0 && i%2 && j%2)unitmap[i][j] = unit_id;
+            if(unitmap[i][j] == 0 && (i%4 && j%4))unitmap[i][j] = unit_id;
         }
         qDebug() << debug;
     }
@@ -1730,7 +1730,7 @@ void MainWindow::on_connect_btn_clicked()
         pathmap[x][endy] = none;
         pathmap[x][y] = none;
         turning_checked[endx][endy] = false;
-        qDebug() << x << y << "->" << endx << endy;
+//        qDebug() << x << y << "->" << endx << endy;
 
         checkturning(endx, endy);
         return;

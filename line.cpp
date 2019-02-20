@@ -33,7 +33,6 @@ QRectF line::boundingRect() const
 
 void line::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    QPainterPath path;
     QRectF rect;
     if(heater_line)line_width_pix *= 2;
     float slope = (y[1] - y[0]) / (x[1] - x[0]);
@@ -55,13 +54,11 @@ void line::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
     }
     if(heater_line)line_width_pix /= 2;
 
-    path.addRect(rect);
     QBrush brush(Qt::gray);
     painter->setBrush(brush);
     QPen pen(Qt::black, 0);
     painter->setPen(pen);
-    painter->drawPath(path);
-    update();
+    painter->drawRect(rect);
 
     Q_UNUSED(option);
     Q_UNUSED(widget);
