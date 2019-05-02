@@ -2,7 +2,7 @@
 #define MOVE_EDIT_H
 
 #include <QDialog>
-#include "unit.h"
+//#include "unit.h"
 
 namespace Ui {
 class move_edit;

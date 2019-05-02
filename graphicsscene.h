@@ -13,28 +13,24 @@ class graphicsscene : public QGraphicsScene
 {
     Q_OBJECT
 public:
-
     graphicsscene(QObject *parent);
-    QList<line*> alllines;
-    float offset;
-    float round;
+    QList<line*> alllines;    
+
 public slots:
     void delete_from_list(line *delete_line);
-    line *PassSegToTurn(line *segline);
-    void MouseToSeg(line *segline, QGraphicsSceneMouseEvent *mouseEvent);
-
     void AddTurnline(line *head);
+
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent);
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent);
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *mouseEvent);
 
 private:
-     line *turnline;
-     line *segline;
-     line *segline2;
-     float slope;
+     line *current_line;
+     line *head;
      bool pressed = false;
-     bool same_line = false;
+     bool current_dir = false;
+
 };
 
 #endif // GRAPHICSSCENE_H

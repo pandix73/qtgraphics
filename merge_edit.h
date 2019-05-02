@@ -2,7 +2,7 @@
 #define merge_edit_H
 
 #include <QDialog>
-#include "unit.h"
+//#include "unit.h"
 
 namespace Ui {
 class merge_edit;
@@ -13,7 +13,7 @@ class merge_edit : public QDialog
     Q_OBJECT
 
 public:
-    explicit merge_edit(QString text, int actuallength, int actualwidth, QWidget *parent = 0);
+    explicit merge_edit(QString text, int actuallength, int actualwidth, QWidget *parent = nullptr);
     ~merge_edit();
     int actual_length;
     int actual_width;

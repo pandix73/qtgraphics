@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1282</width>
-    <height>696</height>
+    <width>1389</width>
+    <height>730</height>
    </rect>
   </property>
   <property name="font">
@@ -43,10 +43,10 @@ QCheckBox::indicator {
 }
 
 QCheckBox::indicator:unchecked {
-   background-style: none;
+   /*background-style: solid;*/
 }
 QCheckBox::indicator:checked {  
-	background-style: solid;	
+	/*background-style: solid;	*/
 	background-color: rgb(245, 125, 133);
 }
 
@@ -1020,8 +1020,8 @@ QSpinBox{
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>503</width>
-          <height>788</height>
+          <width>484</width>
+          <height>684</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
@@ -2996,8 +2996,8 @@ QPushButton{
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1282</width>
-     <height>22</height>
+     <width>1389</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

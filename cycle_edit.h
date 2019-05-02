@@ -12,7 +12,7 @@ class cycle_edit : public QDialog
     Q_OBJECT
 
 public:
-    explicit cycle_edit(QString text, int de_xnum, int de_ynum, QWidget *parent = 0);
+    explicit cycle_edit(QString text, int de_xnum, int de_ynum, QWidget *parent = nullptr);
     ~cycle_edit();
     int de_xnum;
     int de_ynum;

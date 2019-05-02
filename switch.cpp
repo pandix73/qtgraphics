@@ -5,14 +5,14 @@
 #include <QColor>
 SwitchControl::SwitchControl(QWidget *parent)
     : QWidget(parent),
-      m_nHeight(20),
       m_bChecked(false),
-      m_radius(10.0),
-      m_nMargin(3),
+      m_background(Qt::black),
       m_checkedColor(249, 147, 151),
-      m_thumbColor(Qt::white),
       m_disabledColor(64, 72, 91),
-      m_background(Qt::black)
+      m_thumbColor(Qt::white),
+      m_radius(10.0),
+      m_nHeight(20),
+      m_nMargin(3)
 {
     // 鼠标滑过光标形状 - 手型
     setCursor(Qt::PointingHandCursor);

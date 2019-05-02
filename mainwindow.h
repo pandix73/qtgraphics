@@ -29,7 +29,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
     QGraphicsScene* mainscene;
@@ -40,7 +40,7 @@ public:
     QList<unit*> allunits;                          // save all present units in list
     QList<QGraphicsItem *> DestroyRect;             // when add null unit in linescene, keep a record here, so we can destroy the old ones the next time we toggle to linescene
     QList<QGraphicsLineItem *> DestroyLine;
-    float zoom_factor = 1.0;
+    double zoom_factor = 1.0;
 
     QString text_edit;
     QGraphicsTextItem *text_item;
@@ -51,7 +51,7 @@ public:
     QList<unit*> errorunits;
     QList<unit*> passunits;
 
-    int sensor_line_map[2][300] = {0};
+    int sensor_line_map[2][300] = {{0}};
 public slots:
     void delete_from_list(unit *a);                 // remove the unit from list when it's deleted
     QGraphicsScene* CreateNewScene();

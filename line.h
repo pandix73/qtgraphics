@@ -19,8 +19,8 @@ public:
     void paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget);
     void merge();
 
-    float x[2];
-    float y[2];
+    qreal x[2];
+    qreal y[2];
     int segments = 0;
     bool heater_line;
     bool sensor_line;

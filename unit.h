@@ -1,5 +1,6 @@
 #ifndef UNIT_H
 #define UNIT_H
+
 #include <QObject>
 #include <QGraphicsView>
 #include <QGraphicsScene>
@@ -30,12 +31,12 @@ public:
     // item state
     bool Pressed;
     bool error;
-    float xi;
-    float yi;
-    float actual_length = 1;
-    float actual_width = 1;
-    float length = 1;
-    float width = 1;
+    double xi;
+    double yi;
+    double actual_length = 1;
+    double actual_width = 1;
+    double length = 1;
+    double width = 1;
     int de_type = 0;
     int de_xnum = 0;
     int de_ynum = 0;

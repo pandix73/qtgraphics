@@ -136,26 +136,26 @@ void unit::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void unit::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event){
     if(this->type == "merge"){
-        merge_edit *edit = new merge_edit(this->text, this->actual_length, this->actual_width, 0);
+        merge_edit *edit = new merge_edit(this->text, this->actual_length, this->actual_width, nullptr);
         edit->setWindowTitle("Merge Edit");
         connect(edit, SIGNAL(update_this_label(QString, int, int, int, int)), this, SLOT(update_merge(QString, int , int, int, int)));
         edit->show();
     }else if(this->type == "dispenser"){
-        dispenser_edit *edit = new dispenser_edit(this->text, this->actual_length, this->actual_width, 0);
+        dispenser_edit *edit = new dispenser_edit(this->text, this->actual_length, this->actual_width, nullptr);
         edit->setWindowTitle("Dispener Edit");
         connect(edit, SIGNAL(update_this_label(QString, int, int, int, int)), this, SLOT(update_dispenser(QString, int, int, int, int)));
         edit->show();
     }else if(this->type == "move"){
-        move_edit *edit = new move_edit(this->text, this->de_xnum, this->tilt, this->de_type, 0);
+        move_edit *edit = new move_edit(this->text, this->de_xnum, this->tilt, this->de_type, nullptr);
         edit->setWindowTitle("Move Edit");
         connect(edit, SIGNAL(update_this_label(QString, int, int, int)), this, SLOT(update_move(QString, int , int, int)));
         edit->show();
     }else if(this->type == "cycle"){
-        cycle_edit *edit = new cycle_edit(this->text, this->de_xnum, this->de_ynum, 0);
+        cycle_edit *edit = new cycle_edit(this->text, this->de_xnum, this->de_ynum, nullptr);
         connect(edit, SIGNAL(update_this_label(QString, int, int)), this, SLOT(update_cycle(QString, int, int)));
         edit->show();
     }else if(this->type == "heat"){
-        heat_edit *edit = new heat_edit(this->text, this->de_xnum, this->zigzag_linewidth, this->zigzag_layer, this->tilt, this->clockwise, 0);
+        heat_edit *edit = new heat_edit(this->text, this->de_xnum, this->zigzag_linewidth, this->zigzag_layer, this->tilt, this->clockwise, nullptr);
         connect(edit, SIGNAL(update_this_label(QString, int, int, int, int, int)), this, SLOT(update_heat(QString, int, int, int, int, int)));
         edit->show();
     }
