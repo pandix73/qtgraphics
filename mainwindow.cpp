@@ -100,6 +100,9 @@ int num_de = 0;
 
 //unit map
 int unitmap[500][500];
+bool source[500][500];
+bool heatmap[500][500];
+int routmap[500][500];
 
 
 double px_to_cm;
@@ -351,6 +354,7 @@ void MainWindow::WarningMessage(QString message){
 QGraphicsScene* MainWindow::CreateNewScene(){
     QGraphicsScene * scene = new QGraphicsScene(0, 0, 760, 520, ui->view);
     scene->setBackgroundBrush(Qt::white);
+    //ui->view->setHorizontalScrollBar()
 
     //Draw chip basics
     ConvertAllToUM();
@@ -1234,7 +1238,6 @@ void MainWindow::on_zoomout_clicked()
 //AUTO CONNECT
 void MainWindow::on_connect_btn_clicked()
 {
-
     //int xoff = (brick_x_start-border_px)/pix_per_brick;
     //int yoff = (brick_y_start-border_px)/pix_per_brick;
     int xsize = brick_xnum;// + xoff;
@@ -1259,18 +1262,15 @@ void MainWindow::on_connect_btn_clicked()
         graph[s].push_back(edge(t, cap, cost, graph[t].size(), dir));
         graph[t].push_back(edge(s, 0, -cost, graph[s].size()-1, dir));
     };
-    qDebug()<<"here";
+
     // unitmap setup
     std::vector<line*>newlines = {};
-    memset(unitmap, 0, sizeof(unitmap));
-    qDebug()<<"here";
     int unit_id = 2;
     int cpad_id = -2;
-    bool source[500][500] = {{false}};
-    bool heatmap[500][500] = {{false}};
-    int routmap[500][500];
+    memset(unitmap, 0, sizeof(unitmap));
+    memset(source, 0, sizeof(source));
+    memset(heatmap, 0, sizeof(heatmap));
     memset(routmap, 0, sizeof(routmap));
-    qDebug()<<"here";
     for(unit *item : allunits){
         if(item->type == "move"){
             int child_length = (item->tilt == 0) ? item->child_length : item->child_width;
@@ -1418,7 +1418,7 @@ void MainWindow::on_connect_btn_clicked()
         } else if(item->type == "heat"){
             for(int i = 0; i <= item->length; i++)
                 for(int j = 0; j <= item->width; j++){
-                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = unit_id;//(i == int(item->length/2) || j == int(item->width/2)) ? 1 : unit_id;                    
+                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = unit_id;//(i == int(item->length/2) || j == int(item->width/2)) ? 1 : unit_id;
                 }
             int side_point_x = int(item->xi-shift) + int(item->length*((item->tilt == 0) ? 1 : (item->tilt == 180) ? 0 : 0.5));
             int side_point_y = int(item->yi-shift) + int(item->width*((item->tilt == 90) ? 1 : (item->tilt == 270) ? 0 : 0.5));
@@ -1435,7 +1435,7 @@ void MainWindow::on_connect_btn_clicked()
             for(int i = -1; i <= item->length+1; i++)
                 for(int j = 0; j <= item->width; j++){
                     if(int(item->xi - shift) + i < 0 || int(item->xi - shift) + i >= xsize)continue;
-                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = (j > 0+1 && j < int(item->width)-1) ? ((i == -1 || i >= item->length+1) ? 0 : -1) : cpad_id;
+                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = (j > 0 && j < int(item->width)) ? ((i == -1 || i >= item->length+1) ? 0 : -1) : -2/*cpad_id*/;
                 }
             cpad_id --;
 
@@ -1448,8 +1448,8 @@ void MainWindow::on_connect_btn_clicked()
     for(int j = 0; j < ysize; j++){
         QString debug;
         for(int i = 0; i < xsize; i++){
-            //debug += QString::number(unitmap[i][j]);
-            debug += (unitmap[i][j] > 0 ? '+' : (unitmap[i][j] < 0) ? '-' : '0');
+            debug += QString::number(unitmap[i][j]);
+            //debug += (unitmap[i][j] > 0 ? '+' : (unitmap[i][j] < 0) ? '-' : '0');
             // line spacing adjustment
             //if(unitmap[i][j] == 0 && (i%4 && j%4))unitmap[i][j] = unit_id;
         }
@@ -1619,7 +1619,8 @@ void MainWindow::on_connect_btn_clicked()
     qDebug() << flow << flowCost;
 
     enum path{none=0, startDown=1, startLeft=2, startUp=3, startRight=4, endDown=5, endLeft=10, endUp=15, endRight=20, DownLeft=26, DownRight=27, UpLeft=28, UpRight=29};
-    int pathmap[500][500] = {{none}};
+    int pathmap[500][500];
+    memset(pathmap, 0, sizeof(pathmap));
 
     for(unsigned i = 0; i < unsigned(xsize); i++){
         for(unsigned j = 0; j < unsigned(ysize); j++){
@@ -1644,7 +1645,7 @@ void MainWindow::on_connect_btn_clicked()
                         pathmap[to_x][to_y] += endRight;
                     }
                 }
-            }            
+            }
         }
     }
 

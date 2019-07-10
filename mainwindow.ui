@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1389</width>
+    <width>1300</width>
     <height>730</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1300</width>
+    <height>730</height>
+   </size>
   </property>
   <property name="font">
    <font>
@@ -330,6 +336,12 @@ QScrollBar::sub-line:vertical  {
      <property name="styleSheet">
       <string notr="true"/>
      </property>
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOn</enum>
+     </property>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOn</enum>
+     </property>
     </widget>
     <widget class="QTabWidget" name="tabWidget">
      <property name="sizePolicy">
@@ -338,10 +350,16 @@ QScrollBar::sub-line:vertical  {
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="minimumSize">
+      <size>
+       <width>499</width>
+       <height>581</height>
+      </size>
+     </property>
      <property name="maximumSize">
       <size>
-       <width>500</width>
-       <height>16777215</height>
+       <width>499</width>
+       <height>581</height>
       </size>
      </property>
      <property name="baseSize">
@@ -1019,9 +1037,9 @@ QSpinBox{
         <property name="geometry">
          <rect>
           <x>0</x>
-          <y>0</y>
+          <y>-60</y>
           <width>484</width>
-          <height>684</height>
+          <height>688</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
@@ -1050,7 +1068,7 @@ QSpinBox{
             <string>Merge</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_7">
-            <item row="1" column="2">
+            <item row="1" column="3">
              <widget class="QLabel" name="merge_width_label">
               <property name="minimumSize">
                <size>
@@ -1069,7 +1087,7 @@ QSpinBox{
               </property>
              </widget>
             </item>
-            <item row="1" column="4">
+            <item row="1" column="5">
              <widget class="QSpinBox" name="merge_num">
               <property name="minimumSize">
                <size>
@@ -1139,7 +1157,7 @@ QSpinBox{
               </property>
              </widget>
             </item>
-            <item row="1" column="5">
+            <item row="1" column="6">
              <widget class="QPushButton" name="merge_create">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -1153,6 +1171,25 @@ QSpinBox{
              </widget>
             </item>
             <item row="1" column="1">
+             <widget class="QLabel" name="merge_length_label">
+              <property name="minimumSize">
+               <size>
+                <width>46</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>46</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>length</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
              <widget class="QLineEdit" name="merge_length">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -1174,26 +1211,7 @@ QSpinBox{
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="merge_length_label">
-              <property name="minimumSize">
-               <size>
-                <width>46</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>46</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>length</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="3">
+            <item row="1" column="4">
              <widget class="QLineEdit" name="merge_width">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -1212,6 +1230,19 @@ QSpinBox{
                 <width>45</width>
                 <height>16777215</height>
                </size>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label">
+              <property name="maximumSize">
+               <size>
+                <width>65</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
               </property>
              </widget>
             </item>
@@ -1237,6 +1268,88 @@ QSpinBox{
             <string>Dispenser</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_6">
+            <item row="0" column="0">
+             <widget class="QLabel" name="merge_length_label_6">
+              <property name="minimumSize">
+               <size>
+                <width>65</width>
+                <height>32</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>65</width>
+                <height>32</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Main : </string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QLineEdit" name="dispenser_child_length">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>45</width>
+                <height>30</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>45</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="4">
+             <widget class="QLineEdit" name="dispenser_child_width">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>45</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>45</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <widget class="QLabel" name="dispenser_width_label">
+              <property name="minimumSize">
+               <size>
+                <width>46</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>46</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>width</string>
+              </property>
+             </widget>
+            </item>
             <item row="1" column="7">
              <widget class="QComboBox" name="dispenser_dir">
               <property name="maximumSize">
@@ -1267,27 +1380,30 @@ QSpinBox{
               </item>
              </widget>
             </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="merge_length_label_6">
+            <item row="0" column="4">
+             <widget class="QLineEdit" name="dispenser_width">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="minimumSize">
                <size>
-                <width>65</width>
+                <width>45</width>
                 <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>46</width>
+                <width>45</width>
                 <height>16777215</height>
                </size>
               </property>
-              <property name="text">
-               <string>Main : </string>
-              </property>
              </widget>
             </item>
-            <item row="1" column="1">
-             <widget class="QLabel" name="dispender_length_label_3">
+            <item row="0" column="1">
+             <widget class="QLabel" name="dispender_length_label">
               <property name="minimumSize">
                <size>
                 <width>46</width>
@@ -1308,8 +1424,8 @@ QSpinBox{
               </property>
              </widget>
             </item>
-            <item row="1" column="2">
-             <widget class="QLineEdit" name="dispenser_child_length">
+            <item row="0" column="2">
+             <widget class="QLineEdit" name="dispenser_length">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
@@ -1319,7 +1435,7 @@ QSpinBox{
               <property name="minimumSize">
                <size>
                 <width>45</width>
-                <height>30</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -1330,11 +1446,11 @@ QSpinBox{
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="merge_length_label_7">
+            <item row="1" column="3">
+             <widget class="QLabel" name="dispenser_width_label_3">
               <property name="minimumSize">
                <size>
-                <width>65</width>
+                <width>46</width>
                 <height>0</height>
                </size>
               </property>
@@ -1345,12 +1461,12 @@ QSpinBox{
                </size>
               </property>
               <property name="text">
-               <string>Child : </string>
+               <string>width</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="4">
-             <widget class="QLineEdit" name="dispenser_child_width">
+            <item row="1" column="6">
+             <widget class="QLineEdit" name="dispenser_child_gap">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
@@ -1359,24 +1475,49 @@ QSpinBox{
               </property>
               <property name="minimumSize">
                <size>
-                <width>45</width>
+                <width>40</width>
                 <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>45</width>
+                <width>67</width>
                 <height>16777215</height>
                </size>
               </property>
+              <property name="text">
+               <string/>
+              </property>
              </widget>
             </item>
-            <item row="0" column="6">
+            <item row="0" column="7">
+             <widget class="QPushButton" name="dispenser_create">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="autoFillBackground">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Create</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="5" colspan="2">
              <widget class="QSpinBox" name="dispenser_num">
               <property name="minimumSize">
                <size>
                 <width>0</width>
                 <height>25</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>97</width>
+                <height>16777215</height>
                </size>
               </property>
               <property name="styleSheet">
@@ -1441,27 +1582,8 @@ QSpinBox{
               </property>
              </widget>
             </item>
-            <item row="0" column="3">
-             <widget class="QLabel" name="dispenser_width_label">
-              <property name="minimumSize">
-               <size>
-                <width>46</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>46</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>width</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLabel" name="dispender_length_label">
+            <item row="1" column="1">
+             <widget class="QLabel" name="dispender_length_label_3">
               <property name="minimumSize">
                <size>
                 <width>46</width>
@@ -1482,107 +1604,41 @@ QSpinBox{
               </property>
              </widget>
             </item>
-            <item row="0" column="4">
-             <widget class="QLineEdit" name="dispenser_width">
+            <item row="1" column="5">
+             <widget class="QLabel" name="move_electrod_label_5">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="minimumSize">
-               <size>
-                <width>45</width>
-                <height>0</height>
-               </size>
-              </property>
               <property name="maximumSize">
                <size>
-                <width>45</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <widget class="QLineEdit" name="dispenser_length">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>45</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>45</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="3">
-             <widget class="QLabel" name="dispenser_width_label_3">
-              <property name="minimumSize">
-               <size>
-                <width>46</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>46</width>
+                <width>30</width>
                 <height>16777215</height>
                </size>
               </property>
               <property name="text">
-               <string>width</string>
+               <string>gap</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="7">
-             <widget class="QPushButton" name="dispenser_create">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="autoFillBackground">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>Create</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="6">
-             <widget class="QLineEdit" name="dispenser_child_gap">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
+            <item row="1" column="0">
+             <widget class="QLabel" name="merge_length_label_7">
               <property name="minimumSize">
                <size>
-                <width>80</width>
-                <height>0</height>
+                <width>65</width>
+                <height>32</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>45</width>
-                <height>16777215</height>
+                <width>65</width>
+                <height>32</height>
                </size>
               </property>
               <property name="text">
-               <string>gap(um)</string>
+               <string>Child : </string>
               </property>
              </widget>
             </item>
@@ -1614,8 +1670,21 @@ QSpinBox{
             <string>Sensor</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_16">
-            <item row="2" column="2">
-             <widget class="QLineEdit" name="sensor_length">
+            <item row="2" column="6">
+             <widget class="QPushButton" name="sensor_create">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Create</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="4">
+             <widget class="QLineEdit" name="sensor_body_width">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
@@ -1636,21 +1705,8 @@ QSpinBox{
               </property>
              </widget>
             </item>
-            <item row="2" column="6">
-             <widget class="QPushButton" name="sensor_create">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Create</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="4">
-             <widget class="QLineEdit" name="sensor_body_width">
+            <item row="2" column="4">
+             <widget class="QLineEdit" name="sensor_width">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
@@ -1693,8 +1749,8 @@ QSpinBox{
               </property>
              </widget>
             </item>
-            <item row="2" column="4">
-             <widget class="QLineEdit" name="sensor_width">
+            <item row="2" column="2">
+             <widget class="QLineEdit" name="sensor_length">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
@@ -1712,25 +1768,6 @@ QSpinBox{
                 <width>45</width>
                 <height>16777215</height>
                </size>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="3">
-             <widget class="QLabel" name="merge_width_label_3">
-              <property name="minimumSize">
-               <size>
-                <width>46</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>6</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>width</string>
               </property>
              </widget>
             </item>
@@ -1772,8 +1809,8 @@ QSpinBox{
               </property>
              </widget>
             </item>
-            <item row="1" column="1">
-             <widget class="QLabel" name="merge_length_label_2">
+            <item row="2" column="3">
+             <widget class="QLabel" name="merge_width_label_3">
               <property name="minimumSize">
                <size>
                 <width>46</width>
@@ -1782,12 +1819,12 @@ QSpinBox{
               </property>
               <property name="maximumSize">
                <size>
-                <width>46</width>
+                <width>6</width>
                 <height>16777215</height>
                </size>
               </property>
               <property name="text">
-               <string>length</string>
+               <string>width</string>
               </property>
              </widget>
             </item>
@@ -1807,6 +1844,25 @@ QSpinBox{
               </property>
               <property name="text">
                <string>Sensor : </string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLabel" name="merge_length_label_2">
+              <property name="minimumSize">
+               <size>
+                <width>46</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>46</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>length</string>
               </property>
              </widget>
             </item>
@@ -1830,17 +1886,23 @@ QSpinBox{
              </widget>
             </item>
             <item row="1" column="5">
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
+             <widget class="QLabel" name="label_4">
+              <property name="minimumSize">
                <size>
-                <width>40</width>
-                <height>20</height>
+                <width>97</width>
+                <height>30</height>
                </size>
               </property>
-             </spacer>
+              <property name="maximumSize">
+               <size>
+                <width>97</width>
+                <height>30</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
@@ -1907,7 +1969,7 @@ QSpinBox{
                </size>
               </property>
               <property name="text">
-               <string>(na)</string>
+               <string/>
               </property>
              </widget>
             </item>
@@ -2128,7 +2190,7 @@ QSpinBox{
                </size>
               </property>
               <property name="text">
-               <string>(na)</string>
+               <string/>
               </property>
              </widget>
             </item>
@@ -2179,25 +2241,6 @@ QSpinBox{
             <string>Moving</string>
            </property>
            <layout class="QGridLayout" name="gridLayout">
-            <item row="0" column="7">
-             <widget class="QLabel" name="move_tilt_label">
-              <property name="minimumSize">
-               <size>
-                <width>80</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>40</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>tilt</string>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="11">
              <widget class="QPushButton" name="move_create">
               <property name="sizePolicy">
@@ -2211,8 +2254,30 @@ QSpinBox{
               </property>
              </widget>
             </item>
-            <item row="0" column="8">
-             <widget class="QLineEdit" name="move_tilt">
+            <item row="0" column="1">
+             <widget class="QLabel" name="dispender_length_label_2">
+              <property name="minimumSize">
+               <size>
+                <width>46</width>
+                <height>32</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>46</width>
+                <height>32</height>
+               </size>
+              </property>
+              <property name="autoFillBackground">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>length</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3">
+             <widget class="QLineEdit" name="move_gap">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
@@ -2221,23 +2286,23 @@ QSpinBox{
               </property>
               <property name="minimumSize">
                <size>
-                <width>65</width>
-                <height>30</height>
+                <width>45</width>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>55</width>
+                <width>45</width>
                 <height>16777215</height>
                </size>
               </property>
               <property name="text">
-               <string>0</string>
+               <string/>
               </property>
              </widget>
             </item>
-            <item row="0" column="2">
-             <widget class="QLineEdit" name="move_child_length">
+            <item row="0" column="5">
+             <widget class="QLineEdit" name="move_child_width">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
@@ -2258,7 +2323,7 @@ QSpinBox{
               </property>
              </widget>
             </item>
-            <item row="1" column="8">
+            <item row="1" column="9">
              <widget class="QSpinBox" name="move_num">
               <property name="minimumSize">
                <size>
@@ -2334,7 +2399,29 @@ QSpinBox{
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
+            <item row="0" column="3">
+             <widget class="QLineEdit" name="move_child_length">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>45</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>45</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
              <widget class="QLabel" name="move_electrod_label_2">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -2347,76 +2434,7 @@ QSpinBox{
               </property>
              </widget>
             </item>
-            <item row="1" column="2">
-             <widget class="QLineEdit" name="move_gap">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>45</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>45</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="dispender_length_label_2">
-              <property name="minimumSize">
-               <size>
-                <width>46</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>46</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="autoFillBackground">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>length</string>
-              </property>
-             </widget>
-            </item>
             <item row="0" column="4">
-             <widget class="QLineEdit" name="move_child_width">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>45</width>
-                <height>0</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>45</width>
-                <height>16777215</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="3">
              <widget class="QLabel" name="dispenser_width_label_2">
               <property name="minimumSize">
                <size>
@@ -2435,19 +2453,60 @@ QSpinBox{
               </property>
              </widget>
             </item>
-            <item row="1" column="3">
-             <widget class="QLabel" name="move_electrod_label_3">
+            <item row="0" column="9">
+             <widget class="QLineEdit" name="move_tilt">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="styleSheet">
-               <string notr="true">color : rgba(255, 255, 255, 128)</string>
+              <property name="minimumSize">
+               <size>
+                <width>65</width>
+                <height>30</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>55</width>
+                <height>16777215</height>
+               </size>
               </property>
               <property name="text">
-               <string>um</string>
+               <string>0</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="6">
+             <widget class="QLabel" name="move_tilt_label">
+              <property name="minimumSize">
+               <size>
+                <width>26</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>26</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>tilt</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_3">
+              <property name="maximumSize">
+               <size>
+                <width>65</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
               </property>
              </widget>
             </item>
@@ -2488,14 +2547,14 @@ QSpinBox{
                </size>
               </property>
               <property name="text">
-               <string>(layer)</string>
+               <string/>
               </property>
              </widget>
             </item>
             <item row="0" column="3">
              <widget class="QLabel" name="heater_layer_label">
               <property name="text">
-               <string>length</string>
+               <string>layer</string>
               </property>
              </widget>
             </item>
@@ -2860,7 +2919,7 @@ QPushButton{
      <rect>
       <x>430</x>
       <y>630</y>
-      <width>101</width>
+      <width>121</width>
       <height>31</height>
      </rect>
     </property>
@@ -2875,7 +2934,7 @@ QPushButton{
    <widget class="QCheckBox" name="preview">
     <property name="geometry">
      <rect>
-      <x>540</x>
+      <x>570</x>
       <y>630</y>
       <width>101</width>
       <height>31</height>
@@ -2893,7 +2952,7 @@ QPushButton{
    <widget class="QLabel" name="message">
     <property name="geometry">
      <rect>
-      <x>660</x>
+      <x>720</x>
       <y>630</y>
       <width>411</width>
       <height>31</height>
@@ -2996,7 +3055,7 @@ QPushButton{
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1389</width>
+     <width>1300</width>
      <height>21</height>
     </rect>
    </property>
@@ -3092,7 +3151,6 @@ QPushButton{
   <tabstop>dispenser_num</tabstop>
   <tabstop>dispenser_create</tabstop>
   <tabstop>move_tilt</tabstop>
-  <tabstop>move_create</tabstop>
   <tabstop>cycling_length</tabstop>
   <tabstop>cycling_num</tabstop>
   <tabstop>cycling_create</tabstop>
