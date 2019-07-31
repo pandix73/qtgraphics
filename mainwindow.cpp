@@ -48,6 +48,8 @@ int line_width_um;
 
 int line_width_pix = 10;
 int line_pix_per_brick;
+int line_brick_xnum;
+int line_brick_ynum;
 
 int sensor_offset_x;
 int sensor_offset_y;
@@ -217,7 +219,8 @@ void MainWindow::ChipParameters(){
         brick_y_start++;
     line_width_pix = pix_per_brick*line_width_um/de_spacing_um;
     line_pix_per_brick = pix_per_brick * (line_width_um+200) / de_spacing_um;
-
+    line_brick_xnum = (chip_length_px - 2*border_px)/line_pix_per_brick;
+    line_brick_ynum = (chip_width_px  - 2*border_px)/line_pix_per_brick;
     px_to_cm = 9921.0/21;
     px_to_mm = 9921.0/210;
 
@@ -245,8 +248,8 @@ void MainWindow::LineBackgroundGrid(QGraphicsScene *scene){
     //double line_pix_per_brick = double(pix_per_brick)*line_width_um/de_spacing_um;
 //    int line_brick_xnum = int(brick_xnum*de_spacing_um/line_width_um);
 //    int line_brick_ynum = int(brick_ynum*de_spacing_um/line_width_um);
-    int line_brick_xnum = (chip_length_px - 2*border_px)/line_pix_per_brick;
-    int line_brick_ynum = (chip_width_px  - 2*border_px)/line_pix_per_brick;
+//    int line_brick_xnum = (chip_length_px - 2*border_px)/line_pix_per_brick;
+//    int line_brick_ynum = (chip_width_px  - 2*border_px)/line_pix_per_brick;
     for(int i = 0; i <= line_brick_xnum; i+=1){
         for(int j = 0; j <= line_brick_ynum; j+=1){
             //scene->addEllipse(brick_x_start+i*line_pix_per_brick, brick_y_start+j*line_pix_per_brick, 1.0, 1.0, redpen, QBrush(Qt::SolidPattern));
@@ -1240,9 +1243,11 @@ void MainWindow::on_connect_btn_clicked()
 {
     //int xoff = (brick_x_start-border_px)/pix_per_brick;
     //int yoff = (brick_y_start-border_px)/pix_per_brick;
-    int xsize = brick_xnum;// + xoff;
-    int ysize = brick_ynum;// + yoff;
+    int xsize = line_brick_xnum;
+    int ysize = line_brick_ynum;
     double shift = chip_border_mm*1000 / de_spacing_um;
+    double transfer = double(de_spacing_um)/(line_width_um+200);
+    qDebug()<<transfer;
 
     struct edge{
         int flow, cap, cost, dir;
@@ -1353,14 +1358,27 @@ void MainWindow::on_connect_btn_clicked()
 
         } else if(item->type == "sensor"){
             qDebug()<<item->length<<item->width;
-            for(int i = 0; i <= item->length; i++)
-                for(int j = 0; j <= item->width; j++)
-                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = unit_id;
-            source[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width/2)] = true;
-            unitmap[int(item->xi - shift) + int(item->length*1)][int(item->yi - shift) + int(item->width/2)] = 1;
-            unitmap[int(item->xi - shift) + int(item->length*0)][int(item->yi - shift) + int(item->width/2)] = 1;
-            unitmap[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width*1)] = 1;
-            unitmap[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width*0)] = 1;
+            int startx = int((item->xi)*transfer);
+            int endx = int((item->xi+item->length)*transfer);
+            int starty = int((item->yi)*transfer);
+            int endy = int((item->yi+item->width)*transfer);
+            for(int i = startx; i <= endx; i++)
+                for(int j = starty; j <= endy; j++)
+                    unitmap[i][j] = unit_id;
+            source[(startx+endx)/2][(starty+endy)/2] = true;
+            unitmap[startx][(starty+endy)/2] = 1;
+            unitmap[endx][(starty+endy)/2] = 1;
+            unitmap[(startx+endx)/2][starty] = 1;
+            unitmap[(startx+endx)/2][endy] = 1;
+
+//            for(int i = 0; i <= item->length; i++)
+//                for(int j = 0; j <= item->width; j++)
+//                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = unit_id;
+//            source[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width/2)] = true;
+//            unitmap[int(item->xi - shift) + int(item->length*1)][int(item->yi - shift) + int(item->width/2)] = 1;
+//            unitmap[int(item->xi - shift) + int(item->length*0)][int(item->yi - shift) + int(item->width/2)] = 1;
+//            unitmap[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width*1)] = 1;
+//            unitmap[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width*0)] = 1;
             unit_id ++;
 
 
@@ -1432,10 +1450,13 @@ void MainWindow::on_connect_btn_clicked()
             unitmap[vertex_x][vertex_y] = 1;
             unit_id ++;
         } else if(item->type == "controlpad"){
-            for(int i = -1; i <= item->length+1; i++)
-                for(int j = 0; j <= item->width; j++){
-                    if(int(item->xi - shift) + i < 0 || int(item->xi - shift) + i >= xsize)continue;
-                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = (j > 0 && j < int(item->width)) ? ((i == -1 || i >= item->length+1) ? 0 : -1) : -2/*cpad_id*/;
+            int startx = int((item->xi)*transfer);
+            int endx = int((item->xi+item->length)*transfer);
+            int starty = int((item->yi)*transfer);
+            int endy = int((item->yi+item->width)*transfer);
+            for(int i = startx; i <= endx; i++)
+                for(int j = starty; j <= endy; j++){
+                    unitmap[i][j] = (j != starty && j != endy) ? ((i != startx && i != endx) ? -1 : 0) : -2;
                 }
             cpad_id --;
 
@@ -1448,8 +1469,8 @@ void MainWindow::on_connect_btn_clicked()
     for(int j = 0; j < ysize; j++){
         QString debug;
         for(int i = 0; i < xsize; i++){
-            debug += QString::number(unitmap[i][j]);
-            //debug += (unitmap[i][j] > 0 ? '+' : (unitmap[i][j] < 0) ? '-' : '0');
+            //debug += QString::number(unitmap[i][j]);
+            debug += (unitmap[i][j] > 0 ? '+' : (unitmap[i][j] < 0) ? '-' : '0');
             // line spacing adjustment
             //if(unitmap[i][j] == 0 && (i%4 && j%4))unitmap[i][j] = unit_id;
         }
@@ -1491,7 +1512,8 @@ void MainWindow::on_connect_btn_clicked()
             unsigned to_d = unsigned((i+1)*ysize+j); //down (actually right on chip
             unsigned to_r = unsigned(i*ysize+j+1); //right (actually down on chip
             // self connection for node capacity
-            addEdge(from+unsigned(xsize*ysize), from, 0, 1);
+            //addEdge(from+unsigned(xsize*ysize), from, 0, 1);
+            addEdge(from+unsigned(xsize*ysize), from, i%3+j%3, 1);
 
             // neighbors connection
             if (i != xsize-1) {
@@ -1745,7 +1767,45 @@ void MainWindow::on_connect_btn_clicked()
         qDebug() << debug;
     }*/
 
+    /*struct vertical_line{
+        int topx, botx, y;
+        int left_border, right_border;
+        int newy;
 
+        vertical_line(int topx, int botx, int y, int left_border, int right_border){
+            this->topx = topx;
+            this->botx = botx;
+            this->y = y;
+            this->left_border = left_border;
+            this->right_border = right_border;
+        }
+
+    };
+    std::vector<vertical_line> vlines(100);
+
+    //collect vertical line
+    for(int y = 0; y < ysize; y++){
+        int startx = -1;
+        for(int x = 0; x < xsize; x++){
+            if(pathmap[x][y] == DownLeft || DownRight){
+                startx = x;
+            } else if((pathmap[x][y] == UpLeft || UpRight) && (startx != -1)){
+
+            }
+
+        }
+    }
+    for(int x = 0; x < xsize; x++){
+        for(int y = 0; y < ysize; y++){
+            if(pathmap[x][y] == DownLeft || DownRight){
+                for(i = x+1; i < xsize; i++){
+                    if
+                }
+            }
+        }
+    }*/
+
+    qDebug()<<line_pix_per_brick;
     for(int x = 0; x < xsize; x++){
         for(int y = 0; y < ysize; y++){
             if(pathmap[x][y] != 0 && pathmap[x][y] <= 4){
@@ -1756,12 +1816,12 @@ void MainWindow::on_connect_btn_clicked()
                 newline->heater_line = heater_line;
                 newline->previous = nullptr;
                 newlines.push_back(newline);
-                newline->x[0] = (x+shift)*pix_per_brick;
-                newline->y[0] = (y+shift)*pix_per_brick;
+                newline->x[0] = x/transfer*pix_per_brick;
+                newline->y[0] = y/transfer*pix_per_brick;
                 for(int i = x+dirx, j = y+diry; i >= 0 && i < xsize && j >= 0 && j < ysize ; i += dirx, j += diry){
                     if(pathmap[i][j] != none){
-                        newline->x[1] = (i+shift)*pix_per_brick;
-                        newline->y[1] = (j+shift)*pix_per_brick;
+                        newline->x[1] = i/transfer*pix_per_brick;
+                        newline->y[1] = j/transfer*pix_per_brick;
                         if(pathmap[i][j]/5 == 0 || pathmap[i][j]%5 == 0){
                             newline->next = nullptr;
                             break;
@@ -1770,8 +1830,8 @@ void MainWindow::on_connect_btn_clicked()
                             newline->next->previous = newline;
                             newline = newline->next;
                             newline->heater_line = heater_line;
-                            newline->x[0] = (i+shift)*pix_per_brick;
-                            newline->y[0] = (j+shift)*pix_per_brick;
+                            newline->x[0] = i/transfer*pix_per_brick;
+                            newline->y[0] = j/transfer*pix_per_brick;
                             if (pathmap[i][j] == UpRight || pathmap[i][j] == DownLeft) {
                                 int temp = dirx;
                                 dirx = diry;
@@ -2054,7 +2114,7 @@ void MainWindow::on_cycling_create_clicked()
             cycle->yi = 20;
             cycle->de_type = 2;
             cycle->de_xnum = ui->cycling_length->text().toInt();
-            cycle->de_ynum = ui->cycling_width->text().toInt();
+            cycle->de_ynum = ui->cycling_width->text().toInt();            
             if(cycle->type == 1){
                 cycle->length = cycle->de_xnum*de1_length_um/de_spacing_um + cycle->de_xnum-1;
                 cycle->width = cycle->de_ynum*de1_length_um/de_spacing_um + cycle->de_ynum-1;

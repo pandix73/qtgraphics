@@ -61,10 +61,9 @@ void graphicsscene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
             } else if(mouseEvent->button() == Qt::RightButton){
                 if(current_line->previous != nullptr){
                     current_line = current_line->previous;
-//                    current_line = current_line->previous;
-//                    this->removeItem(current_line->next);
-//                    current_line->next->deleteLater();
-//                    current_line->next = nullptr;
+                    //this->removeItem(current_line->next);
+                    current_line->next->deleteLater();
+                    current_line->next = nullptr;
                 } else {
                     this->removeItem(current_line);
                     current_line->deleteLater();
