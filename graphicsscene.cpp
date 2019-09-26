@@ -1,6 +1,6 @@
 #include "graphicsscene.h"
 #include <QDebug>
-#include <math.h>
+#include <cmath>
 #define myqDebug() qDebug() << fixed << qSetRealNumberPrecision(2)
 extern int pix_per_brick;
 extern int de_spacing_um;

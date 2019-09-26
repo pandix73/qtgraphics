@@ -1,5 +1,6 @@
 #include "line.h"
 #include <QDebug>
+#include <cmath>
 extern bool deletemode;
 extern int line_width_pix;
 extern int line_pix_per_brick;

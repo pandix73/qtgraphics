@@ -44,6 +44,7 @@ double line_width_mm = 0.353;
 
 int de_spacing_um;
 int cp_spacing_um;
+int line_spacing_um = 147;
 int line_width_um;
 
 int line_width_pix = 10;
@@ -218,7 +219,7 @@ void MainWindow::ChipParameters(){
     while(brick_y_start%pix_per_brick != 0)
         brick_y_start++;
     line_width_pix = pix_per_brick*line_width_um/de_spacing_um;
-    line_pix_per_brick = pix_per_brick * (line_width_um+200) / de_spacing_um;
+    line_pix_per_brick = pix_per_brick * (line_width_um + line_spacing_um) / de_spacing_um;
     line_brick_xnum = (chip_length_px - 2*border_px)/line_pix_per_brick;
     line_brick_ynum = (chip_width_px  - 2*border_px)/line_pix_per_brick;
     px_to_cm = 9921.0/21;
@@ -252,7 +253,7 @@ void MainWindow::LineBackgroundGrid(QGraphicsScene *scene){
 //    int line_brick_ynum = (chip_width_px  - 2*border_px)/line_pix_per_brick;
     for(int i = 0; i <= line_brick_xnum; i+=1){
         for(int j = 0; j <= line_brick_ynum; j+=1){
-            //scene->addEllipse(brick_x_start+i*line_pix_per_brick, brick_y_start+j*line_pix_per_brick, 1.0, 1.0, redpen, QBrush(Qt::SolidPattern));
+            scene->addEllipse(brick_x_start+i*line_pix_per_brick, brick_y_start+j*line_pix_per_brick, 1.0, 1.0, redpen, QBrush(Qt::SolidPattern));
         }
     }
 }
@@ -467,11 +468,11 @@ void MainWindow::mode_label(bool bChecked){
                 for(int i = 0; i < item->de_xnum; i++){
                     for(int j = 0; j < item->de_ynum; j++){
                         if(i!=0 && i!=item->de_xnum-1 && j!=0 && j!=item->de_ynum-1) continue;
-                            DestroyRect << linescene->addRect((item->xi+i*(de2_length_um/de_spacing_um + 1))*pix_per_brick,
-                                      (item->yi+j*(de2_length_um/de_spacing_um + 1))*pix_per_brick,
-                                      pix_per_brick*de2_length_um/de_spacing_um,
-                                      pix_per_brick*de2_width_um/de_spacing_um,
-                                      redpen, nullitem);
+                            DestroyRect << linescene->addRect((item->xi + i*(item->child_length + item->child_gap))*pix_per_brick,
+                                                              (item->yi + j*(item->child_width + item->child_gap))*pix_per_brick,
+                                                              item->child_length*pix_per_brick,
+                                                              item->child_width*pix_per_brick,
+                                                              redpen, nullitem);
                     }
                 }
             }
@@ -1246,7 +1247,7 @@ void MainWindow::on_connect_btn_clicked()
     int xsize = line_brick_xnum;
     int ysize = line_brick_ynum;
     double shift = chip_border_mm*1000 / de_spacing_um;
-    double transfer = double(de_spacing_um)/(line_width_um+200);
+    double transfer = double(de_spacing_um)/(line_width_um+line_spacing_um);
     qDebug()<<transfer;
 
     struct edge{
@@ -1276,111 +1277,80 @@ void MainWindow::on_connect_btn_clicked()
     memset(source, 0, sizeof(source));
     memset(heatmap, 0, sizeof(heatmap));
     memset(routmap, 0, sizeof(routmap));
+
+    auto addRect = [&unit_id, &cpad_id, shift, transfer](int x, int length, int y, int width, int type){
+        int startx = floor((x - shift)*transfer + 0.5);
+        int starty = floor((y - shift)*transfer + 0.5);
+        int endx = ceil((x - shift + length)*transfer - 0.5);
+        int endy = ceil((y - shift + width)*transfer - 0.5);
+
+
+        source[(startx+endx)/2][(starty+endy)/2] = true;
+        qDebug() << (startx+endx)/2 << (starty+endy)/2;
+        if(type == -1){ // control pad
+            for(int i = startx; i <= endx; i++){
+                for(int j = starty; j <= endy; j++){
+                    unitmap[i][j] = cpad_id;
+                }
+            }
+            cpad_id--;
+        } else if(type == 1){ // electrode
+            for(int i = startx; i <= endx; i++){
+                for(int j = starty; j <= endy; j++){
+                    unitmap[i][j] = (unitmap[i][j] == 0) ? unit_id : INT_MAX;
+                }
+            }
+            unit_id++;
+        }
+
+    };
+
     for(unit *item : allunits){
         if(item->type == "move"){
             int child_length = (item->tilt == 0) ? item->child_length : item->child_width;
             int child_width =  (item->tilt == 0) ? item->child_width : item->child_length;
-            int startx, starty;
             for(int i = 0, j = 0; i < item->de_xnum && j < item->de_ynum; i+=(item->tilt==0), j+=(item->tilt==90)){
-                startx = int(item->xi - shift) + i*(child_length + item->child_gap);
-                starty = int(item->yi - shift) + j*(child_width  + item->child_gap);
-                for(int k = 0; k < child_length; k++)
-                    for(int l = 0; l < child_width; l++)
-                        unitmap[startx + k][starty + l] = unit_id;
-                source[startx + child_length/2][starty + child_width/2] = true;
-                unitmap[startx + child_length/2][starty + child_width*1] = 1;
-                unitmap[startx + child_length/2][starty + child_width*0] = 1;
-                unitmap[startx + child_length*1][starty + child_width/2] = 1;
-                unitmap[startx + child_length*0][starty + child_width/2] = 1;
-                unit_id ++;
-
+                addRect(item->xi + i*(child_length + item->child_gap), child_length,
+                        item->yi + j*(child_width + item->child_gap), child_width, 1);
             }
-
         } else if(item->type == "cycle"){
-            int unit_length = int(de2_length_mm*1000/de_spacing_um);
+            //O(n^2) ??? what am i doing ???
             for(int i = 0; i < item->de_xnum; i++){
                 for(int j = 0; j < item->de_ynum; j++){
-                    if(i!=0 && i!=item->de_xnum-1 && j!=0 && j!=item->de_ynum-1)
-                        continue;
-                    for(int k = 0; k <= unit_length; k++)
-                        for (int l = 0; l <= unit_length; l++)
-                            unitmap[int(item->xi - shift)+i*(unit_length+1) + k][int(item->yi - shift)+j*(unit_length+1) + l] = unit_id;//(k == int(unit_length/2) || l == int(unit_length/2)) ? 1 : unit_id;
-                    source[int(item->xi - shift)+i*(unit_length+1) + unit_length/2][int(item->yi - shift) +j*(unit_length+1)+ unit_length/2] = true;
-                    unitmap[int(item->xi - shift)+i*(unit_length+1) + unit_length/2][int(item->yi - shift) +j*(unit_length+1)+ unit_length] = 1;
-                    unitmap[int(item->xi - shift)+i*(unit_length+1) + unit_length/2][int(item->yi - shift) +j*(unit_length+1)+ 0] = 1;
-                    unitmap[int(item->xi - shift)+i*(unit_length+1) + unit_length][int(item->yi - shift) +j*(unit_length+1)+ unit_length/2] = 1;
-                    unitmap[int(item->xi - shift)+i*(unit_length+1) + 0][int(item->yi - shift) +j*(unit_length+1)+ unit_length/2] = 1;
-                    unit_id ++;
+                    if(i == 0 || i == item->de_xnum-1 || j == 0 || j == item->de_ynum-1){
+                        addRect(item->xi + i*(item->child_length + item->child_gap), item->child_length,
+                                item->yi + j*(item->child_width + item->child_gap), item->child_width, 1);
+                    }
                 }
             }
-
         } else if(item->type == "dispenser"){
             int main_length  = (item->direction%2) ? item->main_length : item->main_width;
             int main_width   = (item->direction%2) ? item->main_width : item->main_length;
             int child_length = (item->direction%2) ? item->child_length : item->child_width;
             int child_width  = (item->direction%2) ? item->child_width : item->child_length;
 
-            int main_startx  = (item->direction == 3) ? int(item->xi - shift + item->length - main_length) : int(item->xi - shift);
-            int main_starty  = (item->direction == 0) ? int(item->yi - shift + item->width - main_width) : int(item->yi - shift);
-            int child_startx = (item->direction == 1) ? int(item->xi - shift + main_length) :
-                               (item->direction == 3) ? int(item->xi - shift) : int(item->xi - shift + (main_length-child_length)/2);
-            int child_starty = (item->direction == 2) ? int(item->yi - shift + main_width) :
-                               (item->direction == 0) ? int(item->yi - shift) : int(item->yi - shift + (main_width-child_width)/2);
+            int main_startx  = (item->direction == 3) ? int(item->xi + item->length - main_length) : item->xi;
+            int main_starty  = (item->direction == 0) ? int(item->yi + item->width - main_width) : item->yi;
+            int child_startx = (item->direction == 1) ? int(item->xi + main_length) :
+                               (item->direction == 3) ? int(item->xi) : int(item->xi - shift + (main_length-child_length)/2);
+            int child_starty = (item->direction == 2) ? int(item->yi + main_width) :
+                               (item->direction == 0) ? int(item->yi) : int(item->yi - shift + (main_width-child_width)/2);
             int tilt = (item->direction % 2 == 0) ? 90 : 0;
             qDebug() << main_length << main_width << child_length << child_width;
             qDebug() << main_startx << main_starty << child_startx << child_starty;
 
             // main part
-            for(int i = 0; i < item->main_length; i++)
-                for(int j = 0; j < item->main_width; j++)
-                    unitmap[main_startx + i][main_starty + j] = unit_id;
-            source[main_startx  + main_length/2][main_starty + main_width/2] = true;
-            unitmap[main_startx + main_length*1][main_starty + main_width/2] = 1;
-            unitmap[main_startx + main_length*0][main_starty + main_width/2] = 1;
-            unitmap[main_startx + main_length/2][main_starty + main_width*1] = 1;
-            unitmap[main_startx + main_length/2][main_starty + main_width*0] = 1;
-            unit_id ++;
+            addRect(main_startx, main_length, main_starty, main_width, 1);
 
             // child part
             for(int i = 0, j = 0; i < item->de_xnum && j < item->de_xnum; i+=(tilt==0), j+=(tilt==90)){
-                for(int k = 0; k < child_length; k++)
-                    for(int l = 0; l < child_width; l++)
-                        unitmap[child_startx + k][child_starty+ l] = unit_id;
-                source[child_startx  + child_length/2][child_starty + child_width/2] = true;
-                unitmap[child_startx + child_length*1][child_starty + child_width/2] = 1;
-                unitmap[child_startx + child_length*0][child_starty + child_width/2] = 1;
-                unitmap[child_startx + child_length/2][child_starty + child_width*1] = 1;
-                unitmap[child_startx + child_length/2][child_starty + child_width*0] = 1;
-                unit_id ++;
+                addRect(child_startx, child_length, child_starty, child_width, 1);
                 child_startx += (tilt==0)*(child_length + item->child_gap);
                 child_starty += (tilt==90)*(child_width + item->child_gap);
             }
 
         } else if(item->type == "sensor"){
-            qDebug()<<item->length<<item->width;
-            int startx = int((item->xi)*transfer);
-            int endx = int((item->xi+item->length)*transfer);
-            int starty = int((item->yi)*transfer);
-            int endy = int((item->yi+item->width)*transfer);
-            for(int i = startx; i <= endx; i++)
-                for(int j = starty; j <= endy; j++)
-                    unitmap[i][j] = unit_id;
-            source[(startx+endx)/2][(starty+endy)/2] = true;
-            unitmap[startx][(starty+endy)/2] = 1;
-            unitmap[endx][(starty+endy)/2] = 1;
-            unitmap[(startx+endx)/2][starty] = 1;
-            unitmap[(startx+endx)/2][endy] = 1;
-
-//            for(int i = 0; i <= item->length; i++)
-//                for(int j = 0; j <= item->width; j++)
-//                    unitmap[int(item->xi - shift) + i][int(item->yi - shift) + j] = unit_id;
-//            source[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width/2)] = true;
-//            unitmap[int(item->xi - shift) + int(item->length*1)][int(item->yi - shift) + int(item->width/2)] = 1;
-//            unitmap[int(item->xi - shift) + int(item->length*0)][int(item->yi - shift) + int(item->width/2)] = 1;
-//            unitmap[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width*1)] = 1;
-//            unitmap[int(item->xi - shift) + int(item->length/2)][int(item->yi - shift) + int(item->width*0)] = 1;
-            unit_id ++;
-
+            addRect(item->xi, item->length, item->yi, item->width, 1);
 
         } else if(item->type == "merge"){
             for(int i = 0; i < 3; i++){
@@ -1450,15 +1420,7 @@ void MainWindow::on_connect_btn_clicked()
             unitmap[vertex_x][vertex_y] = 1;
             unit_id ++;
         } else if(item->type == "controlpad"){
-            int startx = int((item->xi)*transfer);
-            int endx = int((item->xi+item->length)*transfer);
-            int starty = int((item->yi)*transfer);
-            int endy = int((item->yi+item->width)*transfer);
-            for(int i = startx; i <= endx; i++)
-                for(int j = starty; j <= endy; j++){
-                    unitmap[i][j] = (j != starty && j != endy) ? ((i != startx && i != endx) ? -1 : 0) : -2;
-                }
-            cpad_id --;
+            addRect(item->xi, item->length, item->yi, item->width, -1);
 
         }
     }
@@ -1470,7 +1432,8 @@ void MainWindow::on_connect_btn_clicked()
         QString debug;
         for(int i = 0; i < xsize; i++){
             //debug += QString::number(unitmap[i][j]);
-            debug += (unitmap[i][j] > 0 ? '+' : (unitmap[i][j] < 0) ? '-' : '0');
+            debug += '0' + abs(unitmap[i][j]);
+            //debug += (unitmap[i][j] > 0 ? '+' : (unitmap[i][j] < 0) ? '-' : '0');
             // line spacing adjustment
             //if(unitmap[i][j] == 0 && (i%4 && j%4))unitmap[i][j] = unit_id;
         }
@@ -1512,55 +1475,46 @@ void MainWindow::on_connect_btn_clicked()
             unsigned to_d = unsigned((i+1)*ysize+j); //down (actually right on chip
             unsigned to_r = unsigned(i*ysize+j+1); //right (actually down on chip
             // self connection for node capacity
-            //addEdge(from+unsigned(xsize*ysize), from, 0, 1);
-            addEdge(from+unsigned(xsize*ysize), from, i%3+j%3, 1);
+            addEdge(from+unsigned(xsize*ysize), from, 0, 1);
+            //addEdge(from+unsigned(xsize*ysize), from, i%3+j%3, 1);
 
             // neighbors connection
             if (i != xsize-1) {
-                if(unitmap[i][j] == unitmap[i+1][j] /*|| (unitmap[i][j] * unitmap[i+1][j] > 0)*/){
-                    if(unitmap[i][j] == 1 && unitmap[i+1][j] == 1) continue;
-                    addEdge(from, to_d+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 1);
-                    addEdge(to_d, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 1);
-                } else if(unitmap[i][j] > unitmap[i+1][j]){
-                    if(unitmap[i][j] == 1 || unitmap[i+1][j] == -1 || unitmap[i+1][j] == 1)
-                        addEdge(from, to_d+unsigned(xsize*ysize), 1, 1, 1);
-//                        addEdge(to_d, from+unsigned(xsize*ysize), 1, 1, 1);
+                if(unitmap[i][j] == unitmap[i+1][j]){
+                    if(unitmap[i][j] != INT_MAX){
+                        addEdge(from, to_d+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 1);
+                        addEdge(to_d, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 1);
+                    }
+                } else if(unitmap[i][j] >= 0 && unitmap[i+1][j] <= 0 && (unitmap[i][j] != 0 || unitmap[i+1][j] != 0)){
+                    addEdge(from, to_d+unsigned(xsize*ysize), 1, 1, 1);
+                } else if(unitmap[i+1][j] >= 0 && unitmap[i][j] <= 0 && (unitmap[i][j] != 0 || unitmap[i+1][j] != 0)){
+                    addEdge(to_d, from+unsigned(xsize*ysize), 1, 1, 1);
                 } else {
-                    if(unitmap[i+1][j] == 1 || unitmap[i][j] == -1 || unitmap[i][j] == 1)
-                        addEdge(to_d, from+unsigned(xsize*ysize), 1, 1, 1);
-//                        addEdge(from, to_d+unsigned(xsize*ysize), 1, 1, 1);
+
                 }
             }
+
             if (j != ysize-1) {
-                if(unitmap[i][j] == unitmap[i][j+1] /*|| (unitmap[i][j] * unitmap[i][j+1] > 0)*/){
-                    if(unitmap[i][j] == 1 && unitmap[i][j+1] == 1) continue;
-                    addEdge(from, to_r+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 2);
-                    addEdge(to_r, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 2);
-                } else if(unitmap[i][j] > unitmap[i][j+1]){
-                    if(unitmap[i][j] == 1 || unitmap[i][j+1] == -1 || unitmap[i][j+1] == 1)
-                        addEdge(from, to_r+unsigned(xsize*ysize), 1, 1, 2);
-//                        addEdge(to_r, from+unsigned(xsize*ysize), 1, 1, 2);
+                if(unitmap[i][j] == unitmap[i][j+1]){
+                    if(unitmap[i][j] != INT_MAX){
+                        addEdge(from, to_r+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 2);
+                        addEdge(to_r, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 2);
+                    }
+                } else if(unitmap[i][j] >= 0 && unitmap[i][j+1] <= 0 && (unitmap[i][j] != 0 || unitmap[i][j+1] != 0)){
+                    addEdge(from, to_r+unsigned(xsize*ysize), 1, 1, 2);
+                } else if(unitmap[i][j+1] >= 0 && unitmap[i][j] <= 0 && (unitmap[i][j] != 0 || unitmap[i][j+1] != 0)){
+                    addEdge(to_r, from+unsigned(xsize*ysize), 1, 1, 2);
                 } else {
-                    if(unitmap[i][j+1] == 1 || unitmap[i][j] == -1 || unitmap[i][j] == 1)
-                        addEdge(to_r, from+unsigned(xsize*ysize), 1, 1, 2);
-//                        addEdge(from, to_r+unsigned(xsize*ysize), 1, 1, 2);
+
                 }
             }
 
             // s/t connection
-            if(unitmap[i][j] >= 1){
-                //if(!(i < xsize-1 && (unitmap[i+1][j] == 1 || unitmap[i+1][j] == unitmap[i][j])) &&
-                  // !(j < ysize-1 && (unitmap[i][j+1] == 1 || unitmap[i][j+1] == unitmap[i][j])))
-                if(source[i][j] == true){
-                    // exchange st
+            if(source[i][j] == true){
+                if(unitmap[i][j] > 0){
                     addEdge(s, from+unsigned(xsize*ysize), 1, 1);
-//                    addEdge(from+unsigned(xsize*ysize), t, 1, 1);
-                }
-            } else if(unitmap[i][j] <= -1){
-                if(!(i < xsize-1 && (unitmap[i+1][j] == -1 || unitmap[i+1][j] == unitmap[i][j])) &&
-                   !(j < ysize-1 && (unitmap[i][j+1] == -1 || unitmap[i][j+1] == unitmap[i][j]))){
+                } else if(unitmap[i][j] < 0){
                     addEdge(from, t, 1, 1);
-//                    addEdge(s, from, 1, 1);
                 }
             }
         }
@@ -1816,12 +1770,12 @@ void MainWindow::on_connect_btn_clicked()
                 newline->heater_line = heater_line;
                 newline->previous = nullptr;
                 newlines.push_back(newline);
-                newline->x[0] = x/transfer*pix_per_brick;
-                newline->y[0] = y/transfer*pix_per_brick;
+                newline->x[0] = 60 + x*5;
+                newline->y[0] = 60 + y*5;
                 for(int i = x+dirx, j = y+diry; i >= 0 && i < xsize && j >= 0 && j < ysize ; i += dirx, j += diry){
                     if(pathmap[i][j] != none){
-                        newline->x[1] = i/transfer*pix_per_brick;
-                        newline->y[1] = j/transfer*pix_per_brick;
+                        newline->x[1] = 60 + i*5;
+                        newline->y[1] = 60 + j*5;
                         if(pathmap[i][j]/5 == 0 || pathmap[i][j]%5 == 0){
                             newline->next = nullptr;
                             break;
@@ -1830,8 +1784,8 @@ void MainWindow::on_connect_btn_clicked()
                             newline->next->previous = newline;
                             newline = newline->next;
                             newline->heater_line = heater_line;
-                            newline->x[0] = i/transfer*pix_per_brick;
-                            newline->y[0] = j/transfer*pix_per_brick;
+                            newline->x[0] = 60 + i*5;
+                            newline->y[0] = 60 + j*5;
                             if (pathmap[i][j] == UpRight || pathmap[i][j] == DownLeft) {
                                 int temp = dirx;
                                 dirx = diry;
@@ -2114,15 +2068,12 @@ void MainWindow::on_cycling_create_clicked()
             cycle->yi = 20;
             cycle->de_type = 2;
             cycle->de_xnum = ui->cycling_length->text().toInt();
-            cycle->de_ynum = ui->cycling_width->text().toInt();            
-            if(cycle->type == 1){
-                cycle->length = cycle->de_xnum*de1_length_um/de_spacing_um + cycle->de_xnum-1;
-                cycle->width = cycle->de_ynum*de1_length_um/de_spacing_um + cycle->de_ynum-1;
-            }
-            else{
-                cycle->length = cycle->de_xnum*de2_length_um/de_spacing_um + cycle->de_xnum-1;
-                cycle->width = cycle->de_ynum*de2_length_um/de_spacing_um + cycle->de_ynum-1;
-            }
+            cycle->de_ynum = ui->cycling_width->text().toInt();
+            cycle->child_length = ui->cycling_child_length->text().toInt()*1000/de_spacing_um;
+            cycle->child_width = ui->cycling_child_width->text().toInt()*1000/de_spacing_um;
+            cycle->child_gap = de_spacing_um/de_spacing_um;
+            cycle->length = (cycle->child_length + cycle->child_gap)*cycle->de_xnum - cycle->child_gap;
+            cycle->width = (cycle->child_width + cycle->child_gap)*cycle->de_ynum - cycle->child_gap;
             cycle->color = cycling_color;
             ui->view->scene()->addItem(cycle);
             allunits.prepend(cycle);
