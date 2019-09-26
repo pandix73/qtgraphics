@@ -5,7 +5,11 @@
 extern int pix_per_brick;
 extern int de_spacing_um;
 extern int line_width_um;
+extern int line_spacing_um;
 extern int line_width_pix;
+
+extern int brick_x_start;
+extern int brick_y_start;
 extern bool deletemode;
 extern int cm_to_px;
 extern int chip_width_px;
@@ -20,8 +24,10 @@ graphicsscene::graphicsscene(QObject *parent) :QGraphicsScene(parent)
 // Start drawing line
 void graphicsscene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 {
-    int tempx = int(mouseEvent->scenePos().x() / line_pix_per_brick + 0.5);
-    int tempy = int(mouseEvent->scenePos().y() / line_pix_per_brick + 0.5);
+    //int tempx = int(mouseEvent->scenePos().x() / line_pix_per_brick + 0.5);
+    //int tempy = int(mouseEvent->scenePos().y() / line_pix_per_brick + 0.5);
+    int tempx = int((mouseEvent->scenePos().x() - brick_x_start)/((double)pix_per_brick*(line_width_um + line_spacing_um)/de_spacing_um) + 0.5);
+    int tempy = int((mouseEvent->scenePos().y() - brick_y_start)/((double)pix_per_brick*(line_width_um + line_spacing_um)/de_spacing_um) + 0.5);
     if(deletemode){
         QGraphicsScene::mousePressEvent(mouseEvent);
     }
@@ -33,8 +39,8 @@ void graphicsscene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 
                 head = current_line;
 
-                current_line->x[0] = tempx*line_pix_per_brick;
-                current_line->y[0] = tempy*line_pix_per_brick;
+                current_line->x[0] = tempx;//*line_pix_per_brick;
+                current_line->y[0] = tempy;//*line_pix_per_brick;
                 current_line->x[1] = current_line->x[0];
                 current_line->y[1] = current_line->y[0];
 
@@ -80,8 +86,10 @@ void graphicsscene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
 
 void graphicsscene::mouseMoveEvent(QGraphicsSceneMouseEvent *mouseEvent){
     if(pressed){
-        int newx = int(mouseEvent->scenePos().x() / line_pix_per_brick + 0.5)*line_pix_per_brick;
-        int newy = int(mouseEvent->scenePos().y() / line_pix_per_brick + 0.5)*line_pix_per_brick;
+        int newx = int((mouseEvent->scenePos().x() - brick_x_start)/((double)pix_per_brick*(line_width_um + line_spacing_um)/de_spacing_um) + 0.5);
+        int newy = int((mouseEvent->scenePos().y() - brick_y_start)/((double)pix_per_brick*(line_width_um + line_spacing_um)/de_spacing_um) + 0.5);
+//        int newx = int(mouseEvent->scenePos().x() / line_pix_per_brick + 0.5)*line_pix_per_brick;
+//        int newy = int(mouseEvent->scenePos().y() / line_pix_per_brick + 0.5)*line_pix_per_brick;
         if(/*current_dir*/std::abs(newx - current_line->x[0]) < std::abs(newy - current_line->y[0])){
             current_line->x[1] = current_line->x[0];
             current_line->y[1] = newy;

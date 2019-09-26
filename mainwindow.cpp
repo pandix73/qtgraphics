@@ -44,7 +44,7 @@ double line_width_mm = 0.353;
 
 int de_spacing_um;
 int cp_spacing_um;
-int line_spacing_um = 147;
+int line_spacing_um = 400;
 int line_width_um;
 
 int line_width_pix = 10;
@@ -251,11 +251,17 @@ void MainWindow::LineBackgroundGrid(QGraphicsScene *scene){
 //    int line_brick_ynum = int(brick_ynum*de_spacing_um/line_width_um);
 //    int line_brick_xnum = (chip_length_px - 2*border_px)/line_pix_per_brick;
 //    int line_brick_ynum = (chip_width_px  - 2*border_px)/line_pix_per_brick;
-    for(int i = 0; i <= line_brick_xnum; i+=1){
-        for(int j = 0; j <= line_brick_ynum; j+=1){
-            scene->addEllipse(brick_x_start+i*line_pix_per_brick, brick_y_start+j*line_pix_per_brick, 1.0, 1.0, redpen, QBrush(Qt::SolidPattern));
+    for(int i = 0; i <= chip_length_um-2*chip_border_um; i+=line_spacing_um+line_width_um){
+        for(int j = 0; j <= chip_width_um-2*chip_border_um; j+=line_spacing_um+line_width_um){
+            scene->addEllipse(brick_x_start+pix_per_brick*i/de_spacing_um, brick_y_start+pix_per_brick*j/de_spacing_um, 1.0, 1.0, redpen, QBrush(Qt::SolidPattern));
         }
     }
+
+//    for(int i = 0; i <= line_brick_xnum; i+=1){
+//        for(int j = 0; j <= line_brick_ynum; j+=1){
+//            scene->addEllipse(brick_x_start+i*line_pix_per_brick, brick_y_start+j*line_pix_per_brick, 1.0, 1.0, redpen, QBrush(Qt::SolidPattern));
+//        }
+//    }
 }
 
 void MainWindow::ChipScaleDots(QGraphicsScene *scene){
@@ -1770,12 +1776,12 @@ void MainWindow::on_connect_btn_clicked()
                 newline->heater_line = heater_line;
                 newline->previous = nullptr;
                 newlines.push_back(newline);
-                newline->x[0] = 60 + x*5;
-                newline->y[0] = 60 + y*5;
+                newline->x[0] = x;
+                newline->y[0] = y;
                 for(int i = x+dirx, j = y+diry; i >= 0 && i < xsize && j >= 0 && j < ysize ; i += dirx, j += diry){
                     if(pathmap[i][j] != none){
-                        newline->x[1] = 60 + i*5;
-                        newline->y[1] = 60 + j*5;
+                        newline->x[1] = i;
+                        newline->y[1] = j;
                         if(pathmap[i][j]/5 == 0 || pathmap[i][j]%5 == 0){
                             newline->next = nullptr;
                             break;
@@ -1784,8 +1790,8 @@ void MainWindow::on_connect_btn_clicked()
                             newline->next->previous = newline;
                             newline = newline->next;
                             newline->heater_line = heater_line;
-                            newline->x[0] = 60 + i*5;
-                            newline->y[0] = 60 + j*5;
+                            newline->x[0] = i;
+                            newline->y[0] = j;
                             if (pathmap[i][j] == UpRight || pathmap[i][j] == DownLeft) {
                                 int temp = dirx;
                                 dirx = diry;
