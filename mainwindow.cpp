@@ -91,6 +91,7 @@ QPen outlinepen;
 //Brush setting
 QBrush nullitem(QColor(94, 94, 94, 54));
 QBrush blackbrush(Qt::black);
+QBrush graybrush(Qt::gray);
 
 //Number of units
 int num_merge = 0;
@@ -628,17 +629,12 @@ void MainWindow::mode_label(bool bChecked){
         }
         DestroyRect.clear();        
         DestroyLine.clear();
-        linepen.setColor(Qt::gray);
-        linepen.setWidth(line_width_pix);
         for(line *head : linescene->alllines){
-            if(head->heater_line)linepen.setWidth(line_width_pix*2);
             line *current_seg = head;
-            while(current_seg->next != nullptr){
-                DestroyLine << mainscene->addLine(current_seg->x[0], current_seg->y[0], current_seg->x[1], current_seg->y[1], linepen);
+            while(current_seg != nullptr){
+                DestroyRect << mainscene->addRect(current_seg->boundingRect(), nopen, graybrush);
                 current_seg = current_seg->next;
             }
-            DestroyLine << mainscene->addLine(current_seg->x[0], current_seg->y[0], current_seg->x[1], current_seg->y[1], linepen);
-            if(head->heater_line)linepen.setWidth(line_width_pix);
         }
         ui->view->setScene(mainscene);
         linemode = false;
@@ -1487,10 +1483,8 @@ void MainWindow::on_connect_btn_clicked()
             // neighbors connection
             if (i != xsize-1) {
                 if(unitmap[i][j] == unitmap[i+1][j]){
-                    if(unitmap[i][j] != INT_MAX){
-                        addEdge(from, to_d+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 1);
-                        addEdge(to_d, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 1);
-                    }
+                    addEdge(from, to_d+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 1);
+                    addEdge(to_d, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 1);
                 } else if(unitmap[i][j] >= 0 && unitmap[i+1][j] <= 0 && (unitmap[i][j] != 0 || unitmap[i+1][j] != 0)){
                     addEdge(from, to_d+unsigned(xsize*ysize), 1, 1, 1);
                 } else if(unitmap[i+1][j] >= 0 && unitmap[i][j] <= 0 && (unitmap[i][j] != 0 || unitmap[i+1][j] != 0)){
@@ -1502,10 +1496,8 @@ void MainWindow::on_connect_btn_clicked()
 
             if (j != ysize-1) {
                 if(unitmap[i][j] == unitmap[i][j+1]){
-                    if(unitmap[i][j] != INT_MAX){
-                        addEdge(from, to_r+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 2);
-                        addEdge(to_r, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 2);
-                    }
+                    addEdge(from, to_r+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 2);
+                    addEdge(to_r, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 2);
                 } else if(unitmap[i][j] >= 0 && unitmap[i][j+1] <= 0 && (unitmap[i][j] != 0 || unitmap[i][j+1] != 0)){
                     addEdge(from, to_r+unsigned(xsize*ysize), 1, 1, 2);
                 } else if(unitmap[i][j+1] >= 0 && unitmap[i][j] <= 0 && (unitmap[i][j] != 0 || unitmap[i][j+1] != 0)){
@@ -2376,14 +2368,11 @@ void MainWindow::on_preview_clicked(bool checked)
         linepen = QPen(Qt::black);
         linepen.setWidth(line_width_pix);
         for(line *head : linescene->alllines){
-            if(head->heater_line)linepen.setWidth(line_width_pix*2);
             line *current_seg = head;
-            while(current_seg->next != nullptr){
-                previewscene->addLine(current_seg->x[0], current_seg->y[0], current_seg->x[1], current_seg->y[1], linepen);
+            while(current_seg != nullptr){
+                previewscene->addRect(current_seg->boundingRect(), nopen, nullitem);
                 current_seg = current_seg->next;
-            }
-            previewscene->addLine(current_seg->x[0], current_seg->y[0], current_seg->x[1], current_seg->y[1], linepen);
-            if(head->heater_line)linepen.setWidth(line_width_pix);
+            }            
         }
 
         QGraphicsTextItem *new_text_item = previewscene->addText(text_edit);
