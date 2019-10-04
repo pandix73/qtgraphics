@@ -3,7 +3,7 @@
 # Project created by QtCreator 2018-01-15T14:56:06
 #
 #-------------------------------------------------
-QMAKE_MAC_SDK = macosx10.14
+QMAKE_MAC_SDK = macosx10.15
 QT       += core gui widgets svg xml printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets

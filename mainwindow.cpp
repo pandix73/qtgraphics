@@ -44,8 +44,9 @@ double line_width_mm = 0.353;
 
 int de_spacing_um;
 int cp_spacing_um;
-int line_spacing_um = 400;
+int line_spacing_um = 800;
 int line_width_um;
+int de_boarder_um = 2000;
 
 int line_width_pix = 10;
 int line_pix_per_brick;
@@ -104,6 +105,7 @@ int num_de = 0;
 
 //unit map
 int unitmap[500][500];
+int costmap[500][500][2];
 bool source[500][500];
 bool heatmap[500][500];
 int routmap[500][500];
@@ -1249,6 +1251,8 @@ void MainWindow::on_connect_btn_clicked()
     int xsize = line_brick_xnum;
     int ysize = line_brick_ynum;
     double shift = chip_border_mm*1000 / de_spacing_um;
+    double line_shift = double(line_width_um) / 2 / de_spacing_um;
+    double de_boarder = double(de_boarder_um) / de_spacing_um;
     double transfer = double(de_spacing_um)/(line_width_um+line_spacing_um);
     qDebug()<<transfer;
 
@@ -1276,30 +1280,52 @@ void MainWindow::on_connect_btn_clicked()
     int unit_id = 2;
     int cpad_id = -2;
     memset(unitmap, 0, sizeof(unitmap));
+    memset(costmap, 1, sizeof(costmap));
     memset(source, 0, sizeof(source));
     memset(heatmap, 0, sizeof(heatmap));
     memset(routmap, 0, sizeof(routmap));
 
-    auto addRect = [&unit_id, &cpad_id, shift, transfer](int x, int length, int y, int width, int type){
-        int startx = floor((x - shift)*transfer + 0.5);
-        int starty = floor((y - shift)*transfer + 0.5);
-        int endx = ceil((x - shift + length)*transfer - 0.5);
-        int endy = ceil((y - shift + width)*transfer - 0.5);
+    auto addRect = [&unit_id, &cpad_id, shift, line_shift, de_boarder, transfer](int x, int length, int y, int width, int type){
+        int startx = ceil((x - shift - line_shift)*transfer);
+        int starty = ceil((y - shift - line_shift)*transfer);
+        int endx = floor((x - shift + length + line_shift)*transfer);
+        int endy = floor((y - shift + width + line_shift)*transfer);
 
 
         source[(startx+endx)/2][(starty+endy)/2] = true;
         qDebug() << (startx+endx)/2 << (starty+endy)/2;
+
         if(type == -1){ // control pad
             for(int i = startx; i <= endx; i++){
                 for(int j = starty; j <= endy; j++){
                     unitmap[i][j] = cpad_id;
+                    if(i != endx)
+                        costmap[i][j][0] = 0;
+                    if(j != endy)
+                        costmap[i][j][1] = 0;
                 }
             }
             cpad_id--;
         } else if(type == 1){ // electrode
+            int bstartx = ceil((x - shift - de_boarder)*transfer);
+            int bstarty = ceil((y - shift - de_boarder)*transfer);
+            int bendx = floor((x - shift + length + de_boarder)*transfer);
+            int bendy = floor((y - shift + width + de_boarder)*transfer);
+
+            for(int i = bstartx; i < bendx; i++){
+                for(int j = bstarty; j < bendy; j++){
+                    costmap[i][j][0] += (costmap[i][j][0] == 0) ? 0 : (abs(i - (bstartx + bendx)/2) + abs(j - (bstarty + bendy)/2));
+                    costmap[i][j][1] += (costmap[i][j][1] == 0) ? 0 : (abs(i - (bstartx + bendx)/2) + abs(j - (bstarty + bendy)/2));
+                }
+            }
+
             for(int i = startx; i <= endx; i++){
                 for(int j = starty; j <= endy; j++){
                     unitmap[i][j] = (unitmap[i][j] == 0) ? unit_id : INT_MAX;
+                    if(i != endx)
+                        costmap[i][j][0] = 0;
+                    if(j != endy)
+                        costmap[i][j][1] = 0;
                 }
             }
             unit_id++;
@@ -1334,9 +1360,9 @@ void MainWindow::on_connect_btn_clicked()
             int main_startx  = (item->direction == 3) ? int(item->xi + item->length - main_length) : item->xi;
             int main_starty  = (item->direction == 0) ? int(item->yi + item->width - main_width) : item->yi;
             int child_startx = (item->direction == 1) ? int(item->xi + main_length) :
-                               (item->direction == 3) ? int(item->xi) : int(item->xi - shift + (main_length-child_length)/2);
+                               (item->direction == 3) ? int(item->xi) : int(item->xi + (main_length-child_length)/2);
             int child_starty = (item->direction == 2) ? int(item->yi + main_width) :
-                               (item->direction == 0) ? int(item->yi) : int(item->yi - shift + (main_width-child_width)/2);
+                               (item->direction == 0) ? int(item->yi) : int(item->yi + (main_width-child_width)/2);
             int tilt = (item->direction % 2 == 0) ? 90 : 0;
             qDebug() << main_length << main_width << child_length << child_width;
             qDebug() << main_startx << main_starty << child_startx << child_starty;
@@ -1442,30 +1468,6 @@ void MainWindow::on_connect_btn_clicked()
         qDebug() << debug;
     }
 
-    /*float transfer = float(de_spacing_um) / line_width_um;
-    for(int i = 0; i < xsize; i++){
-        for(int j = 0; j < ysize; j++){
-            if(abs(routmap[int(i*transfer)][int(j*transfer)]) != 1)
-                routmap[int(i*transfer)][int(j*transfer)] = unitmap[i][j];
-        }
-    }
-    memset(unitmap, 0, sizeof(unitmap));
-    for(int i = 0; i < xsize*transfer; i++){
-        for(int j = 0; j < ysize*transfer; j++){
-            unitmap[i][j] = routmap[i][j];
-        }
-    }
-    qDebug()<<"routmap:";
-    xsize *= transfer;
-    ysize *= transfer;
-    for(int i = 0; i < xsize; i++){
-        QString debug;
-        for(int j = 0; j < ysize; j++){
-            debug += QString::number(routmap[i][j]);
-        }
-        qDebug() << debug;
-    }*/
-
     // set source and target
     unsigned s = unsigned(xsize*ysize*2);
     unsigned t = unsigned(xsize*ysize*2+1);
@@ -1483,12 +1485,12 @@ void MainWindow::on_connect_btn_clicked()
             // neighbors connection
             if (i != xsize-1) {
                 if(unitmap[i][j] == unitmap[i+1][j]){
-                    addEdge(from, to_d+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 1);
-                    addEdge(to_d, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 1);
+                    addEdge(from, to_d+unsigned(xsize*ysize), costmap[i][j][0], 1, 1);
+                    addEdge(to_d, from+unsigned(xsize*ysize), costmap[i][j][0], 1, 1);
                 } else if(unitmap[i][j] >= 0 && unitmap[i+1][j] <= 0 && (unitmap[i][j] != 0 || unitmap[i+1][j] != 0)){
-                    addEdge(from, to_d+unsigned(xsize*ysize), 1, 1, 1);
+                    addEdge(from, to_d+unsigned(xsize*ysize), costmap[i][j][0], 1, 1);
                 } else if(unitmap[i+1][j] >= 0 && unitmap[i][j] <= 0 && (unitmap[i][j] != 0 || unitmap[i+1][j] != 0)){
-                    addEdge(to_d, from+unsigned(xsize*ysize), 1, 1, 1);
+                    addEdge(to_d, from+unsigned(xsize*ysize), costmap[i][j][0], 1, 1);
                 } else {
 
                 }
@@ -1496,12 +1498,12 @@ void MainWindow::on_connect_btn_clicked()
 
             if (j != ysize-1) {
                 if(unitmap[i][j] == unitmap[i][j+1]){
-                    addEdge(from, to_r+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 2);
-                    addEdge(to_r, from+unsigned(xsize*ysize), (unitmap[i][j] == 0) ? 1 : 0, 1, 2);
+                    addEdge(from, to_r+unsigned(xsize*ysize), costmap[i][j][1], 1, 2);
+                    addEdge(to_r, from+unsigned(xsize*ysize), costmap[i][j][1], 1, 2);
                 } else if(unitmap[i][j] >= 0 && unitmap[i][j+1] <= 0 && (unitmap[i][j] != 0 || unitmap[i][j+1] != 0)){
-                    addEdge(from, to_r+unsigned(xsize*ysize), 1, 1, 2);
+                    addEdge(from, to_r+unsigned(xsize*ysize), costmap[i][j][1], 1, 2);
                 } else if(unitmap[i][j+1] >= 0 && unitmap[i][j] <= 0 && (unitmap[i][j] != 0 || unitmap[i][j+1] != 0)){
-                    addEdge(to_r, from+unsigned(xsize*ysize), 1, 1, 2);
+                    addEdge(to_r, from+unsigned(xsize*ysize), costmap[i][j][1], 1, 2);
                 } else {
 
                 }
